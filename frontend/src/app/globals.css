@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f3f5f0;
+  --foreground: #20332d;
+  --surface: rgba(255, 255, 255, 0.84);
+  --surface-strong: #ffffff;
+  --stroke: rgba(32, 51, 45, 0.1);
+  --primary: #9ac9a3;
+  --secondary: #b9d6e0;
+  --safe: #73ad87;
+  --warning: #efc77a;
+  --danger: #d97a72;
+  --ink-soft: #65766f;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-stroke: var(--stroke);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-safe: var(--safe);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-ink-soft: var(--ink-soft);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-inter);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  background-image:
+    radial-gradient(circle at top left, rgba(154, 201, 163, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(185, 214, 224, 0.16), transparent 24%),
+    linear-gradient(180deg, #fafbf8 0%, #f3f5f0 55%, #eef2eb 100%);
+  font-family:
+    var(--font-inter),
+    "Segoe UI",
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(128, 195, 148, 0.3);
+}
+
+@layer components {
+  .surface-card {
+    @apply relative overflow-hidden rounded-[28px] border border-stroke bg-surface shadow-[0_18px_50px_rgba(35,58,50,0.06)] backdrop-blur-sm;
+  }
+
+  .surface-card-strong {
+    @apply relative overflow-hidden rounded-[28px] border border-stroke bg-surface-strong shadow-[0_20px_56px_rgba(35,58,50,0.08)];
+  }
+
+  .soft-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.22em] text-ink-soft;
+  }
+
+  .button-primary {
+    @apply inline-flex items-center justify-center rounded-[18px] bg-foreground px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5;
+  }
+
+  .button-secondary {
+    @apply inline-flex items-center justify-center rounded-[18px] border border-stroke bg-white/80 px-5 py-3 text-sm font-semibold text-foreground transition hover:border-foreground/20 hover:bg-white;
+  }
+
+  .page-hero {
+    @apply relative overflow-hidden rounded-[28px] border border-stroke bg-surface-strong p-6 shadow-[0_20px_56px_rgba(35,58,50,0.08)] lg:p-8;
+    background-image:
+      radial-gradient(circle at top right, rgba(185, 214, 224, 0.18), transparent 24%),
+      radial-gradient(circle at bottom left, rgba(154, 201, 163, 0.16), transparent 28%),
+      linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.92));
+  }
+
+  .panel-hover {
+    @apply transition duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(35,58,50,0.1)];
+  }
+
+  .nav-link {
+    @apply relative overflow-hidden rounded-[20px] border px-4 py-3.5 text-sm font-medium transition duration-300 ease-out;
+  }
+
+  .nav-link::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.16), transparent 55%);
+    opacity: 0;
+    transition: opacity 220ms ease;
+    pointer-events: none;
+  }
+
+  .nav-link:hover::before,
+  .nav-link[data-active="true"]::before {
+    opacity: 1;
+  }
+
+  .stagger-in {
+    animation: rise-in 420ms ease-out both;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

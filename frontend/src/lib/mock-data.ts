@@ -1,0 +1,344 @@
+export type MoodPoint = {
+  date: string;
+  score: number;
+  note?: string;
+};
+
+export type AlertStatus = "Baru" | "Ditinjau" | "Ditindaklanjuti" | "Selesai";
+
+export type AlertItem = {
+  id: string;
+  student: string;
+  className: string;
+  reason: string;
+  severity: "Tinggi" | "Sedang";
+  status: AlertStatus;
+  lastUpdated: string;
+};
+
+export type WhisperReport = {
+  id: string;
+  title: string;
+  category: string;
+  urgency: "Tinggi" | "Normal";
+  status?: "Sedang Ditinjau" | "Selesai";
+  submittedAt: string;
+  excerpt: string;
+  detail: string;
+  nextStep: string;
+};
+
+export type ResourceItem = {
+  id: string;
+  category: string;
+  title: string;
+  readTime: string;
+  summary: string;
+  points: string[];
+};
+
+export type CounselingSession = {
+  id: string;
+  title: string;
+  counselor: string;
+  when: string;
+  format: "Tatap muka" | "Online";
+  location: string;
+  status: "Terdekat" | "Terjadwal" | "Selesai";
+  focus: string;
+  note: string;
+};
+
+export const studentProfile = {
+  name: "Raka Pratama",
+  className: "XI IPA 2",
+  streak: 11,
+  completionRate: "82%",
+  todayDate: "15 April 2026",
+};
+
+export const studentMoodOptions = [
+  { score: 5, emoji: "😁", label: "Sangat Baik", tone: "bg-safe/15 text-safe" },
+  { score: 4, emoji: "🙂", label: "Baik", tone: "bg-primary/20 text-foreground" },
+  { score: 3, emoji: "😐", label: "Biasa", tone: "bg-secondary/20 text-foreground" },
+  { score: 2, emoji: "😟", label: "Lagi Berat", tone: "bg-warning/20 text-foreground" },
+  { score: 1, emoji: "😣", label: "Butuh Bantuan", tone: "bg-danger/18 text-danger" },
+];
+
+export const studentMoodHistory: MoodPoint[] = [
+  { date: "02 Apr", score: 4, note: "Lebih tenang setelah tugas selesai." },
+  { date: "03 Apr", score: 4 },
+  { date: "04 Apr", score: 3, note: "Mulai capek." },
+  { date: "05 Apr", score: 2, note: "Banyak tekanan kelompok." },
+  { date: "06 Apr", score: 2 },
+  { date: "07 Apr", score: 2, note: "Susah tidur." },
+  { date: "08 Apr", score: 3 },
+  { date: "09 Apr", score: 4 },
+  { date: "10 Apr", score: 3 },
+  { date: "11 Apr", score: 4 },
+  { date: "12 Apr", score: 5, note: "Libur membantu reset." },
+  { date: "13 Apr", score: 4 },
+  { date: "14 Apr", score: 3 },
+  { date: "15 Apr", score: 2, note: "Tegang menjelang presentasi." },
+];
+
+export const counselorOverview = {
+  monitoredStudents: 214,
+  activeAlerts: 12,
+  reviewedToday: 7,
+  anonymousReports: 5,
+};
+
+export const counselorStudents = [
+  {
+    id: "raka-pratama",
+    name: "Raka Pratama",
+    className: "XI IPA 2",
+    trend: "Turun 3 hari",
+    latestMood: 2,
+    risk: "Tinggi",
+  },
+  {
+    id: "nabila-rahma",
+    name: "Nabila Rahma",
+    className: "X IPS 1",
+    trend: "Stabil rendah",
+    latestMood: 2,
+    risk: "Sedang",
+  },
+  {
+    id: "rafael-adi",
+    name: "Rafael Adi",
+    className: "XI IPA 1",
+    trend: "Naik setelah intervensi",
+    latestMood: 4,
+    risk: "Aman",
+  },
+];
+
+export const alerts: AlertItem[] = [
+  {
+    id: "ALT-021",
+    student: "Raka Pratama",
+    className: "XI IPA 2",
+    reason: "Mood 2 selama 3 hari berturut-turut",
+    severity: "Tinggi",
+    status: "Baru",
+    lastUpdated: "15 Apr 2026, 07.12",
+  },
+  {
+    id: "ALT-019",
+    student: "Nabila Rahma",
+    className: "X IPS 1",
+    reason: "Tren menurun selama 5 hari",
+    severity: "Sedang",
+    status: "Ditinjau",
+    lastUpdated: "15 Apr 2026, 06.40",
+  },
+  {
+    id: "ALT-017",
+    student: "Dimas Alfarizi",
+    className: "XII IPA 3",
+    reason: "Catatan mengindikasikan konflik sosial",
+    severity: "Tinggi",
+    status: "Ditindaklanjuti",
+    lastUpdated: "14 Apr 2026, 15.20",
+  },
+];
+
+export const whisperReports: WhisperReport[] = [
+  {
+    id: "WSP-091",
+    title: "Bullying verbal saat jam istirahat",
+    category: "Bullying",
+    urgency: "Tinggi",
+    status: "Sedang Ditinjau",
+    submittedAt: "15 Apr 2026, 08.10",
+    excerpt: "Ada teman sekelas yang sering mengejek soal kondisi rumah dan dilakukan di depan banyak orang.",
+    detail:
+      "Ejekan terjadi saat istirahat dan biasanya dilakukan di depan beberapa teman lain. Saya mulai menghindari area kantin karena takut kejadian serupa terulang.",
+    nextStep: "Guru BK sedang meninjau laporan dan menentukan langkah aman berikutnya.",
+  },
+  {
+    id: "WSP-088",
+    title: "Tekanan kelompok tugas",
+    category: "Tekanan sosial",
+    urgency: "Normal",
+    status: "Sedang Ditinjau",
+    submittedAt: "14 Apr 2026, 19.32",
+    excerpt: "Saya merasa dijadikan cadangan terus saat kerja kelompok dan mulai malas masuk kelas itu.",
+    detail:
+      "Situasi ini membuat saya tidak nyaman saat pembagian kelompok dimulai. Saya belum ingin menyebut nama, tapi saya ingin ada cara supaya pembagian tugas terasa lebih adil.",
+    nextStep: "Laporan masih dipelajari untuk melihat pola yang berulang sebelum ditindaklanjuti.",
+  },
+  {
+    id: "WSP-083",
+    title: "Sulit bicara ke wali kelas",
+    category: "Relasi sekolah",
+    urgency: "Normal",
+    status: "Selesai",
+    submittedAt: "13 Apr 2026, 12.05",
+    excerpt: "Takut cerita langsung karena khawatir dianggap mencari perhatian.",
+    detail:
+      "Saya bingung mulai dari mana kalau harus bicara langsung. Setelah dibantu BK, saya akhirnya bisa menyampaikan inti masalah secara bertahap.",
+    nextStep: "Kasus sudah ditutup setelah sesi pendampingan awal selesai.",
+  },
+];
+
+export const studentInterventions = [
+  {
+    title: "Check-in singkat",
+    owner: "Bu Sinta",
+    status: "Dijadwalkan",
+    when: "15 Apr 2026, 10.30",
+  },
+  {
+    title: "Observasi kelas",
+    owner: "Wali kelas XI IPA 2",
+    status: "Menunggu",
+    when: "16 Apr 2026",
+  },
+];
+
+export const resources: ResourceItem[] = [
+  {
+    id: "presentasi-tanpa-panik",
+    category: "Tekanan Akademik",
+    title: "3 cara meredakan panik sebelum presentasi",
+    readTime: "4 menit",
+    summary: "Langkah cepat untuk menurunkan tegang beberapa menit sebelum tampil.",
+    points: [
+      "Atur napas 4 hitungan masuk, 6 hitungan keluar selama satu menit.",
+      "Pilih satu kalimat pembuka sederhana supaya pikiran tidak kosong.",
+      "Fokus pada satu wajah yang aman dilihat saat mulai berbicara.",
+    ],
+  },
+  {
+    id: "tidur-lebih-stabil",
+    category: "Perawatan Diri",
+    title: "Rutinitas malam 10 menit supaya tidur lebih stabil",
+    readTime: "6 menit",
+    summary: "Rutinitas singkat untuk menenangkan tubuh sebelum tidur.",
+    points: [
+      "Jauhkan layar 10 menit sebelum tidur.",
+      "Redupkan cahaya dan pilih satu aktivitas yang sama setiap malam.",
+      "Tulis satu pikiran yang mengganggu agar tidak ikut dibawa ke tempat tidur.",
+    ],
+  },
+  {
+    id: "menyampaikan-batasan",
+    category: "Relasi Sosial",
+    title: "Cara menyampaikan batasan tanpa memicu konflik",
+    readTime: "5 menit",
+    summary: "Kalimat yang tegas tapi tetap tenang saat kamu ingin menjaga batas.",
+    points: [
+      "Mulai dari kebutuhanmu, bukan menyalahkan orang lain.",
+      "Gunakan kalimat pendek dan tidak berputar-putar.",
+      "Ulangi inti batasmu jika lawan bicara mencoba menggeser topik.",
+    ],
+  },
+  {
+    id: "pikiran-terasa-penuh",
+    category: "Manajemen Emosi",
+    title: "Apa yang bisa dilakukan saat pikiran terasa penuh",
+    readTime: "5 menit",
+    summary: "Cara cepat merapikan pikiran saat terasa terlalu ramai.",
+    points: [
+      "Pisahkan apa yang bisa diselesaikan hari ini dan yang belum perlu dipikirkan.",
+      "Pilih satu hal kecil yang bisa kamu bereskan dalam 10 menit.",
+      "Berhenti sejenak dari notifikasi agar pikiran tidak terus tertarik ke banyak arah.",
+    ],
+  },
+  {
+    id: "teknik-25-menit",
+    category: "Fokus Belajar",
+    title: "Teknik 25 menit untuk mulai belajar tanpa berat",
+    readTime: "4 menit",
+    summary: "Mulai belajar dari blok waktu pendek agar tidak terasa menumpuk.",
+    points: [
+      "Tentukan satu target kecil yang realistis untuk 25 menit pertama.",
+      "Simpan ponsel di luar jangkauan selama timer berjalan.",
+      "Ambil jeda 5 menit sebelum pindah ke blok berikutnya.",
+    ],
+  },
+  {
+    id: "reset-7-menit",
+    category: "Pemulihan Cepat",
+    title: "Reset 7 menit setelah hari sekolah yang melelahkan",
+    readTime: "3 menit",
+    summary: "Reset singkat agar tubuh dan kepala tidak terus tegang sampai malam.",
+    points: [
+      "Ganti posisi tubuh dan lakukan peregangan ringan.",
+      "Minum air dan duduk tanpa layar selama beberapa menit.",
+      "Tentukan satu hal yang tidak perlu kamu bawa sampai malam.",
+    ],
+  },
+];
+
+export const counselingSessions: CounselingSession[] = [
+  {
+    id: "CS-201",
+    title: "Check-in mingguan",
+    counselor: "Bu Sinta",
+    when: "17 Apr 2026, 10.30",
+    format: "Tatap muka",
+    location: "Ruang BK 2",
+    status: "Terdekat",
+    focus: "Tekanan tugas dan pola tidur",
+    note: "Datang 5 menit lebih awal dan bawa catatan jika ada hal yang ingin dibahas.",
+  },
+  {
+    id: "CS-196",
+    title: "Sesi tindak lanjut",
+    counselor: "Bu Sinta",
+    when: "22 Apr 2026, 13.00",
+    format: "Online",
+    location: "Google Meet sekolah",
+    status: "Terjadwal",
+    focus: "Evaluasi progress setelah sesi pertama",
+    note: "Link meeting akan dibagikan lewat wali kelas sebelum sesi dimulai.",
+  },
+  {
+    id: "CS-184",
+    title: "Sesi awal",
+    counselor: "Bu Sinta",
+    when: "10 Apr 2026, 09.00",
+    format: "Tatap muka",
+    location: "Ruang BK 2",
+    status: "Selesai",
+    focus: "Mengenali sumber tekanan utama",
+    note: "Sesi selesai dengan rencana check-in lanjutan minggu berikutnya.",
+  },
+];
+
+export const adminMetrics = {
+  totalUsers: 684,
+  activeStudents: 602,
+  counselors: 6,
+  classes: 18,
+};
+
+export const adminThresholds = [
+  {
+    label: "Alert otomatis",
+    description: "Mood <= 2 selama 3 hari berturut-turut",
+    status: "Aktif",
+  },
+  {
+    label: "Escalation review",
+    description: "Whisper urgency tinggi harus ditinjau <= 24 jam",
+    status: "Aktif",
+  },
+  {
+    label: "Daily reminder",
+    description: "Nonaktif di MVP untuk hindari noise awal",
+    status: "Tertunda",
+  },
+];
+
+export const classHealth = [
+  { className: "XI IPA 2", completion: "86%", riskBand: "Perlu perhatian" },
+  { className: "X IPS 1", completion: "79%", riskBand: "Monitor" },
+  { className: "XI IPA 1", completion: "91%", riskBand: "Stabil" },
+  { className: "XII IPA 3", completion: "74%", riskBand: "Perlu perhatian" },
+];

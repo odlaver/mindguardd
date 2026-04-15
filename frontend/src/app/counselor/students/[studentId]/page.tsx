@@ -1,12 +1,15 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { MoodTrack } from "@/components/counselor/mood-track";
 import { MetricCard } from "@/components/ui/metric-card";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
+  alerts,
   counselorStudents,
   studentInterventions,
-  studentMoodHistory,
+  whisperReports,
 } from "@/lib/mock-data";
 
 type StudentDetailPageProps = {
@@ -25,73 +28,75 @@ export default async function StudentDetailPage({
     notFound();
   }
 
+  const linkedAlerts = alerts.filter((item) => item.studentId === student.id);
+  const linkedReports = whisperReports.filter((item) => item.studentId === student.id);
+  const interventions = studentInterventions.filter(
+    (item) => item.studentId === student.id,
+  );
+  const riskDays = student.moodHistory.filter((item) => item.score <= 2).length;
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="soft-label">Student Mood Detail</p>
+          <p className="soft-label">Detail Mood Siswa</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
             {student.name}
           </h1>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <StatusBadge tone="monitor">{student.className}</StatusBadge>
-          <StatusBadge tone="danger">{student.risk}</StatusBadge>
-          <StatusBadge>{student.trend}</StatusBadge>
+          <StatusBadge
+            tone={
+              student.risk === "Tinggi"
+                ? "danger"
+                : student.risk === "Sedang"
+                  ? "warning"
+                  : "aman"
+            }
+          >
+            {student.risk}
+          </StatusBadge>
+          <Link href="/counselor/students" className="button-secondary">
+            Kembali ke Data Siswa
+          </Link>
         </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          label="Mood terakhir"
-          value={`${student.latestMood}/5`}
-        />
-        <MetricCard
-          label="Hari risiko"
-          value="3"
-        />
-        <MetricCard
-          label="Whisper terkait"
-          value="1"
-        />
-        <MetricCard
-          label="Intervensi aktif"
-          value={studentInterventions.length}
-        />
+        <MetricCard label="Mood terakhir" value={`${student.latestMood}/5`} />
+        <MetricCard label="Hari risiko" value={riskDays} />
+        <MetricCard label="Alert terkait" value={linkedAlerts.length} />
+        <MetricCard label="Tindak lanjut" value={interventions.length} />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
-        <SectionCard title="Histori mood 14 hari">
-          <div className="grid gap-3">
-            {studentMoodHistory.map((point) => (
-              <div
-                key={point.date}
-                className="panel-hover grid gap-3 rounded-[24px] bg-white p-4 md:grid-cols-[0.4fr_0.2fr_1fr]"
-              >
-                <div>
-                  <p className="text-sm font-semibold">{point.date}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.14em] text-ink-soft">
-                    mood entry
-                  </p>
-                </div>
-                <div className="text-3xl font-semibold">{point.score}</div>
-                <p className="text-sm leading-6 text-ink-soft">
-                  {point.note ?? "Tidak ada catatan tambahan."}
-                </p>
-              </div>
-            ))}
+      <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+        <SectionCard title="Ringkasan siswa">
+          <p className="text-base leading-8 text-ink-soft">{student.focus}</p>
+
+          <div className="mt-6">
+            <MoodTrack history={student.moodHistory} />
           </div>
         </SectionCard>
 
         <div className="grid gap-4">
           <SectionCard title="Tindak lanjut">
             <div className="grid gap-3">
-              {studentInterventions.map((item) => (
-                <article key={item.title} className="panel-hover rounded-[24px] bg-white p-4">
+              {interventions.map((item) => (
+                <article
+                  key={`${item.studentId}-${item.title}`}
+                  className="panel-hover rounded-[24px] bg-white p-4"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <h2 className="text-lg font-semibold">{item.title}</h2>
                     <StatusBadge
-                      tone={item.status === "Dijadwalkan" ? "warning" : "monitor"}
+                      tone={
+                        item.status === "Dijadwalkan"
+                          ? "warning"
+                          : item.status === "Selesai"
+                            ? "aman"
+                            : "monitor"
+                      }
                     >
                       {item.status}
                     </StatusBadge>
@@ -107,11 +112,42 @@ export default async function StudentDetailPage({
             </div>
           </SectionCard>
 
-          <SectionCard title="Catatan">
-            <div className="flex flex-wrap gap-2">
-              <StatusBadge tone="danger">Tren menurun</StatusBadge>
-              <StatusBadge tone="warning">Tekanan sosial</StatusBadge>
-              <StatusBadge tone="monitor">1 whisper terkait</StatusBadge>
+          <SectionCard title="Terkait">
+            <div className="grid gap-3">
+              {linkedAlerts.map((alert) => (
+                <Link
+                  key={alert.id}
+                  href={`/counselor/alerts/${alert.id}`}
+                  className="panel-hover rounded-[22px] border border-stroke bg-white p-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold">{alert.id}</p>
+                    <StatusBadge tone={alert.severity === "Tinggi" ? "danger" : "warning"}>
+                      {alert.severity}
+                    </StatusBadge>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-ink-soft">
+                    {alert.reason}
+                  </p>
+                </Link>
+              ))}
+              {linkedReports.map((report) => (
+                <Link
+                  key={report.id}
+                  href={`/counselor/whispers/${report.id}`}
+                  className="panel-hover rounded-[22px] border border-stroke bg-white p-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold">{report.id}</p>
+                    <StatusBadge tone={report.status === "Selesai" ? "aman" : "warning"}>
+                      {report.status}
+                    </StatusBadge>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-ink-soft">
+                    {report.title}
+                  </p>
+                </Link>
+              ))}
             </div>
           </SectionCard>
         </div>

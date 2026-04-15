@@ -11,7 +11,7 @@ export default function CounselorLayout({
       accentClass="bg-secondary/22 text-foreground"
       navItems={counselorNav}
       roleLabel="Guru BK"
-      title="Monitoring BK"
+      title="Dashboard BK"
     >
       {children}
     </AppShell>

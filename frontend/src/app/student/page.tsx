@@ -38,7 +38,6 @@ export default function StudentPage() {
     studentMoodHistory.reduce((sum, point) => sum + point.score, 0) /
     studentMoodHistory.length
   ).toFixed(1);
-  const nearestSession = counselingSessions[0];
 
   if (hasCheckedInToday === null) {
     return <div className="min-h-screen" />;
@@ -157,8 +156,8 @@ export default function StudentPage() {
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <SectionCard title="Lanjutkan" className="p-5 sm:p-6">
+      <section className="grid gap-6 xl:grid-cols-[1.28fr_0.72fr]">
+        <SectionCard title="Overview" className="p-5 sm:p-6">
           <div className="grid gap-3 md:grid-cols-2">
             <Link
               href="/student/history"
@@ -171,7 +170,7 @@ export default function StudentPage() {
                 Lihat perubahan
               </p>
               <p className="mt-3 text-sm leading-7 text-ink-soft transition group-hover:text-white/74">
-                Rata-rata 14 hari terakhir {averageScore}/5
+                Rata-rata statistik mood 14 hari terakhir adalah {averageScore}/5
               </p>
               <div className="mt-6 flex items-center justify-between">
                 <span className="rounded-full bg-[#f4f7f3] px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
@@ -234,17 +233,17 @@ export default function StudentPage() {
               className="group panel-hover rounded-[28px] border border-stroke bg-white px-5 py-5 text-foreground hover:border-foreground/16 hover:bg-foreground hover:text-white"
             >
               <p className="soft-label transition group-hover:text-white/72">
-                Jadwal Konseling
+                Konseling
               </p>
               <p className="mt-4 text-2xl font-semibold tracking-[-0.04em] transition group-hover:text-white">
-                Lihat sesi
+                Atur kebutuhan
               </p>
               <p className="mt-3 text-sm leading-7 text-ink-soft transition group-hover:text-white/74">
-                Cek jadwal terdekat dan detail pertemuan
+                Lihat jadwal aktif atau ajukan sesi baru dengan BK
               </p>
               <div className="mt-6 flex items-center justify-between">
                 <span className="rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
-                  {counselingSessions.length} sesi
+                  {counselingSessions.length} sesi aktif
                 </span>
                 <span className="text-lg transition group-hover:translate-x-1">
                   {"->"}
@@ -252,49 +251,26 @@ export default function StudentPage() {
               </div>
             </Link>
           </div>
-
-          <div className="mt-4 grid gap-3 rounded-[28px] border border-dashed border-stroke bg-[#f7f8f4] p-4 sm:grid-cols-4">
-            <div className="rounded-[22px] bg-white px-4 py-4">
-              <p className="soft-label">Mood terakhir</p>
-              <p className="mt-3 text-xl font-semibold">{latestMood.note}</p>
-            </div>
-            <div className="rounded-[22px] bg-white px-4 py-4">
-              <p className="soft-label">Streak</p>
-              <p className="mt-3 text-xl font-semibold">
-                {studentProfile.streak} hari check-in
-              </p>
-            </div>
-            <div className="rounded-[22px] bg-white px-4 py-4">
-              <p className="soft-label">Ruang bantu</p>
-              <p className="mt-3 text-xl font-semibold">
-                Materi & laporan siap dipakai
-              </p>
-            </div>
-            <div className="rounded-[22px] bg-white px-4 py-4">
-              <p className="soft-label">Sesi terdekat</p>
-              <p className="mt-3 text-xl font-semibold">{nearestSession.when}</p>
-            </div>
-          </div>
         </SectionCard>
 
-        <SectionCard title="Beberapa hari terakhir" className="p-4 sm:p-5">
+        <SectionCard title="Riwayat Mood" className="p-4 sm:p-[18px]">
           <div className="grid gap-3">
             {recentDays.map((point) => (
               <div
                 key={point.date}
-                className="panel-hover flex items-center justify-between rounded-[20px] bg-white px-4 py-3.5"
+                className="panel-hover flex items-center justify-between rounded-[18px] bg-white px-3.5 py-3"
               >
                 <div>
                   <p className="text-xs font-medium text-ink-soft">{point.date}</p>
-                  <p className="mt-1 text-base font-semibold">
+                  <p className="mt-1 text-[0.95rem] font-semibold">
                     {getMoodPreview(point.score).note}
                   </p>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <span className="text-[1.7rem]">
+                  <span className="text-[1.55rem]">
                     {getMoodPreview(point.score).emoji}
                   </span>
-                  <span className="text-base font-semibold">{point.score}/5</span>
+                  <span className="text-[0.95rem] font-semibold">{point.score}/5</span>
                 </div>
               </div>
             ))}

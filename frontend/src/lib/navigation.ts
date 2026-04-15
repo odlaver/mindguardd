@@ -5,14 +5,14 @@ export const studentNav: NavItem[] = [
   { href: "/student/history", label: "Riwayat Mood" },
   { href: "/student/whisper", label: "Kirim Laporan" },
   { href: "/student/resources", label: "Materi Edukasi" },
-  { href: "/student/counseling", label: "Jadwal Konseling" },
+  { href: "/student/counseling", label: "Konseling" },
 ];
 
 export const counselorNav: NavItem[] = [
-  { href: "/counselor", label: "Monitoring" },
-  { href: "/counselor/alerts", label: "Alert Center" },
-  { href: "/counselor/students/raka-pratama", label: "Student Detail" },
-  { href: "/counselor/whispers", label: "Whisper Reports" },
+  { href: "/counselor", label: "Dashboard Mood" },
+  { href: "/counselor/students", label: "Data Siswa" },
+  { href: "/counselor/alerts", label: "Alert Risiko" },
+  { href: "/counselor/whispers", label: "Laporan Siswa" },
 ];
 
 export const adminNav: NavItem[] = [

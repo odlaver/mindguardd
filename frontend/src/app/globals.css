@@ -85,10 +85,12 @@ a {
 
   .button-primary {
     @apply inline-flex items-center justify-center rounded-[18px] bg-foreground px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5;
+    -webkit-text-fill-color: currentColor;
   }
 
   .button-secondary {
     @apply inline-flex items-center justify-center rounded-[18px] border border-stroke bg-white/80 px-5 py-3 text-sm font-semibold text-foreground transition hover:border-foreground/20 hover:bg-white;
+    -webkit-text-fill-color: currentColor;
   }
 
   .page-hero {

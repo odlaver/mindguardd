@@ -8,16 +8,21 @@ export type AlertStatus = "Baru" | "Ditinjau" | "Ditindaklanjuti" | "Selesai";
 
 export type AlertItem = {
   id: string;
+  studentId: string;
   student: string;
   className: string;
   reason: string;
   severity: "Tinggi" | "Sedang";
   status: AlertStatus;
   lastUpdated: string;
+  summary: string;
+  recommendation: string;
 };
 
 export type WhisperReport = {
   id: string;
+  studentId?: string;
+  ownerLabel: string;
   title: string;
   category: string;
   urgency: "Tinggi" | "Normal";
@@ -26,6 +31,7 @@ export type WhisperReport = {
   excerpt: string;
   detail: string;
   nextStep: string;
+  assignedTo: string;
 };
 
 export type ResourceItem = {
@@ -47,6 +53,25 @@ export type CounselingSession = {
   status: "Terdekat" | "Terjadwal" | "Selesai";
   focus: string;
   note: string;
+};
+
+export type CounselorStudent = {
+  id: string;
+  name: string;
+  className: string;
+  trend: string;
+  latestMood: number;
+  risk: "Tinggi" | "Sedang" | "Aman";
+  focus: string;
+  moodHistory: MoodPoint[];
+};
+
+export type StudentIntervention = {
+  studentId: string;
+  title: string;
+  owner: string;
+  status: "Dijadwalkan" | "Menunggu" | "Selesai";
+  when: string;
 };
 
 export const studentProfile = {
@@ -89,7 +114,7 @@ export const counselorOverview = {
   anonymousReports: 5,
 };
 
-export const counselorStudents = [
+export const counselorStudents: CounselorStudent[] = [
   {
     id: "raka-pratama",
     name: "Raka Pratama",
@@ -97,6 +122,8 @@ export const counselorStudents = [
     trend: "Turun 3 hari",
     latestMood: 2,
     risk: "Tinggi",
+    focus: "Tekanan tugas dan pola tidur belum stabil.",
+    moodHistory: studentMoodHistory,
   },
   {
     id: "nabila-rahma",
@@ -105,6 +132,23 @@ export const counselorStudents = [
     trend: "Stabil rendah",
     latestMood: 2,
     risk: "Sedang",
+    focus: "Perlu cek relasi sosial di kelas dan rasa aman saat belajar.",
+    moodHistory: [
+      { date: "02 Apr", score: 3, note: "Masih lelah setelah tugas praktik." },
+      { date: "03 Apr", score: 3 },
+      { date: "04 Apr", score: 2, note: "Mulai menghindari kerja kelompok." },
+      { date: "05 Apr", score: 2 },
+      { date: "06 Apr", score: 2, note: "Merasa tidak dianggap saat diskusi." },
+      { date: "07 Apr", score: 3 },
+      { date: "08 Apr", score: 3 },
+      { date: "09 Apr", score: 2, note: "Cemas masuk kelas tertentu." },
+      { date: "10 Apr", score: 2 },
+      { date: "11 Apr", score: 3 },
+      { date: "12 Apr", score: 3 },
+      { date: "13 Apr", score: 2, note: "Lebih banyak diam." },
+      { date: "14 Apr", score: 2 },
+      { date: "15 Apr", score: 2, note: "Butuh teman bicara yang aman." },
+    ],
   },
   {
     id: "rafael-adi",
@@ -113,42 +157,70 @@ export const counselorStudents = [
     trend: "Naik setelah intervensi",
     latestMood: 4,
     risk: "Aman",
+    focus: "Respon baik setelah sesi awal dan ritme belajar membaik.",
+    moodHistory: [
+      { date: "02 Apr", score: 2, note: "Masih terbebani target ujian." },
+      { date: "03 Apr", score: 2 },
+      { date: "04 Apr", score: 3, note: "Mulai lebih teratur." },
+      { date: "05 Apr", score: 3 },
+      { date: "06 Apr", score: 3 },
+      { date: "07 Apr", score: 4, note: "Sudah bisa membagi waktu." },
+      { date: "08 Apr", score: 4 },
+      { date: "09 Apr", score: 4 },
+      { date: "10 Apr", score: 3 },
+      { date: "11 Apr", score: 4 },
+      { date: "12 Apr", score: 4 },
+      { date: "13 Apr", score: 4, note: "Merasa lebih ringan." },
+      { date: "14 Apr", score: 4 },
+      { date: "15 Apr", score: 4, note: "Konsisten lebih stabil." },
+    ],
   },
 ];
 
 export const alerts: AlertItem[] = [
   {
     id: "ALT-021",
+    studentId: "raka-pratama",
     student: "Raka Pratama",
     className: "XI IPA 2",
     reason: "Mood 2 selama 3 hari berturut-turut",
     severity: "Tinggi",
     status: "Baru",
     lastUpdated: "15 Apr 2026, 07.12",
+    summary: "Penurunan mood konsisten muncul bersama catatan tugas yang menumpuk dan tidur yang terganggu.",
+    recommendation: "Lakukan check-in singkat hari ini lalu jadwalkan sesi lanjutan minggu ini.",
   },
   {
     id: "ALT-019",
+    studentId: "nabila-rahma",
     student: "Nabila Rahma",
     className: "X IPS 1",
     reason: "Tren menurun selama 5 hari",
     severity: "Sedang",
     status: "Ditinjau",
     lastUpdated: "15 Apr 2026, 06.40",
+    summary: "Mood stabil di level rendah dan beberapa catatan mengarah ke tekanan sosial dalam kelompok kelas.",
+    recommendation: "Validasi situasi kelas dan cek kebutuhan dukungan sosial yang aman.",
   },
   {
     id: "ALT-017",
-    student: "Dimas Alfarizi",
-    className: "XII IPA 3",
+    studentId: "rafael-adi",
+    student: "Rafael Adi",
+    className: "XI IPA 1",
     reason: "Catatan mengindikasikan konflik sosial",
     severity: "Tinggi",
     status: "Ditindaklanjuti",
     lastUpdated: "14 Apr 2026, 15.20",
+    summary: "Catatan harian menunjukkan konflik berulang dengan teman sebaya dan penurunan energi saat di sekolah.",
+    recommendation: "Pantau dua hari lagi sambil koordinasi dengan wali kelas untuk observasi terbatas.",
   },
 ];
 
 export const whisperReports: WhisperReport[] = [
   {
     id: "WSP-091",
+    studentId: "raka-pratama",
+    ownerLabel: "Anonim XI IPA 2",
     title: "Bullying verbal saat jam istirahat",
     category: "Bullying",
     urgency: "Tinggi",
@@ -158,9 +230,12 @@ export const whisperReports: WhisperReport[] = [
     detail:
       "Ejekan terjadi saat istirahat dan biasanya dilakukan di depan beberapa teman lain. Saya mulai menghindari area kantin karena takut kejadian serupa terulang.",
     nextStep: "Guru BK sedang meninjau laporan dan menentukan langkah aman berikutnya.",
+    assignedTo: "Bu Sinta",
   },
   {
     id: "WSP-088",
+    studentId: "nabila-rahma",
+    ownerLabel: "Anonim X IPS 1",
     title: "Tekanan kelompok tugas",
     category: "Tekanan sosial",
     urgency: "Normal",
@@ -170,9 +245,12 @@ export const whisperReports: WhisperReport[] = [
     detail:
       "Situasi ini membuat saya tidak nyaman saat pembagian kelompok dimulai. Saya belum ingin menyebut nama, tapi saya ingin ada cara supaya pembagian tugas terasa lebih adil.",
     nextStep: "Laporan masih dipelajari untuk melihat pola yang berulang sebelum ditindaklanjuti.",
+    assignedTo: "Bu Sinta",
   },
   {
     id: "WSP-083",
+    studentId: "rafael-adi",
+    ownerLabel: "Anonim XI IPA 1",
     title: "Sulit bicara ke wali kelas",
     category: "Relasi sekolah",
     urgency: "Normal",
@@ -182,21 +260,38 @@ export const whisperReports: WhisperReport[] = [
     detail:
       "Saya bingung mulai dari mana kalau harus bicara langsung. Setelah dibantu BK, saya akhirnya bisa menyampaikan inti masalah secara bertahap.",
     nextStep: "Kasus sudah ditutup setelah sesi pendampingan awal selesai.",
+    assignedTo: "Bu Sinta",
   },
 ];
 
-export const studentInterventions = [
+export const studentInterventions: StudentIntervention[] = [
   {
+    studentId: "raka-pratama",
     title: "Check-in singkat",
     owner: "Bu Sinta",
     status: "Dijadwalkan",
     when: "15 Apr 2026, 10.30",
   },
   {
+    studentId: "raka-pratama",
     title: "Observasi kelas",
     owner: "Wali kelas XI IPA 2",
     status: "Menunggu",
     when: "16 Apr 2026",
+  },
+  {
+    studentId: "nabila-rahma",
+    title: "Pendampingan relasi kelompok",
+    owner: "Bu Sinta",
+    status: "Menunggu",
+    when: "17 Apr 2026",
+  },
+  {
+    studentId: "rafael-adi",
+    title: "Sesi evaluasi",
+    owner: "Bu Sinta",
+    status: "Selesai",
+    when: "11 Apr 2026",
   },
 ];
 

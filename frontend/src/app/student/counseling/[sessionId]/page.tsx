@@ -42,7 +42,7 @@ export default async function CounselingDetailPage({
             {session.title}
           </h1>
         </div>
-        <Link href="/student/counseling" className="button-secondary">
+        <Link href="/student/counseling/schedule" className="button-secondary">
           Kembali
         </Link>
       </section>

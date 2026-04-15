@@ -4,12 +4,24 @@ import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { whisperReports } from "@/lib/mock-data";
 
+function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
+  if (status === "Baru") {
+    return "danger";
+  }
+
+  if (status === "Sedang Ditinjau") {
+    return "warning";
+  }
+
+  return "aman";
+}
+
 export default function CounselorWhispersPage() {
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="soft-label">Laporan Siswa</p>
+          <p className="soft-label">Menindaklanjuti Siswa</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
             Klik laporan untuk meninjau isi dan update status.
           </h1>
@@ -32,7 +44,7 @@ export default function CounselorWhispersPage() {
                 <StatusBadge tone={report.urgency === "Tinggi" ? "danger" : "warning"}>
                   {report.urgency}
                 </StatusBadge>
-                <StatusBadge tone={report.status === "Selesai" ? "aman" : "warning"}>
+                <StatusBadge tone={getReviewTone(report.status ?? "Baru")}>
                   {report.status}
                 </StatusBadge>
               </div>

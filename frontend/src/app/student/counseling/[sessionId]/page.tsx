@@ -12,15 +12,15 @@ type CounselingDetailPageProps = {
 };
 
 function getSessionTone(status: string) {
-  if (status === "Selesai") {
-    return "aman";
-  }
-
-  if (status === "Terdekat") {
+  if (status === "Baru") {
     return "danger";
   }
 
-  return "monitor";
+  if (status === "Sedang Ditinjau") {
+    return "warning";
+  }
+
+  return "aman";
 }
 
 export default async function CounselingDetailPage({
@@ -50,8 +50,8 @@ export default async function CounselingDetailPage({
       <section className="grid gap-5 xl:grid-cols-[1fr_1fr]">
         <SectionCard title="Info sesi">
           <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge tone={getSessionTone(session.status)}>
-              {session.status}
+            <StatusBadge tone={getSessionTone(session.invitationStatus)}>
+              {session.invitationStatus}
             </StatusBadge>
             <StatusBadge tone="monitor">{session.format}</StatusBadge>
           </div>

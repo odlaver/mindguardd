@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { counselingSessions } from "@/lib/mock-data";
 
 const upcomingSession = counselingSessions.find(
-  (session) => session.status === "Terdekat",
+  (session) => session.invitationStatus !== "Selesai",
 );
 
 export default function StudentCounselingHubPage() {
@@ -93,7 +93,17 @@ export default function StudentCounselingHubPage() {
                 {upcomingSession.counselor} | {upcomingSession.location}
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
-                <StatusBadge tone="danger">{upcomingSession.status}</StatusBadge>
+                <StatusBadge
+                  tone={
+                    upcomingSession.invitationStatus === "Baru"
+                      ? "danger"
+                      : upcomingSession.invitationStatus === "Sedang Ditinjau"
+                        ? "warning"
+                        : "aman"
+                  }
+                >
+                  {upcomingSession.invitationStatus}
+                </StatusBadge>
                 <StatusBadge tone="monitor">{upcomingSession.format}</StatusBadge>
               </div>
               <Link

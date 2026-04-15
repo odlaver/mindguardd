@@ -12,6 +12,18 @@ import {
   whisperReports,
 } from "@/lib/mock-data";
 
+function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
+  if (status === "Baru") {
+    return "danger";
+  }
+
+  if (status === "Sedang Ditinjau") {
+    return "warning";
+  }
+
+  return "aman";
+}
+
 type StudentDetailPageProps = {
   params: Promise<{
     studentId: string;
@@ -39,7 +51,7 @@ export default async function StudentDetailPage({
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="soft-label">Detail Mood Siswa</p>
+          <p className="soft-label">Melihat Detail Mood Siswa</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
             {student.name}
           </h1>
@@ -91,11 +103,11 @@ export default async function StudentDetailPage({
                     <h2 className="text-lg font-semibold">{item.title}</h2>
                     <StatusBadge
                       tone={
-                        item.status === "Dijadwalkan"
-                          ? "warning"
-                          : item.status === "Selesai"
-                            ? "aman"
-                            : "monitor"
+                        item.status === "Baru"
+                          ? "danger"
+                          : item.status === "Sedang Ditinjau"
+                            ? "warning"
+                            : "aman"
                       }
                     >
                       {item.status}
@@ -139,7 +151,7 @@ export default async function StudentDetailPage({
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold">{report.id}</p>
-                    <StatusBadge tone={report.status === "Selesai" ? "aman" : "warning"}>
+                    <StatusBadge tone={getReviewTone(report.status ?? "Baru")}>
                       {report.status}
                     </StatusBadge>
                   </div>
@@ -148,6 +160,13 @@ export default async function StudentDetailPage({
                   </p>
                 </Link>
               ))}
+              <Link
+                href="/counselor/counseling"
+                className="button-primary"
+                style={{ WebkitTextFillColor: "#ffffff" }}
+              >
+                Buka kelola konseling
+              </Link>
             </div>
           </SectionCard>
         </div>

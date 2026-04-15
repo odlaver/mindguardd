@@ -5,12 +5,31 @@ import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { alerts, counselorOverview, counselorStudents, whisperReports } from "@/lib/mock-data";
 
+function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
+  if (status === "Baru") {
+    return "danger";
+  }
+
+  if (status === "Sedang Ditinjau") {
+    return "warning";
+  }
+
+  return "aman";
+}
+
 export default function CounselorPage() {
+  const priorityStudentIds = new Set(
+    alerts.filter((alert) => alert.severity === "Tinggi").map((alert) => alert.studentId),
+  );
+  const priorityStudents = counselorStudents.filter((student) =>
+    priorityStudentIds.has(student.id),
+  );
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="soft-label">Dashboard Mood</p>
+          <p className="soft-label">Memantau Dashboard Mood</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
             Prioritas monitoring hari ini.
           </h1>
@@ -34,7 +53,7 @@ export default function CounselorPage() {
       <section className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
         <SectionCard title="Siswa prioritas">
           <div className="grid gap-3">
-            {counselorStudents.map((student) => (
+            {priorityStudents.map((student) => (
               <article
                 key={student.id}
                 className="panel-hover rounded-[24px] border border-stroke bg-white p-4"
@@ -47,15 +66,9 @@ export default function CounselorPage() {
                     </p>
                   </div>
                   <StatusBadge
-                    tone={
-                      student.risk === "Tinggi"
-                        ? "danger"
-                        : student.risk === "Sedang"
-                          ? "warning"
-                          : "aman"
-                    }
+                    tone="danger"
                   >
-                    {student.risk}
+                    Prioritas
                   </StatusBadge>
                 </div>
                 <p className="mt-3 text-sm leading-7 text-ink-soft">{student.focus}</p>
@@ -67,7 +80,7 @@ export default function CounselorPage() {
                     href={`/counselor/students/${student.id}`}
                     className="button-secondary"
                   >
-                    Detail siswa
+                    Detail mood
                   </Link>
                 </div>
               </article>
@@ -99,7 +112,7 @@ export default function CounselorPage() {
             </div>
           </SectionCard>
 
-          <SectionCard title="Laporan terbaru">
+          <SectionCard title="Menindaklanjuti siswa">
             <div className="grid gap-3">
               {whisperReports.map((report) => (
                 <Link
@@ -109,7 +122,7 @@ export default function CounselorPage() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-semibold">{report.id}</p>
-                    <StatusBadge tone={report.status === "Selesai" ? "aman" : "warning"}>
+                    <StatusBadge tone={getReviewTone(report.status ?? "Baru")}>
                       {report.status}
                     </StatusBadge>
                   </div>

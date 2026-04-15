@@ -16,15 +16,18 @@ export function WhisperDetailView({
   report,
   student,
 }: WhisperDetailViewProps) {
-  const [status, setStatus] = useState<"Sedang Ditinjau" | "Selesai">(
-    report.status ?? "Sedang Ditinjau",
+  const [status, setStatus] = useState<"Baru" | "Sedang Ditinjau" | "Selesai">(
+    report.status ?? "Baru",
   );
+
+  const statusTone =
+    status === "Baru" ? "danger" : status === "Sedang Ditinjau" ? "warning" : "aman";
 
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="soft-label">Detail Laporan</p>
+          <p className="soft-label">Menindaklanjuti Siswa</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
             {report.title}
           </h1>
@@ -44,9 +47,7 @@ export function WhisperDetailView({
         <SectionCard title="Isi laporan">
           <div className="flex flex-wrap gap-2">
             <StatusBadge tone="monitor">{report.category}</StatusBadge>
-            <StatusBadge tone={status === "Selesai" ? "aman" : "warning"}>
-              {status}
-            </StatusBadge>
+            <StatusBadge tone={statusTone}>{status}</StatusBadge>
           </div>
 
           <p className="mt-5 text-base leading-8 text-ink-soft">{report.detail}</p>
@@ -60,7 +61,7 @@ export function WhisperDetailView({
         <div className="grid gap-4">
           <SectionCard title="Update status">
             <div className="flex flex-wrap gap-2">
-              {(["Sedang Ditinjau", "Selesai"] as const).map((option) => {
+              {(["Baru", "Sedang Ditinjau", "Selesai"] as const).map((option) => {
                 const active = status === option;
 
                 return (

@@ -1,3 +1,7 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
 import type { MoodPoint } from "@/lib/mock-data";
 
 type MoodTrackProps = {
@@ -5,34 +9,216 @@ type MoodTrackProps = {
   title?: string;
 };
 
-export function MoodTrack({ history, title = "Track Mood 14 Hari" }: MoodTrackProps) {
+const chartWidth = 760;
+const chartHeight = 280;
+const chartPadding = { top: 24, right: 20, bottom: 30, left: 32 };
+
+function toneForScore(score: number) {
+  if (score >= 4) {
+    return "bg-safe/14 text-foreground";
+  }
+
+  if (score === 3) {
+    return "bg-secondary/18 text-foreground";
+  }
+
+  return "bg-warning/20 text-foreground";
+}
+
+export function MoodTrack({
+  history,
+  title = "Track Mood 14 Hari",
+}: MoodTrackProps) {
+  const [activeIndex, setActiveIndex] = useState(history.length - 1);
+  const activePoint = history[activeIndex];
+
+  const chart = useMemo(() => {
+    const plotWidth = chartWidth - chartPadding.left - chartPadding.right;
+    const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
+    const stepX = history.length > 1 ? plotWidth / (history.length - 1) : 0;
+
+    const points = history.map((point, index) => {
+      const x = chartPadding.left + index * stepX;
+      const y = chartPadding.top + ((5 - point.score) / 4) * plotHeight;
+
+      return { ...point, x, y };
+    });
+
+    const linePath = points
+      .map((point, index) =>
+        `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`,
+      )
+      .join(" ");
+
+    const areaPath = [
+      `M ${points[0]?.x ?? chartPadding.left} ${chartHeight - chartPadding.bottom}`,
+      ...points.map((point) => `L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`),
+      `L ${
+        points[points.length - 1]?.x ?? chartWidth - chartPadding.right
+      } ${chartHeight - chartPadding.bottom}`,
+      "Z",
+    ].join(" ");
+
+    return { areaPath, linePath, plotHeight, points };
+  }, [history]);
+
+  if (!activePoint) {
+    return null;
+  }
+
   return (
-    <div className="rounded-[28px] border border-stroke bg-white p-5">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="text-xl font-semibold tracking-[-0.03em]">{title}</h3>
-        <span className="soft-label">Skala 1-5</span>
+    <div className="grid gap-5 xl:grid-cols-[1.3fr_0.7fr]">
+      <div className="rounded-[28px] border border-stroke bg-white p-5 shadow-[0_18px_50px_rgba(35,58,50,0.06)] sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-semibold tracking-[-0.03em]">{title}</h3>
+            <span className="soft-label">Skala 1-5</span>
+          </div>
+          <div className="text-sm text-ink-soft">Hover atau klik titik</div>
+        </div>
+
+        <div className="mt-6 overflow-x-auto">
+          <svg
+            viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+            className="min-w-[720px]"
+            role="img"
+            aria-label="Grafik mood 14 hari dengan skala 1 sampai 5"
+          >
+            <defs>
+              <linearGradient id="counselor-mood-fill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor="rgba(115,173,135,0.24)" />
+                <stop offset="100%" stopColor="rgba(115,173,135,0.02)" />
+              </linearGradient>
+            </defs>
+
+            {[1, 2, 3, 4, 5].map((score) => {
+              const y =
+                chartPadding.top + ((5 - score) / 4) * chart.plotHeight;
+
+              return (
+                <g key={score}>
+                  <line
+                    x1={chartPadding.left}
+                    x2={chartWidth - chartPadding.right}
+                    y1={y}
+                    y2={y}
+                    stroke="rgba(32,51,45,0.08)"
+                    strokeDasharray={score === 1 ? "0" : "4 8"}
+                  />
+                  <text
+                    x={10}
+                    y={y + 4}
+                    fill="rgba(101,118,111,0.9)"
+                    fontSize="12"
+                    fontWeight="600"
+                  >
+                    {score}
+                  </text>
+                </g>
+              );
+            })}
+
+            <path d={chart.areaPath} fill="url(#counselor-mood-fill)" />
+            <path
+              d={chart.linePath}
+              fill="none"
+              stroke="#20332d"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="3"
+            />
+
+            {chart.points.map((point, index) => {
+              const active = index === activeIndex;
+
+              return (
+                <g
+                  key={point.date}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => setActiveIndex(index)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    fill={active ? "#20332d" : "#ffffff"}
+                    r={active ? 10 : 7}
+                    stroke="#20332d"
+                    strokeWidth="3"
+                  />
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+
+        <div className="mt-3 grid grid-cols-7 gap-2 text-xs font-medium text-ink-soft sm:grid-cols-14">
+          {history.map((point, index) => (
+            <button
+              key={point.date}
+              type="button"
+              onMouseEnter={() => setActiveIndex(index)}
+              onClick={() => setActiveIndex(index)}
+              className={`rounded-full px-2 py-2 transition ${
+                index === activeIndex
+                  ? "bg-foreground text-white"
+                  : "bg-[#f5f7f3] text-ink-soft hover:bg-[#edf2ee] hover:text-foreground"
+              }`}
+            >
+              {point.date}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-7 gap-3 sm:grid-cols-14">
-        {history.map((point) => (
-          <div
-            key={point.date}
-            className="panel-hover flex flex-col items-center rounded-[22px] bg-[#f7f8f4] px-2 py-3"
+      <div className="rounded-[28px] border border-stroke bg-white p-6 shadow-[0_18px_50px_rgba(35,58,50,0.06)]">
+        <p className="soft-label">Titik aktif</p>
+        <div className="mt-4 flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-3xl font-semibold tracking-[-0.04em]">
+              {activePoint.date}
+            </h3>
+            <p className="mt-2 text-sm text-ink-soft">Mood {activePoint.score}/5</p>
+          </div>
+          <span
+            className={`rounded-full px-3 py-1.5 text-sm font-medium ${toneForScore(
+              activePoint.score,
+            )}`}
           >
-            <div className="flex h-28 items-end">
-              <div
-                className="w-5 rounded-full bg-foreground/95"
-                style={{ height: `${Math.max(18, point.score * 18)}px` }}
-              />
-            </div>
-            <p className="mt-3 text-xs font-semibold text-foreground/75">
-              {point.score}
-            </p>
-            <p className="mt-1 text-[11px] font-medium text-ink-soft">
-              {point.date}
+            {activePoint.score >= 4
+              ? "Stabil"
+              : activePoint.score === 3
+                ? "Netral"
+                : "Perlu ruang"}
+          </span>
+        </div>
+
+        <div className="mt-8 rounded-[28px] border border-stroke bg-[#f7f8f4] px-5 py-6">
+          <p className="text-sm leading-7 text-foreground/86">
+            {activePoint.note ?? "Tidak ada catatan."}
+          </p>
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+          <div className="rounded-[24px] bg-[#f4f7f3] px-4 py-4">
+            <p className="soft-label">Rata-rata</p>
+            <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+              {(history.reduce((sum, point) => sum + point.score, 0) / history.length).toFixed(1)}
             </p>
           </div>
-        ))}
+          <div className="rounded-[24px] bg-[#f4f7f3] px-4 py-4">
+            <p className="soft-label">Tertinggi</p>
+            <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+              {Math.max(...history.map((point) => point.score))}/5
+            </p>
+          </div>
+          <div className="rounded-[24px] bg-[#f4f7f3] px-4 py-4">
+            <p className="soft-label">Terendah</p>
+            <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+              {Math.min(...history.map((point) => point.score))}/5
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

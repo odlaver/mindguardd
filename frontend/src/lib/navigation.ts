@@ -10,9 +10,9 @@ export const studentNav: NavItem[] = [
 
 export const counselorNav: NavItem[] = [
   { href: "/counselor", label: "Dashboard Mood" },
-  { href: "/counselor/students", label: "Data Siswa" },
-  { href: "/counselor/alerts", label: "Alert Risiko" },
-  { href: "/counselor/whispers", label: "Laporan Siswa" },
+  { href: "/counselor/students", label: "Detail Mood Siswa" },
+  { href: "/counselor/alerts", label: "Lihat Alert Risiko" },
+  { href: "/counselor/counseling", label: "Kelola Konseling" },
 ];
 
 export const adminNav: NavItem[] = [

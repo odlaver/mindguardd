@@ -4,7 +4,9 @@ export type MoodPoint = {
   note?: string;
 };
 
-export type AlertStatus = "Baru" | "Ditinjau" | "Ditindaklanjuti" | "Selesai";
+export type ReviewStatus = "Baru" | "Sedang Ditinjau" | "Selesai";
+
+export type AlertStatus = ReviewStatus;
 
 export type AlertItem = {
   id: string;
@@ -26,7 +28,7 @@ export type WhisperReport = {
   title: string;
   category: string;
   urgency: "Tinggi" | "Normal";
-  status?: "Sedang Ditinjau" | "Selesai";
+  status?: ReviewStatus;
   submittedAt: string;
   excerpt: string;
   detail: string;
@@ -45,14 +47,31 @@ export type ResourceItem = {
 
 export type CounselingSession = {
   id: string;
+  studentId: string;
+  studentName: string;
   title: string;
   counselor: string;
   when: string;
   format: "Tatap muka" | "Online";
   location: string;
-  status: "Terdekat" | "Terjadwal" | "Selesai";
+  status: ReviewStatus;
+  invitationStatus: ReviewStatus;
   focus: string;
   note: string;
+  outcome?: string;
+  followUp?: string;
+};
+
+export type CounselingRequest = {
+  id: string;
+  studentId: string;
+  studentName: string;
+  className: string;
+  topic: string;
+  preferredSlot: string;
+  summary: string;
+  status: ReviewStatus;
+  submittedAt: string;
 };
 
 export type CounselorStudent = {
@@ -70,7 +89,7 @@ export type StudentIntervention = {
   studentId: string;
   title: string;
   owner: string;
-  status: "Dijadwalkan" | "Menunggu" | "Selesai";
+  status: ReviewStatus;
   when: string;
 };
 
@@ -197,7 +216,7 @@ export const alerts: AlertItem[] = [
     className: "X IPS 1",
     reason: "Tren menurun selama 5 hari",
     severity: "Sedang",
-    status: "Ditinjau",
+    status: "Baru",
     lastUpdated: "15 Apr 2026, 06.40",
     summary: "Mood stabil di level rendah dan beberapa catatan mengarah ke tekanan sosial dalam kelompok kelas.",
     recommendation: "Validasi situasi kelas dan cek kebutuhan dukungan sosial yang aman.",
@@ -209,7 +228,7 @@ export const alerts: AlertItem[] = [
     className: "XI IPA 1",
     reason: "Catatan mengindikasikan konflik sosial",
     severity: "Tinggi",
-    status: "Ditindaklanjuti",
+    status: "Selesai",
     lastUpdated: "14 Apr 2026, 15.20",
     summary: "Catatan harian menunjukkan konflik berulang dengan teman sebaya dan penurunan energi saat di sekolah.",
     recommendation: "Pantau dua hari lagi sambil koordinasi dengan wali kelas untuk observasi terbatas.",
@@ -269,21 +288,21 @@ export const studentInterventions: StudentIntervention[] = [
     studentId: "raka-pratama",
     title: "Check-in singkat",
     owner: "Bu Sinta",
-    status: "Dijadwalkan",
+    status: "Baru",
     when: "15 Apr 2026, 10.30",
   },
   {
     studentId: "raka-pratama",
     title: "Observasi kelas",
     owner: "Wali kelas XI IPA 2",
-    status: "Menunggu",
+    status: "Sedang Ditinjau",
     when: "16 Apr 2026",
   },
   {
     studentId: "nabila-rahma",
     title: "Pendampingan relasi kelompok",
     owner: "Bu Sinta",
-    status: "Menunggu",
+    status: "Sedang Ditinjau",
     when: "17 Apr 2026",
   },
   {
@@ -373,36 +392,72 @@ export const resources: ResourceItem[] = [
 export const counselingSessions: CounselingSession[] = [
   {
     id: "CS-201",
+    studentId: "raka-pratama",
+    studentName: "Raka Pratama",
     title: "Check-in mingguan",
     counselor: "Bu Sinta",
     when: "17 Apr 2026, 10.30",
     format: "Tatap muka",
     location: "Ruang BK 2",
-    status: "Terdekat",
+    status: "Baru",
+    invitationStatus: "Sedang Ditinjau",
     focus: "Tekanan tugas dan pola tidur",
     note: "Datang 5 menit lebih awal dan bawa catatan jika ada hal yang ingin dibahas.",
   },
   {
     id: "CS-196",
+    studentId: "nabila-rahma",
+    studentName: "Nabila Rahma",
     title: "Sesi tindak lanjut",
     counselor: "Bu Sinta",
     when: "22 Apr 2026, 13.00",
     format: "Online",
     location: "Google Meet sekolah",
-    status: "Terjadwal",
+    status: "Sedang Ditinjau",
+    invitationStatus: "Baru",
     focus: "Evaluasi progress setelah sesi pertama",
     note: "Link meeting akan dibagikan lewat wali kelas sebelum sesi dimulai.",
   },
   {
     id: "CS-184",
+    studentId: "rafael-adi",
+    studentName: "Rafael Adi",
     title: "Sesi awal",
     counselor: "Bu Sinta",
     when: "10 Apr 2026, 09.00",
     format: "Tatap muka",
     location: "Ruang BK 2",
     status: "Selesai",
+    invitationStatus: "Selesai",
     focus: "Mengenali sumber tekanan utama",
     note: "Sesi selesai dengan rencana check-in lanjutan minggu berikutnya.",
+    outcome: "Siswa mampu menjelaskan pemicu utama dan setuju menjalani sesi evaluasi lanjutan.",
+    followUp: "Pantau ritme belajar selama satu minggu dan cek ulang di sesi berikutnya.",
+  },
+];
+
+export const counselingRequests: CounselingRequest[] = [
+  {
+    id: "REQ-031",
+    studentId: "raka-pratama",
+    studentName: "Raka Pratama",
+    className: "XI IPA 2",
+    topic: "Tekanan akademik",
+    preferredSlot: "Setelah jam sekolah",
+    summary: "Butuh sesi lanjutan untuk membahas tugas yang terasa menumpuk dan pola tidur yang belum stabil.",
+    status: "Baru",
+    submittedAt: "16 Apr 2026, 08.10",
+  },
+  {
+    id: "REQ-027",
+    studentId: "nabila-rahma",
+    studentName: "Nabila Rahma",
+    className: "X IPS 1",
+    topic: "Relasi pertemanan",
+    preferredSlot: "Istirahat siang",
+    summary: "Ingin bicara soal dinamika kelompok kelas yang mulai terasa menguras energi.",
+    status: "Sedang Ditinjau",
+    submittedAt: "15 Apr 2026, 13.20",
   },
 ];
 

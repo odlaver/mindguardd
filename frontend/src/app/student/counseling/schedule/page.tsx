@@ -5,15 +5,15 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { counselingSessions } from "@/lib/mock-data";
 
 function getSessionTone(status: string) {
-  if (status === "Selesai") {
-    return "aman";
-  }
-
-  if (status === "Terdekat") {
+  if (status === "Baru") {
     return "danger";
   }
 
-  return "monitor";
+  if (status === "Sedang Ditinjau") {
+    return "warning";
+  }
+
+  return "aman";
 }
 
 export default function StudentCounselingSchedulePage() {
@@ -46,8 +46,8 @@ export default function StudentCounselingSchedulePage() {
                     {session.title}
                   </h2>
                 </div>
-                <StatusBadge tone={getSessionTone(session.status)}>
-                  {session.status}
+                <StatusBadge tone={getSessionTone(session.invitationStatus)}>
+                  {session.invitationStatus}
                 </StatusBadge>
               </div>
               <p className="mt-3 text-sm leading-7 text-ink-soft">

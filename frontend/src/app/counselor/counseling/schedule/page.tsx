@@ -21,9 +21,7 @@ export default function CounselorCounselingSchedulePage() {
       <section className="page-hero stagger-in flex flex-col gap-5 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
         <div>
           <p className="soft-label">Mengatur Jadwal</p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
-            Buat jadwal tindak lanjut dan cek pengajuan konseling.
-          </h1>
+          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Mengatur Jadwal</h1>
         </div>
         <Link href="/counselor/counseling" className="button-secondary">
           Kembali
@@ -34,7 +32,7 @@ export default function CounselorCounselingSchedulePage() {
         <SectionCard title="Membuat Jadwal Baru" className="p-5 sm:p-6">
           <div className="grid gap-6">
             <div>
-              <p className="soft-label">Pilih siswa</p>
+              <p className="soft-label">Siswa</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {counselorStudents.map((student) => {
                   const active = selectedStudentId === student.id;
@@ -105,9 +103,9 @@ export default function CounselorCounselingSchedulePage() {
             <div className="rounded-[28px] border border-stroke bg-[#f7f8f4] p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="soft-label">Preview jadwal</p>
+                  <p className="soft-label">Jadwal</p>
                   <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-                    {selectedStudent?.name ?? "Pilih siswa"}
+                    {selectedStudent?.name ?? "-"}
                   </h2>
                 </div>
                 <StatusBadge tone={created ? "warning" : "danger"}>
@@ -117,22 +115,17 @@ export default function CounselorCounselingSchedulePage() {
               <p className="mt-4 text-sm leading-7 text-ink-soft">
                 {sessionDate} | {sessionTime} | {sessionFormat}
               </p>
-              <p className="mt-2 text-sm leading-7 text-ink-soft">
-                Jadwal baru ini disiapkan sebagai tindak lanjut untuk kebutuhan siswa.
-              </p>
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="text-sm leading-7 text-ink-soft">
-                Gunakan ini untuk menjadwalkan tindak lanjut setelah analisis mood atau laporan.
-              </span>
+              <span className="text-sm leading-7 text-ink-soft">{selectedStudent?.className ?? ""}</span>
               <button
                 type="button"
                 className="button-primary"
                 style={{ WebkitTextFillColor: "#ffffff" }}
                 onClick={() => setCreated(true)}
               >
-                Buat jadwal
+                Simpan
               </button>
             </div>
           </div>

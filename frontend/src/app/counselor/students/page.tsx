@@ -10,9 +10,7 @@ export default function CounselorStudentsPage() {
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="soft-label">Data Siswa</p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
-            Pilih siswa untuk melihat detail mood.
-          </h1>
+          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Data Siswa</h1>
         </div>
         <StatusBadge tone="monitor">{counselorStudents.length} siswa prioritas</StatusBadge>
       </section>
@@ -47,7 +45,8 @@ export default function CounselorStudentsPage() {
                   </StatusBadge>
                   <Link
                     href={`/counselor/students/${student.id}`}
-                    className="button-primary"
+                    className="button-primary text-white hover:text-white"
+                    style={{ WebkitTextFillColor: "#ffffff" }}
                   >
                     Detail
                   </Link>

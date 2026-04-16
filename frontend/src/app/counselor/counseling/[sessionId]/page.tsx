@@ -46,7 +46,7 @@ export default async function CounselorCounselingDetailPage({
           <StatusBadge tone={getReviewTone(session.status)}>{session.status}</StatusBadge>
           <StatusBadge tone="monitor">{session.format}</StatusBadge>
           <Link href="/counselor/counseling/agenda" className="button-secondary">
-            Kembali ke Agenda
+            Kembali
           </Link>
         </div>
       </section>
@@ -83,13 +83,13 @@ export default async function CounselorCounselingDetailPage({
             <div className="rounded-[28px] border border-stroke bg-[#f7f8f4] p-5">
               <p className="soft-label">Hasil sesi</p>
               <p className="mt-3 text-base leading-8 text-ink-soft">
-                {session.outcome ?? "Sesi ini belum memiliki ringkasan hasil akhir."}
+                {session.outcome ?? "-"}
               </p>
             </div>
             <div className="rounded-[28px] border border-stroke bg-white p-5">
               <p className="soft-label">Tindak lanjut</p>
               <p className="mt-3 text-base leading-8 text-ink-soft">
-                {session.followUp ?? "Tindak lanjut belum dicatat."}
+                {session.followUp ?? "-"}
               </p>
             </div>
           </div>

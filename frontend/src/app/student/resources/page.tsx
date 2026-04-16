@@ -19,7 +19,7 @@ export default function StudentResourcesPage() {
           <Link
             key={resource.id}
             href={`/student/resources/${resource.id}`}
-            className={`surface-card-strong panel-hover stagger-in flex min-h-[260px] flex-col gap-6 p-6 ${
+            className={`surface-card-strong panel-hover stagger-in flex min-h-[220px] flex-col gap-6 p-6 ${
               index === 1 ? "bg-[#f5f8f1]" : ""
             }`}
           >

@@ -70,7 +70,7 @@ export default async function StudentDetailPage({
             {student.risk}
           </StatusBadge>
           <Link href="/counselor/students" className="button-secondary">
-            Kembali ke Data Siswa
+            Kembali
           </Link>
         </div>
       </section>
@@ -165,7 +165,7 @@ export default async function StudentDetailPage({
                 className="button-primary"
                 style={{ WebkitTextFillColor: "#ffffff" }}
               >
-                Buka kelola konseling
+                Kelola konseling
               </Link>
             </div>
           </SectionCard>

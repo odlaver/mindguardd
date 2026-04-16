@@ -30,16 +30,14 @@ export default function CounselorPage() {
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="soft-label">Memantau Dashboard Mood</p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
-            Prioritas monitoring hari ini.
-          </h1>
+          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Prioritas Hari Ini</h1>
         </div>
         <Link
           href="/counselor/alerts"
           className="button-primary"
           style={{ WebkitTextFillColor: "#ffffff" }}
         >
-          Buka Alert Risiko
+          Alert Risiko
         </Link>
       </section>
 
@@ -80,7 +78,7 @@ export default function CounselorPage() {
                     href={`/counselor/students/${student.id}`}
                     className="button-secondary"
                   >
-                    Detail mood
+                    Detail
                   </Link>
                 </div>
               </article>

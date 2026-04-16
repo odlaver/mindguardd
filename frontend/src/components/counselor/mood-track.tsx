@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import type { MoodPoint } from "@/lib/mock-data";
 
 type MoodTrackProps = {
   history: MoodPoint[];
   title?: string;
+  showActiveCard?: boolean;
+  activeIndex?: number;
+  onActiveIndexChange?: (index: number) => void;
 };
 
 const chartWidth = 760;
@@ -27,62 +30,69 @@ function toneForScore(score: number) {
 
 export function MoodTrack({
   history,
-  title = "Track Mood 14 Hari",
+  title = "Track Mood 7 Hari",
+  showActiveCard = true,
+  activeIndex: controlledActiveIndex,
+  onActiveIndexChange,
 }: MoodTrackProps) {
-  const [activeIndex, setActiveIndex] = useState(history.length - 1);
-  const activePoint = history[activeIndex];
+  const recentHistory = history.slice(-7);
+  const [internalActiveIndex, setInternalActiveIndex] = useState(recentHistory.length - 1);
+  const activeIndex = controlledActiveIndex ?? internalActiveIndex;
+  const activePoint = recentHistory[activeIndex];
 
-  const chart = useMemo(() => {
-    const plotWidth = chartWidth - chartPadding.left - chartPadding.right;
-    const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
-    const stepX = history.length > 1 ? plotWidth / (history.length - 1) : 0;
+  const plotWidth = chartWidth - chartPadding.left - chartPadding.right;
+  const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
+  const stepX =
+    recentHistory.length > 1 ? plotWidth / (recentHistory.length - 1) : 0;
 
-    const points = history.map((point, index) => {
-      const x = chartPadding.left + index * stepX;
-      const y = chartPadding.top + ((5 - point.score) / 4) * plotHeight;
+  const points = recentHistory.map((point, index) => {
+    const x = chartPadding.left + index * stepX;
+    const y = chartPadding.top + ((5 - point.score) / 4) * plotHeight;
 
-      return { ...point, x, y };
-    });
+    return { ...point, x, y };
+  });
 
-    const linePath = points
-      .map((point, index) =>
-        `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`,
-      )
-      .join(" ");
+  const linePath = points
+    .map((point, index) =>
+      `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`,
+    )
+    .join(" ");
 
-    const areaPath = [
-      `M ${points[0]?.x ?? chartPadding.left} ${chartHeight - chartPadding.bottom}`,
-      ...points.map((point) => `L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`),
-      `L ${
-        points[points.length - 1]?.x ?? chartWidth - chartPadding.right
-      } ${chartHeight - chartPadding.bottom}`,
-      "Z",
-    ].join(" ");
-
-    return { areaPath, linePath, plotHeight, points };
-  }, [history]);
+  const areaPath = [
+    `M ${points[0]?.x ?? chartPadding.left} ${chartHeight - chartPadding.bottom}`,
+    ...points.map((point) => `L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`),
+    `L ${
+      points[points.length - 1]?.x ?? chartWidth - chartPadding.right
+    } ${chartHeight - chartPadding.bottom}`,
+    "Z",
+  ].join(" ");
 
   if (!activePoint) {
     return null;
   }
 
+  const setActivePoint = (index: number) => {
+    setInternalActiveIndex(index);
+    onActiveIndexChange?.(index);
+  };
+
   return (
-    <div className="grid gap-5 xl:grid-cols-[1.3fr_0.7fr]">
-      <div className="rounded-[28px] border border-stroke bg-white p-5 shadow-[0_18px_50px_rgba(35,58,50,0.06)] sm:p-6">
+    <div className="grid min-w-0 gap-5">
+      <div className="min-w-0 overflow-hidden rounded-[28px] border border-stroke bg-white p-5 shadow-[0_18px_50px_rgba(35,58,50,0.06)] sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <h3 className="text-xl font-semibold tracking-[-0.03em]">{title}</h3>
             <span className="soft-label">Skala 1-5</span>
           </div>
-          <div className="text-sm text-ink-soft">Hover atau klik titik</div>
+          <div className="text-sm text-ink-soft"></div>
         </div>
 
-        <div className="mt-6 overflow-x-auto">
+        <div className="mt-6 min-w-0">
           <svg
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-            className="min-w-[720px]"
+            className="h-auto w-full"
             role="img"
-            aria-label="Grafik mood 14 hari dengan skala 1 sampai 5"
+            aria-label="Grafik mood 7 hari dengan skala 1 sampai 5"
           >
             <defs>
               <linearGradient id="counselor-mood-fill" x1="0" x2="0" y1="0" y2="1">
@@ -92,8 +102,7 @@ export function MoodTrack({
             </defs>
 
             {[1, 2, 3, 4, 5].map((score) => {
-              const y =
-                chartPadding.top + ((5 - score) / 4) * chart.plotHeight;
+              const y = chartPadding.top + ((5 - score) / 4) * plotHeight;
 
               return (
                 <g key={score}>
@@ -118,9 +127,9 @@ export function MoodTrack({
               );
             })}
 
-            <path d={chart.areaPath} fill="url(#counselor-mood-fill)" />
+            <path d={areaPath} fill="url(#counselor-mood-fill)" />
             <path
-              d={chart.linePath}
+              d={linePath}
               fill="none"
               stroke="#20332d"
               strokeLinecap="round"
@@ -128,14 +137,14 @@ export function MoodTrack({
               strokeWidth="3"
             />
 
-            {chart.points.map((point, index) => {
+            {points.map((point, index) => {
               const active = index === activeIndex;
 
               return (
                 <g
                   key={point.date}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => setActiveIndex(index)}
+                  onMouseEnter={() => setActivePoint(index)}
+                  onClick={() => setActivePoint(index)}
                   style={{ cursor: "pointer" }}
                 >
                   <circle
@@ -152,13 +161,13 @@ export function MoodTrack({
           </svg>
         </div>
 
-        <div className="mt-3 grid grid-cols-7 gap-2 text-xs font-medium text-ink-soft sm:grid-cols-14">
-          {history.map((point, index) => (
+        <div className="mt-3 grid grid-cols-7 gap-2 text-xs font-medium text-ink-soft">
+          {recentHistory.map((point, index) => (
             <button
               key={point.date}
               type="button"
-              onMouseEnter={() => setActiveIndex(index)}
-              onClick={() => setActiveIndex(index)}
+              onMouseEnter={() => setActivePoint(index)}
+              onClick={() => setActivePoint(index)}
               className={`rounded-full px-2 py-2 transition ${
                 index === activeIndex
                   ? "bg-foreground text-white"
@@ -171,53 +180,73 @@ export function MoodTrack({
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-stroke bg-white p-6 shadow-[0_18px_50px_rgba(35,58,50,0.06)]">
-        <p className="soft-label">Titik aktif</p>
-        <div className="mt-4 flex items-start justify-between gap-4">
-          <div>
-            <h3 className="text-3xl font-semibold tracking-[-0.04em]">
-              {activePoint.date}
-            </h3>
-            <p className="mt-2 text-sm text-ink-soft">Mood {activePoint.score}/5</p>
-          </div>
-          <span
-            className={`rounded-full px-3 py-1.5 text-sm font-medium ${toneForScore(
-              activePoint.score,
-            )}`}
-          >
-            {activePoint.score >= 4
-              ? "Stabil"
-              : activePoint.score === 3
-                ? "Netral"
-                : "Perlu ruang"}
-          </span>
-        </div>
+      {showActiveCard ? (
+        <MoodTrackActiveCard history={recentHistory} activeIndex={activeIndex} />
+      ) : null}
+    </div>
+  );
+}
 
-        <div className="mt-8 rounded-[28px] border border-stroke bg-[#f7f8f4] px-5 py-6">
-          <p className="text-sm leading-7 text-foreground/86">
-            {activePoint.note ?? "Tidak ada catatan."}
+type MoodTrackActiveCardProps = {
+  history: MoodPoint[];
+  activeIndex: number;
+};
+
+export function MoodTrackActiveCard({
+  history,
+  activeIndex,
+}: MoodTrackActiveCardProps) {
+  const activePoint = history[activeIndex];
+
+  if (!activePoint) {
+    return null;
+  }
+
+  return (
+    <div className="min-w-0 rounded-[28px] border border-stroke bg-white p-6 shadow-[0_18px_50px_rgba(35,58,50,0.06)]">
+      <p className="soft-label">Titik aktif</p>
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <div>
+          <h3 className="text-3xl font-semibold tracking-[-0.04em]">{activePoint.date}</h3>
+          <p className="mt-2 text-sm text-ink-soft">Mood {activePoint.score}/5</p>
+        </div>
+        <span
+          className={`rounded-full px-3 py-1.5 text-sm font-medium ${toneForScore(
+            activePoint.score,
+          )}`}
+        >
+          {activePoint.score >= 4
+            ? "Stabil"
+            : activePoint.score === 3
+              ? "Netral"
+              : "Perlu ruang"}
+        </span>
+      </div>
+
+      <div className="mt-8 rounded-[28px] border border-stroke bg-[#f7f8f4] px-5 py-6">
+        <p className="text-sm leading-7 text-foreground/86">
+          {activePoint.note ?? "Tidak ada catatan."}
+        </p>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-[24px] bg-[#f4f7f3] px-4 py-4">
+          <p className="soft-label">Rata-rata</p>
+          <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+            {(history.reduce((sum, point) => sum + point.score, 0) / history.length).toFixed(1)}
           </p>
         </div>
-
-        <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-          <div className="rounded-[24px] bg-[#f4f7f3] px-4 py-4">
-            <p className="soft-label">Rata-rata</p>
-            <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-              {(history.reduce((sum, point) => sum + point.score, 0) / history.length).toFixed(1)}
-            </p>
-          </div>
-          <div className="rounded-[24px] bg-[#f4f7f3] px-4 py-4">
-            <p className="soft-label">Tertinggi</p>
-            <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-              {Math.max(...history.map((point) => point.score))}/5
-            </p>
-          </div>
-          <div className="rounded-[24px] bg-[#f4f7f3] px-4 py-4">
-            <p className="soft-label">Terendah</p>
-            <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-              {Math.min(...history.map((point) => point.score))}/5
-            </p>
-          </div>
+        <div className="rounded-[24px] bg-[#f4f7f3] px-4 py-4">
+          <p className="soft-label">Tertinggi</p>
+          <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+            {Math.max(...history.map((point) => point.score))}/5
+          </p>
+        </div>
+        <div className="rounded-[24px] bg-[#f4f7f3] px-4 py-4">
+          <p className="soft-label">Terendah</p>
+          <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
+            {Math.min(...history.map((point) => point.score))}/5
+          </p>
         </div>
       </div>
     </div>

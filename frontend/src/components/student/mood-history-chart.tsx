@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import type { MoodPoint } from "@/lib/mock-data";
 
@@ -25,57 +25,56 @@ function toneForScore(score: number) {
 }
 
 export function MoodHistoryChart({ data }: MoodHistoryChartProps) {
-  const [activeIndex, setActiveIndex] = useState(data.length - 1);
-  const activePoint = data[activeIndex];
+  const recentData = data.slice(-7);
+  const [activeIndex, setActiveIndex] = useState(recentData.length - 1);
+  const activePoint = recentData[activeIndex];
+  const plotWidth = chartWidth - chartPadding.left - chartPadding.right;
+  const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
+  const stepX = recentData.length > 1 ? plotWidth / (recentData.length - 1) : 0;
 
-  const chart = useMemo(() => {
-    const plotWidth = chartWidth - chartPadding.left - chartPadding.right;
-    const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
-    const stepX = data.length > 1 ? plotWidth / (data.length - 1) : 0;
+  const points = recentData.map((point, index) => {
+    const x = chartPadding.left + index * stepX;
+    const y = chartPadding.top + ((5 - point.score) / 4) * plotHeight;
 
-    const points = data.map((point, index) => {
-      const x = chartPadding.left + index * stepX;
-      const y =
-        chartPadding.top + ((5 - point.score) / 4) * plotHeight;
+    return { ...point, x, y };
+  });
 
-      return { ...point, x, y };
-    });
+  const linePath = points
+    .map((point, index) =>
+      `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`,
+    )
+    .join(" ");
 
-    const linePath = points
-      .map((point, index) =>
-        `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`,
-      )
-      .join(" ");
+  const areaPath = [
+    `M ${points[0]?.x ?? chartPadding.left} ${chartHeight - chartPadding.bottom}`,
+    ...points.map((point) => `L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`),
+    `L ${points[points.length - 1]?.x ?? chartWidth - chartPadding.right} ${chartHeight - chartPadding.bottom}`,
+    "Z",
+  ].join(" ");
 
-    const areaPath = [
-      `M ${points[0]?.x ?? chartPadding.left} ${chartHeight - chartPadding.bottom}`,
-      ...points.map((point) => `L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`),
-      `L ${points[points.length - 1]?.x ?? chartWidth - chartPadding.right} ${chartHeight - chartPadding.bottom}`,
-      "Z",
-    ].join(" ");
-
-    return { areaPath, linePath, plotHeight, points };
-  }, [data]);
+  if (!activePoint) {
+    return null;
+  }
 
   return (
-    <div className="grid gap-5 xl:grid-cols-[1.3fr_0.7fr]">
-      <div className="surface-card panel-hover stagger-in p-5 sm:p-6">
+    <div className="grid min-w-0 gap-5">
+      <div className="surface-card panel-hover stagger-in min-w-0 overflow-hidden p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="soft-label">Skala 1-5</span>
             <span className="rounded-full bg-[#f1f5ef] px-3 py-1 text-xs font-medium text-ink-soft">
-              14 hari
+              7 hari
             </span>
           </div>
           <div className="text-sm text-ink-soft">Hover atau klik titik</div>
         </div>
 
-        <div className="mt-6 overflow-x-auto">
+        <div className="mt-6 min-w-0">
           <svg
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-            className="min-w-[720px]"
+            className="h-auto w-full"
             role="img"
-            aria-label="Grafik mood 14 hari dengan skala 1 sampai 5"
+            aria-label="Grafik mood 7 hari dengan skala 1 sampai 5"
           >
             <defs>
               <linearGradient id="mood-fill" x1="0" x2="0" y1="0" y2="1">
@@ -85,9 +84,7 @@ export function MoodHistoryChart({ data }: MoodHistoryChartProps) {
             </defs>
 
             {[1, 2, 3, 4, 5].map((score) => {
-              const y =
-                chartPadding.top +
-                ((5 - score) / 4) * chart.plotHeight;
+              const y = chartPadding.top + ((5 - score) / 4) * plotHeight;
 
               return (
                 <g key={score}>
@@ -112,9 +109,9 @@ export function MoodHistoryChart({ data }: MoodHistoryChartProps) {
               );
             })}
 
-            <path d={chart.areaPath} fill="url(#mood-fill)" />
+            <path d={areaPath} fill="url(#mood-fill)" />
             <path
-              d={chart.linePath}
+              d={linePath}
               fill="none"
               stroke="#20332d"
               strokeLinecap="round"
@@ -122,7 +119,7 @@ export function MoodHistoryChart({ data }: MoodHistoryChartProps) {
               strokeWidth="3"
             />
 
-            {chart.points.map((point, index) => {
+            {points.map((point, index) => {
               const active = index === activeIndex;
 
               return (
@@ -146,15 +143,15 @@ export function MoodHistoryChart({ data }: MoodHistoryChartProps) {
           </svg>
         </div>
 
-        <div className="mt-3 grid grid-cols-7 gap-2 text-xs font-medium text-ink-soft sm:grid-cols-14">
-          {data.map((point) => (
+        <div className="mt-3 grid grid-cols-7 gap-2 text-xs font-medium text-ink-soft">
+          {recentData.map((point, index) => (
             <button
               key={point.date}
               type="button"
-              onMouseEnter={() => setActiveIndex(data.findIndex((item) => item.date === point.date))}
-              onClick={() => setActiveIndex(data.findIndex((item) => item.date === point.date))}
+              onMouseEnter={() => setActiveIndex(index)}
+              onClick={() => setActiveIndex(index)}
               className={`rounded-full px-2 py-2 transition ${
-                point.date === activePoint.date
+                index === activeIndex
                   ? "bg-foreground text-white"
                   : "bg-[#f5f7f3] text-ink-soft hover:bg-[#edf2ee] hover:text-foreground"
               }`}
@@ -165,7 +162,7 @@ export function MoodHistoryChart({ data }: MoodHistoryChartProps) {
         </div>
       </div>
 
-      <div className="surface-card-strong panel-hover stagger-in p-6">
+      <div className="surface-card-strong panel-hover stagger-in min-w-0 p-6">
         <p className="soft-label">Titik aktif</p>
         <div className="mt-4 flex items-start justify-between gap-4">
           <div>
@@ -193,23 +190,23 @@ export function MoodHistoryChart({ data }: MoodHistoryChartProps) {
           </p>
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
           <div className="panel-hover rounded-[24px] bg-[#f4f7f3] px-4 py-4">
             <p className="soft-label">Rata-rata</p>
             <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-              {(data.reduce((sum, point) => sum + point.score, 0) / data.length).toFixed(1)}
+              {(recentData.reduce((sum, point) => sum + point.score, 0) / recentData.length).toFixed(1)}
             </p>
           </div>
           <div className="panel-hover rounded-[24px] bg-[#f4f7f3] px-4 py-4">
             <p className="soft-label">Tertinggi</p>
             <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-              {Math.max(...data.map((point) => point.score))}/5
+              {Math.max(...recentData.map((point) => point.score))}/5
             </p>
           </div>
           <div className="panel-hover rounded-[24px] bg-[#f4f7f3] px-4 py-4">
             <p className="soft-label">Terendah</p>
             <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-              {Math.min(...data.map((point) => point.score))}/5
+              {Math.min(...recentData.map((point) => point.score))}/5
             </p>
           </div>
         </div>

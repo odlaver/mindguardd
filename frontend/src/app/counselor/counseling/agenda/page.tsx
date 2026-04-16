@@ -25,9 +25,7 @@ export default function CounselorCounselingAgendaPage() {
       <section className="page-hero stagger-in flex flex-col gap-5 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
         <div>
           <p className="soft-label">Melihat Agenda Konseling</p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
-            Buka agenda aktif dan riwayat sesi konseling.
-          </h1>
+          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Agenda Konseling</h1>
         </div>
         <Link href="/counselor/counseling" className="button-secondary">
           Kembali
@@ -78,9 +76,6 @@ export default function CounselorCounselingAgendaPage() {
                   <StatusBadge tone="aman">{session.status}</StatusBadge>
                 </div>
                 <p className="mt-4 text-sm leading-7 text-ink-soft">{session.focus}</p>
-                <p className="mt-3 text-sm font-semibold text-foreground/72">
-                  Buka detail untuk catatan dan ringkasan hasil
-                </p>
               </Link>
             ))}
           </div>

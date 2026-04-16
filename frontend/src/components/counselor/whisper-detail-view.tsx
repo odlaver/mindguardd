@@ -38,7 +38,7 @@ export function WhisperDetailView({
             {report.urgency}
           </StatusBadge>
           <Link href="/counselor/whispers" className="button-secondary">
-            Kembali ke Laporan
+            Kembali
           </Link>
         </div>
       </section>
@@ -80,9 +80,6 @@ export function WhisperDetailView({
                 );
               })}
             </div>
-            <p className="mt-4 text-sm leading-7 text-ink-soft">
-              Status diperbarui untuk sesi kerja saat ini.
-            </p>
           </SectionCard>
 
           <SectionCard title="Info penanganan">
@@ -107,7 +104,7 @@ export function WhisperDetailView({
                 className="button-primary mt-4"
                 style={{ WebkitTextFillColor: "#ffffff" }}
               >
-                Buka detail siswa
+                Detail siswa
               </Link>
             ) : null}
           </SectionCard>

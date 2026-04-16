@@ -492,3 +492,193 @@ export const classHealth = [
   { className: "XI IPA 1", completion: "91%", riskBand: "Stabil" },
   { className: "XII IPA 3", completion: "74%", riskBand: "Perlu perhatian" },
 ];
+
+export type AdminUserRole = "Admin" | "Guru BK" | "Siswa" | "Wali Kelas";
+export type AdminAccountStatus = "Aktif" | "Menunggu" | "Nonaktif";
+
+export type AdminUser = {
+  id: string;
+  name: string;
+  role: AdminUserRole;
+  schoolId: string;
+  schoolName: string;
+  className?: string;
+  email: string;
+  status: AdminAccountStatus;
+  lastAccess: string;
+};
+
+export type AdminSchool = {
+  id: string;
+  name: string;
+  principal: string;
+  counselorCount: number;
+  studentCount: number;
+  classCount: number;
+  completion: string;
+};
+
+export type AdminClass = {
+  id: string;
+  schoolId: string;
+  schoolName: string;
+  className: string;
+  homeroom: string;
+  studentCount: number;
+  counselor: string;
+  completion: string;
+  riskBand: "Stabil" | "Monitor" | "Perlu perhatian";
+};
+
+export type AdminSystemConfig = {
+  id: string;
+  name: string;
+  group: string;
+  value: string;
+  status: "Aktif" | "Tertunda";
+  summary: string;
+  impact: string;
+};
+
+export const adminUsers: AdminUser[] = [
+  {
+    id: "usr-001",
+    name: "Raka Pratama",
+    role: "Siswa",
+    schoolId: "sch-001",
+    schoolName: "SMA Nusantara",
+    className: "XI IPA 2",
+    email: "raka.pratama@mindguard.id",
+    status: "Aktif",
+    lastAccess: "16 Apr 2026, 08.10",
+  },
+  {
+    id: "usr-002",
+    name: "Bu Sinta",
+    role: "Guru BK",
+    schoolId: "sch-001",
+    schoolName: "SMA Nusantara",
+    email: "sinta.bk@mindguard.id",
+    status: "Aktif",
+    lastAccess: "16 Apr 2026, 07.45",
+  },
+  {
+    id: "usr-003",
+    name: "Pak Adi",
+    role: "Wali Kelas",
+    schoolId: "sch-001",
+    schoolName: "SMA Nusantara",
+    className: "XI IPA 2",
+    email: "adi.wali@mindguard.id",
+    status: "Aktif",
+    lastAccess: "15 Apr 2026, 15.22",
+  },
+  {
+    id: "usr-004",
+    name: "Nadia Putri",
+    role: "Siswa",
+    schoolId: "sch-002",
+    schoolName: "SMA Cakrawala",
+    className: "X IPS 1",
+    email: "nadia.putri@mindguard.id",
+    status: "Menunggu",
+    lastAccess: "Belum masuk",
+  },
+  {
+    id: "usr-005",
+    name: "Admin Sekolah Pusat",
+    role: "Admin",
+    schoolId: "sch-001",
+    schoolName: "SMA Nusantara",
+    email: "admin@mindguard.id",
+    status: "Aktif",
+    lastAccess: "16 Apr 2026, 09.00",
+  },
+];
+
+export const adminSchools: AdminSchool[] = [
+  {
+    id: "sch-001",
+    name: "SMA Nusantara",
+    principal: "Drs. Haris Setiawan",
+    counselorCount: 3,
+    studentCount: 412,
+    classCount: 11,
+    completion: "88%",
+  },
+  {
+    id: "sch-002",
+    name: "SMA Cakrawala",
+    principal: "Dewi Lestari, M.Pd.",
+    counselorCount: 2,
+    studentCount: 272,
+    classCount: 7,
+    completion: "81%",
+  },
+];
+
+export const adminClasses: AdminClass[] = [
+  {
+    id: "cls-001",
+    schoolId: "sch-001",
+    schoolName: "SMA Nusantara",
+    className: "XI IPA 2",
+    homeroom: "Pak Adi",
+    studentCount: 34,
+    counselor: "Bu Sinta",
+    completion: "86%",
+    riskBand: "Perlu perhatian",
+  },
+  {
+    id: "cls-002",
+    schoolId: "sch-002",
+    schoolName: "SMA Cakrawala",
+    className: "X IPS 1",
+    homeroom: "Bu Rina",
+    studentCount: 31,
+    counselor: "Bu Maya",
+    completion: "79%",
+    riskBand: "Monitor",
+  },
+  {
+    id: "cls-003",
+    schoolId: "sch-001",
+    schoolName: "SMA Nusantara",
+    className: "XI IPA 1",
+    homeroom: "Pak Yudi",
+    studentCount: 33,
+    counselor: "Bu Sinta",
+    completion: "91%",
+    riskBand: "Stabil",
+  },
+];
+
+export const adminSystemConfigs: AdminSystemConfig[] = [
+  {
+    id: "cfg-001",
+    name: "Alert otomatis",
+    group: "Alert",
+    value: "Mood <= 2 selama 3 hari",
+    status: "Aktif",
+    summary: "Pemicu alert risiko otomatis.",
+    impact: "Masuk ke antrean alert BK.",
+  },
+  {
+    id: "cfg-002",
+    name: "Review whisper tinggi",
+    group: "Whisper",
+    value: "<= 24 jam",
+    status: "Aktif",
+    summary: "Batas waktu tinjau laporan dengan urgensi tinggi.",
+    impact: "Muncul di prioritas BK.",
+  },
+  {
+    id: "cfg-003",
+    name: "Pengingat harian",
+    group: "Notifikasi",
+    value: "Pukul 07.00",
+    status: "Tertunda",
+    summary: "Pengingat check-in siswa.",
+    impact: "Belum dijalankan di rilis ini.",
+  },
+];

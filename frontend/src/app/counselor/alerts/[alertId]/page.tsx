@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { MoodTrack } from "@/components/counselor/mood-track";
+import { AlertDetailPanels } from "@/components/counselor/alert-detail-panels";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { alerts, counselorStudents } from "@/lib/mock-data";
@@ -53,49 +53,28 @@ export default async function AlertDetailPage({ params }: AlertDetailPageProps) 
             {alert.severity}
           </StatusBadge>
           <Link href="/counselor/alerts" className="button-secondary">
-            Kembali ke Alert
+            Kembali
           </Link>
         </div>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
-        <SectionCard title="Menganalisis Tren Mood" className="p-5 sm:p-6">
-          <div className="flex flex-wrap gap-2">
-            <StatusBadge tone={getReviewTone(alert.status)}>{alert.status}</StatusBadge>
-            <StatusBadge tone="monitor">{alert.id}</StatusBadge>
-          </div>
-
-          <p className="mt-5 text-lg font-semibold tracking-[-0.03em]">{alert.reason}</p>
-          <p className="mt-4 text-base leading-8 text-ink-soft">{alert.summary}</p>
-
-          <div className="mt-6">
-            <MoodTrack history={student.moodHistory} title="Track mood terkait alert" />
-          </div>
-        </SectionCard>
-
-        <div className="grid gap-4">
-          <SectionCard title="Menindaklanjuti Siswa" className="p-5 sm:p-6">
-            <div className="rounded-[28px] border border-stroke bg-[#f7f8f4] p-5">
-              <p className="soft-label">Rekomendasi</p>
-              <p className="mt-3 text-base leading-8 text-ink-soft">
-                {alert.recommendation}
-              </p>
-            </div>
-          </SectionCard>
-
-          <SectionCard title="Akses Cepat" className="p-5 sm:p-6">
-            <div className="grid gap-3">
-              <Link
-                href={`/counselor/students/${student.id}`}
-                className="button-primary"
-                style={{ WebkitTextFillColor: "#ffffff" }}
-              >
-                Buka detail siswa
-              </Link>
-            </div>
-          </SectionCard>
+      <SectionCard className="p-5 sm:p-6">
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge tone={getReviewTone(alert.status)}>{alert.status}</StatusBadge>
+          <StatusBadge tone="monitor">{alert.id}</StatusBadge>
         </div>
-      </section>
+
+        <p className="mt-5 text-lg font-semibold tracking-[-0.03em]">{alert.reason}</p>
+        <p className="mt-4 text-base leading-8 text-ink-soft">{alert.summary}</p>
+
+        <div className="mt-6">
+          <AlertDetailPanels
+            history={student.moodHistory}
+            recommendation={alert.recommendation}
+            detailHref={`/counselor/students/${student.id}`}
+          />
+        </div>
+      </SectionCard>
     </>
   );
 }

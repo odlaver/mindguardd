@@ -11,7 +11,7 @@ export default function AdminLayout({
       accentClass="bg-warning/25 text-foreground"
       navItems={adminNav}
       roleLabel="Admin"
-      title="Admin Control"
+      title="Panel Admin"
     >
       {children}
     </AppShell>

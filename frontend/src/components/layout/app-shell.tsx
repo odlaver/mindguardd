@@ -39,7 +39,7 @@ export function AppShell({
 
   return (
     <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-4 lg:min-h-screen lg:flex-row lg:px-6">
-      <aside className="surface-card-strong stagger-in flex w-full shrink-0 flex-col gap-6 overflow-hidden p-6 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:w-[286px]">
+      <aside className="surface-card-strong stagger-in flex w-full shrink-0 flex-col gap-6 overflow-y-auto p-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:w-[286px]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="soft-label">MindGuard</p>

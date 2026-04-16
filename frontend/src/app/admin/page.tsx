@@ -1,100 +1,108 @@
+import Link from "next/link";
+
 import { MetricCard } from "@/components/ui/metric-card";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
+  adminClasses,
   adminMetrics,
-  adminThresholds,
-  classHealth,
+  adminSchools,
+  adminSystemConfigs,
+  adminUsers,
 } from "@/lib/mock-data";
+
+const featureCards = [
+  {
+    href: "/admin/users",
+    label: "Mengelola Akun Pengguna",
+    title: "Akun Pengguna",
+    detail: `${adminUsers.length} akun`,
+  },
+  {
+    href: "/admin/schools",
+    label: "Mengelola Data Kelas/Sekolah",
+    title: "Data Kelas dan Sekolah",
+    detail: `${adminSchools.length} sekolah | ${adminClasses.length} kelas`,
+  },
+  {
+    href: "/admin/system",
+    label: "Mengkonfigurasi Sistem",
+    title: "Konfigurasi Sistem",
+    detail: `${adminSystemConfigs.length} pengaturan`,
+  },
+];
 
 export default function AdminPage() {
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="soft-label">Dashboard Admin</p>
+          <p className="soft-label">Mengelola Data User dan Sekolah</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
-            Kontrol operasional.
+            Panel admin.
           </h1>
         </div>
-        <StatusBadge tone="warning">Mode konfigurasi MVP</StatusBadge>
+        <StatusBadge tone="monitor">{adminSchools.length} sekolah aktif</StatusBadge>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          label="Total users"
-          value={adminMetrics.totalUsers}
-        />
-        <MetricCard
-          label="Siswa aktif"
-          value={adminMetrics.activeStudents}
-        />
-        <MetricCard
-          label="Guru BK"
-          value={adminMetrics.counselors}
-        />
-        <MetricCard
-          label="Kelas"
-          value={adminMetrics.classes}
-        />
+        <MetricCard label="Total pengguna" value={adminMetrics.totalUsers} />
+        <MetricCard label="Siswa aktif" value={adminMetrics.activeStudents} />
+        <MetricCard label="Guru BK" value={adminMetrics.counselors} />
+        <MetricCard label="Kelas" value={adminMetrics.classes} />
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.95fr]">
-        <SectionCard title="System configuration">
-          <div className="grid gap-3">
-            {adminThresholds.map((item) => (
-              <article key={item.label} className="panel-hover rounded-[24px] bg-white p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-lg font-semibold">{item.label}</h2>
-                  <StatusBadge
-                    tone={item.status === "Aktif" ? "aman" : "warning"}
-                  >
-                    {item.status}
-                  </StatusBadge>
+      <section className="grid gap-4 xl:grid-cols-[1.32fr_0.68fr]">
+        <SectionCard title="Alur utama">
+          <div className="grid gap-4 md:grid-cols-3">
+            {featureCards.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="panel-hover flex min-h-[250px] flex-col rounded-[28px] border border-stroke bg-white p-6 transition"
+              >
+                <span className="soft-label">{item.label}</span>
+                <h2 className="mt-5 text-[1.95rem] font-semibold leading-[1.08] tracking-[-0.045em]">
+                  {item.title}
+                </h2>
+                <div className="mt-auto flex items-center justify-between gap-3 pt-8">
+                  <StatusBadge tone="monitor">{item.detail}</StatusBadge>
+                  <span className="text-2xl leading-none text-foreground">-&gt;</span>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-ink-soft">
-                  {item.description}
-                </p>
-              </article>
+              </Link>
             ))}
           </div>
         </SectionCard>
 
-        <SectionCard title="Health per kelas">
+        <SectionCard title="Sorotan sekolah">
           <div className="grid gap-3">
-            {classHealth.map((item) => (
-              <article
-                key={item.className}
-                className="panel-hover grid gap-3 rounded-[24px] bg-white p-4 md:grid-cols-[0.7fr_0.5fr_0.7fr]"
+            {adminSchools.map((school) => (
+              <Link
+                key={school.id}
+                href={`/admin/schools/${school.id}`}
+                className="panel-hover grid gap-3 rounded-[26px] border border-stroke bg-white p-5 md:grid-cols-[1fr_0.45fr_0.28fr]"
               >
                 <div>
-                  <h2 className="text-lg font-semibold">{item.className}</h2>
-                  <p className="mt-1 text-sm text-ink-soft">
-                    Completion {item.completion}
+                  <h2 className="text-xl font-semibold tracking-[-0.03em]">
+                    {school.name}
+                  </h2>
+                  <p className="mt-2 text-sm text-ink-soft">
+                    {school.studentCount} siswa | {school.classCount} kelas
                   </p>
                 </div>
                 <div className="flex items-center">
                   <div className="h-3 w-full overflow-hidden rounded-full bg-[#eef5ef]">
                     <div
                       className="h-full rounded-full bg-foreground"
-                      style={{ width: item.completion }}
+                      style={{ width: school.completion }}
                     />
                   </div>
                 </div>
-                <div className="flex items-center">
-                  <StatusBadge
-                    tone={
-                      item.riskBand === "Stabil"
-                        ? "aman"
-                        : item.riskBand === "Monitor"
-                          ? "warning"
-                          : "danger"
-                    }
-                  >
-                    {item.riskBand}
-                  </StatusBadge>
+                <div className="flex items-center justify-between gap-3">
+                  <StatusBadge tone="monitor">{school.completion}</StatusBadge>
+                  <span className="text-xl leading-none text-foreground">-&gt;</span>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </SectionCard>

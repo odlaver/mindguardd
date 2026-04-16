@@ -22,9 +22,7 @@ export default function CounselorAlertsPage() {
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="soft-label">Menerima Alert Risiko</p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
-            Klik alert untuk melihat detail dan track mood siswa.
-          </h1>
+          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Alert Risiko</h1>
         </div>
         <StatusBadge tone="monitor">3 hari mood &lt;= 2</StatusBadge>
       </section>

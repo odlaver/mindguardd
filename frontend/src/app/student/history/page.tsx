@@ -14,7 +14,7 @@ export default function StudentHistoryPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <StatusBadge tone="monitor">14 hari</StatusBadge>
+          <StatusBadge tone="monitor">7 hari</StatusBadge>
           <StatusBadge>Skala 1-5</StatusBadge>
         </div>
       </section>

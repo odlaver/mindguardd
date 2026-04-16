@@ -22,9 +22,7 @@ export default function CounselorWhispersPage() {
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="soft-label">Menindaklanjuti Siswa</p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
-            Klik laporan untuk meninjau isi dan update status.
-          </h1>
+          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">Laporan Siswa</h1>
         </div>
         <StatusBadge tone="danger">
           {whisperReports.filter((item) => item.status !== "Selesai").length} laporan aktif

@@ -18,7 +18,7 @@ export function SectionCard({
       {(title || description) && (
         <header className="mb-5 flex flex-col gap-2">
           {title ? (
-            <h2 className="text-[1.7rem] font-semibold tracking-[-0.045em]">
+            <h2 className="text-[1.65rem] font-semibold tracking-[-0.045em] text-foreground">
               {title}
             </h2>
           ) : null}

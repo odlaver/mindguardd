@@ -55,10 +55,10 @@ export default function StudentCounselingRequestPage() {
                       key={item}
                       type="button"
                       onClick={() => setTopic(item)}
-                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                      className={`choice-chip ${
                         active
-                          ? "border-foreground bg-foreground text-white"
-                          : "border-stroke bg-[#f7f8f4] text-foreground hover:border-foreground/16"
+                          ? "choice-chip-active"
+                          : "choice-chip-idle"
                       }`}
                     >
                       {item}
@@ -79,10 +79,10 @@ export default function StudentCounselingRequestPage() {
                       key={item}
                       type="button"
                       onClick={() => setSlot(item)}
-                      className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                      className={`choice-chip ${
                         active
-                          ? "border-foreground bg-foreground text-white"
-                          : "border-stroke bg-[#f7f8f4] text-foreground hover:border-foreground/16"
+                          ? "choice-chip-active"
+                          : "choice-chip-idle"
                       }`}
                     >
                       {item}
@@ -101,7 +101,7 @@ export default function StudentCounselingRequestPage() {
                 rows={6}
                 value={summary}
                 onChange={(event) => setSummary(event.target.value)}
-                className="mt-3 w-full resize-none rounded-[24px] border border-stroke bg-[#f7f8f4] px-5 py-4 text-[15px] leading-7 outline-none transition focus:border-foreground/25"
+                className="field-control mt-3 resize-none"
                 placeholder="Tulis garis besar hal yang ingin dibahas."
               />
             </div>
@@ -122,7 +122,7 @@ export default function StudentCounselingRequestPage() {
         </SectionCard>
 
         <SectionCard title="Ringkasan" className="p-5">
-          <div className="rounded-[28px] border border-stroke bg-[#f7f8f4] p-5">
+          <div className="rounded-[24px] border border-stroke bg-[#f7f8f4] p-5">
             <div className="flex flex-wrap gap-2">
               <StatusBadge tone="monitor">{topic}</StatusBadge>
               <StatusBadge tone="aman">{slot}</StatusBadge>
@@ -134,7 +134,7 @@ export default function StudentCounselingRequestPage() {
             </p>
           </div>
 
-          <div className="mt-4 rounded-[28px] border border-dashed border-stroke bg-white p-5">
+          <div className="mt-4 rounded-[24px] border border-dashed border-stroke bg-white p-5">
             <p className="soft-label">Status</p>
             <p className="mt-3 text-xl font-semibold">
               {submitted ? "Pengajuan terkirim" : "Belum diajukan"}

@@ -31,14 +31,15 @@ export default async function AdminSystemDetailPage({
         <div>
           <p className="soft-label">Mengkonfigurasi Sistem</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">{config.name}</h1>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <StatusBadge tone="monitor">{config.group}</StatusBadge>
+            <StatusBadge tone={configTone(config.status)}>{config.status}</StatusBadge>
+            <StatusBadge tone="neutral">{config.value}</StatusBadge>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge tone="monitor">{config.group}</StatusBadge>
-          <StatusBadge tone={configTone(config.status)}>{config.status}</StatusBadge>
-          <Link href="/admin/system" className="button-secondary">
-            Kembali
-          </Link>
-        </div>
+        <Link href="/admin/system" className="button-secondary">
+          Kembali
+        </Link>
       </section>
 
       <SystemConfigEditor config={config} />

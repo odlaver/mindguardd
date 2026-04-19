@@ -16,8 +16,8 @@ export const counselorNav: NavItem[] = [
 ];
 
 export const adminNav: NavItem[] = [
-  { href: "/admin", label: "Mengelola Data User dan Sekolah" },
-  { href: "/admin/users", label: "Mengelola Akun Pengguna" },
-  { href: "/admin/schools", label: "Mengelola Data Kelas/Sekolah" },
-  { href: "/admin/system", label: "Mengkonfigurasi Sistem" },
+  { href: "/admin", label: "Ringkasan" },
+  { href: "/admin/users", label: "Akun Pengguna" },
+  { href: "/admin/schools", label: "Data Kelas" },
+  { href: "/admin/system", label: "Pengaturan" },
 ];

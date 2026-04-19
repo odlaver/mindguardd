@@ -9,6 +9,9 @@ function configTone(status: "Aktif" | "Tertunda") {
 }
 
 export default function AdminSystemPage() {
+  const activeConfigs = adminSystemConfigs.filter((item) => item.status === "Aktif").length;
+  const pendingConfigs = adminSystemConfigs.filter((item) => item.status === "Tertunda").length;
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
@@ -18,15 +21,19 @@ export default function AdminSystemPage() {
             Konfigurasi sistem.
           </h1>
         </div>
-        <StatusBadge tone="monitor">{adminSystemConfigs.length} pengaturan</StatusBadge>
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge tone="monitor">{adminSystemConfigs.length} pengaturan</StatusBadge>
+          <StatusBadge tone="aman">{activeConfigs} aktif</StatusBadge>
+          <StatusBadge tone="warning">{pendingConfigs} tertunda</StatusBadge>
+        </div>
       </section>
 
-      <SectionCard title="Daftar konfigurasi">
+      <SectionCard title="Daftar konfigurasi" className="p-5 sm:p-6">
         <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
           {adminSystemConfigs.map((item) => (
             <article
               key={item.id}
-              className="panel-hover flex min-h-[320px] max-h-[390px] flex-col overflow-hidden rounded-[28px] border border-stroke bg-white p-6"
+              className="panel-hover flex min-h-[320px] flex-col rounded-[24px] border border-stroke bg-white p-5"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <StatusBadge tone="monitor">{item.group}</StatusBadge>
@@ -37,12 +44,12 @@ export default function AdminSystemPage() {
                 {item.name}
               </h2>
 
-              <div className="mt-5 rounded-[24px] border border-stroke bg-[#f7f8f4] p-4">
+              <div className="mt-5 rounded-[20px] border border-stroke bg-[#f7f8f4] p-4">
                 <p className="soft-label">Nilai aktif</p>
                 <p className="mt-3 text-lg font-semibold">{item.value}</p>
               </div>
 
-              <div className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
+              <div className="mt-5 flex-1">
                 <p className="text-sm leading-7 text-ink-soft">{item.summary}</p>
                 <div className="mt-4 rounded-[20px] border border-stroke bg-[#f7f8f4] p-4">
                   <p className="soft-label">Dampak</p>
@@ -50,13 +57,9 @@ export default function AdminSystemPage() {
                 </div>
               </div>
 
-              <div className="mt-5 flex items-center justify-between gap-3 pt-2">
+              <div className="mt-5 flex items-center justify-between gap-3">
                 <StatusBadge tone="neutral">{item.group}</StatusBadge>
-                <Link
-                  href={`/admin/system/${item.id}`}
-                  className="button-primary text-white hover:text-white"
-                  style={{ WebkitTextFillColor: "#ffffff" }}
-                >
+                <Link href={`/admin/system/${item.id}`} className="button-secondary">
                   Ubah
                 </Link>
               </div>

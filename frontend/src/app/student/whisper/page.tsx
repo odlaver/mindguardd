@@ -83,7 +83,7 @@ export default function StudentWhisperPage() {
                   type="button"
                   onClick={() => setUrgency("Normal")}
                   aria-pressed={urgency === "Normal"}
-                  className={`rounded-[22px] border px-4 py-4 text-left font-semibold transition ${
+                  className={`rounded-[20px] border px-4 py-4 text-left font-semibold transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10 ${
                     urgency === "Normal"
                       ? "border-foreground bg-foreground text-white shadow-[0_14px_30px_rgba(23,48,41,0.14)]"
                       : "border-stroke bg-white text-foreground hover:border-foreground/18 hover:bg-[#f7f9f5]"
@@ -95,7 +95,7 @@ export default function StudentWhisperPage() {
                   type="button"
                   onClick={() => setUrgency("Tinggi")}
                   aria-pressed={urgency === "Tinggi"}
-                  className={`rounded-[22px] border px-4 py-4 text-left font-semibold transition ${
+                  className={`rounded-[20px] border px-4 py-4 text-left font-semibold transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-danger/15 ${
                     urgency === "Tinggi"
                       ? "border-danger bg-danger text-white shadow-[0_14px_30px_rgba(217,122,114,0.2)]"
                       : "border-danger/30 bg-danger/10 text-danger hover:bg-danger hover:text-white"
@@ -110,7 +110,7 @@ export default function StudentWhisperPage() {
               <span className="text-sm font-semibold">Isi laporan</span>
               <textarea
                 rows={8}
-                className="w-full rounded-[22px] border border-stroke bg-white px-4 py-4 outline-none transition focus:border-foreground/25"
+                className="field-control bg-white px-4"
                 placeholder="Tulis yang perlu disampaikan."
               />
             </label>
@@ -129,7 +129,7 @@ export default function StudentWhisperPage() {
               <Link
                 key={report.id}
                 href={`/student/whisper/${report.id}`}
-                className="panel-hover rounded-[26px] border border-stroke bg-white p-5"
+                className="panel-hover rounded-[24px] border border-stroke bg-white p-5"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-2">

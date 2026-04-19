@@ -8,7 +8,7 @@ export default function AdminLayout({
 }>) {
   return (
     <AppShell
-      accentClass="bg-warning/25 text-foreground"
+      accentClass="border border-warning/35 bg-warning/18 text-foreground"
       navItems={adminNav}
       roleLabel="Admin"
       title="Panel Admin"

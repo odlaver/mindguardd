@@ -60,7 +60,7 @@ export function LoginScreen() {
               <label className="block space-y-2">
                 <span className="text-sm font-semibold">Email atau NIS</span>
                 <input
-                  className="w-full rounded-[22px] border border-stroke bg-white px-4 py-4 outline-none transition focus:border-foreground/25"
+                  className="field-control bg-white px-4"
                   placeholder="nama@sekolah.sch.id"
                 />
               </label>
@@ -68,7 +68,7 @@ export function LoginScreen() {
                 <span className="text-sm font-semibold">Password</span>
                 <input
                   type="password"
-                  className="w-full rounded-[22px] border border-stroke bg-white px-4 py-4 outline-none transition focus:border-foreground/25"
+                  className="field-control bg-white px-4"
                   placeholder="********"
                 />
               </label>

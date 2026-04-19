@@ -56,13 +56,13 @@ export function CustomSelect({
         aria-haspopup="listbox"
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          "group relative flex w-full items-center gap-4 overflow-hidden rounded-[24px] border bg-white px-4 py-4 text-left shadow-[0_12px_28px_rgba(32,51,45,0.05)] transition duration-300",
+          "group relative flex w-full items-center gap-4 overflow-hidden rounded-[24px] border bg-white px-4 py-4 text-left shadow-[0_12px_28px_rgba(32,51,45,0.05)] transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10",
           open
             ? "border-foreground/20 shadow-[0_18px_34px_rgba(32,51,45,0.08)]"
             : "border-stroke hover:-translate-y-0.5 hover:border-foreground/14",
         )}
       >
-        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] bg-[#f4f7f3] text-foreground/72 transition group-hover:bg-[#edf3ee] group-hover:text-foreground">
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] bg-[#f4f7f3] text-foreground/72 transition-all duration-300 ease-in-out group-hover:bg-[#edf3ee] group-hover:text-foreground">
           {icon}
         </span>
 
@@ -80,6 +80,7 @@ export function CustomSelect({
         <span
           className={cn(
             "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] bg-foreground text-white transition duration-300",
+            "transition-all duration-300 ease-in-out",
             open ? "rotate-180" : "",
           )}
         >
@@ -116,7 +117,7 @@ export function CustomSelect({
                     setOpen(false);
                   }}
                   className={cn(
-                    "rounded-[18px] px-4 py-3 text-left transition",
+                    "rounded-[18px] px-4 py-3 text-left transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10",
                     active
                       ? "bg-foreground text-white"
                       : "bg-white text-foreground hover:bg-[#f5f7f4]",

@@ -30,44 +30,46 @@ export default async function AdminSchoolDetailPage({
         <div>
           <p className="soft-label">Mengelola Data Kelas/Sekolah</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">{school.name}</h1>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <StatusBadge tone="monitor">{school.completion}</StatusBadge>
+            <StatusBadge tone="neutral">{school.classCount} kelas</StatusBadge>
+            <StatusBadge tone="aman">{school.counselorCount} guru BK</StatusBadge>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge tone="monitor">{school.completion}</StatusBadge>
-          <Link href="/admin/schools" className="button-secondary">
-            Kembali
-          </Link>
-        </div>
+        <Link href="/admin/schools" className="button-secondary">
+          Kembali
+        </Link>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
-        <SectionCard title="Profil sekolah" className="h-full">
+        <SectionCard title="Profil sekolah" className="h-full p-5 sm:p-6">
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[24px] border border-stroke bg-white p-5">
+            <div className="rounded-[20px] border border-stroke bg-[#f7f8f4] px-5 py-5">
               <p className="soft-label">Kepala sekolah</p>
               <p className="mt-3 text-lg font-semibold">{school.principal}</p>
             </div>
-            <div className="rounded-[24px] border border-stroke bg-white p-5">
+            <div className="rounded-[20px] border border-stroke bg-[#f7f8f4] px-5 py-5">
               <p className="soft-label">Guru BK</p>
               <p className="mt-3 text-lg font-semibold">{school.counselorCount}</p>
             </div>
-            <div className="rounded-[24px] border border-stroke bg-white p-5">
+            <div className="rounded-[20px] border border-stroke bg-[#f7f8f4] px-5 py-5">
               <p className="soft-label">Siswa</p>
               <p className="mt-3 text-lg font-semibold">{school.studentCount}</p>
             </div>
-            <div className="rounded-[24px] border border-stroke bg-white p-5">
+            <div className="rounded-[20px] border border-stroke bg-[#f7f8f4] px-5 py-5">
               <p className="soft-label">Kelas</p>
               <p className="mt-3 text-lg font-semibold">{school.classCount}</p>
             </div>
           </div>
         </SectionCard>
 
-        <SectionCard title="Ruang terkait" className="h-full">
-          <div className="grid h-full gap-3">
+        <SectionCard title="Ruang terkait" className="h-full p-5 sm:p-6">
+          <div className="grid content-start gap-3">
             {schoolClasses.map((item) => (
               <Link
                 key={item.id}
                 href={`/admin/schools/classes/${item.id}`}
-                className="panel-hover flex items-center justify-between rounded-[26px] border border-stroke bg-white p-5"
+                className="panel-hover flex items-center justify-between rounded-[24px] border border-stroke bg-white p-5"
               >
                 <div>
                   <p className="soft-label">Kelas</p>
@@ -77,11 +79,9 @@ export default async function AdminSchoolDetailPage({
               </Link>
             ))}
 
-            <div className="rounded-[26px] border border-stroke bg-white p-5">
+            <div className="rounded-[24px] border border-stroke bg-white p-5">
               <p className="soft-label">Akun terhubung</p>
-              <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-                {schoolUsers.length}
-              </p>
+              <p className="mt-3 text-2xl font-semibold tracking-[-0.04em]">{schoolUsers.length}</p>
             </div>
           </div>
         </SectionCard>

@@ -84,12 +84,12 @@ a {
   }
 
   .button-primary {
-    @apply inline-flex items-center justify-center rounded-[18px] bg-foreground px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5;
+    @apply inline-flex items-center justify-center rounded-[18px] bg-foreground px-5 py-3 text-sm font-semibold text-white transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:bg-foreground/94 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10;
     -webkit-text-fill-color: currentColor;
   }
 
   .button-secondary {
-    @apply inline-flex items-center justify-center rounded-[18px] border border-stroke bg-white/80 px-5 py-3 text-sm font-semibold text-foreground transition hover:border-foreground/20 hover:bg-white;
+    @apply inline-flex items-center justify-center rounded-[18px] border border-stroke bg-white/80 px-5 py-3 text-sm font-semibold text-foreground transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:border-foreground/20 hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10;
     -webkit-text-fill-color: currentColor;
   }
 
@@ -102,11 +102,11 @@ a {
   }
 
   .panel-hover {
-    @apply transition duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(35,58,50,0.1)];
+    @apply transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(35,58,50,0.1)];
   }
 
   .nav-link {
-    @apply relative overflow-hidden rounded-[20px] border px-4 py-3.5 text-sm font-medium transition duration-300 ease-out;
+    @apply relative overflow-hidden rounded-[20px] border px-4 py-3.5 text-sm font-medium transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10;
   }
 
   .nav-link::before {
@@ -126,6 +126,30 @@ a {
 
   .stagger-in {
     animation: rise-in 420ms ease-out both;
+  }
+
+  .surface-panel {
+    @apply rounded-[24px] border border-stroke bg-white p-5;
+  }
+
+  .surface-panel-soft {
+    @apply rounded-[20px] border border-stroke bg-[#f7f8f4] px-5 py-5;
+  }
+
+  .field-control {
+    @apply w-full rounded-[20px] border border-stroke bg-[#f7f8f4] px-5 py-4 text-[15px] leading-7 text-foreground outline-none transition-all duration-300 ease-in-out focus:border-foreground/25 focus:ring-4 focus:ring-foreground/8;
+  }
+
+  .choice-chip {
+    @apply rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10;
+  }
+
+  .choice-chip-active {
+    @apply border-foreground bg-foreground text-white shadow-[0_14px_30px_rgba(23,48,41,0.14)];
+  }
+
+  .choice-chip-idle {
+    @apply border-stroke bg-[#f7f8f4] text-foreground hover:border-foreground/16 hover:bg-white;
   }
 }
 

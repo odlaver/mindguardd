@@ -14,6 +14,10 @@ const requestSchema = z.object({
   sessionTime: z.string().regex(/^\d{2}:\d{2}$/),
 });
 
+function createSessionId() {
+  return `CS-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+}
+
 export async function POST(request: Request) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -55,7 +59,7 @@ export async function POST(request: Request) {
   const scheduledAt = new Date(
     `${parsed.data.sessionDate}T${parsed.data.sessionTime}:00+07:00`,
   );
-  const id = `CS-${String(Math.floor(Math.random() * 900) + 200)}`;
+  const id = createSessionId();
 
   await getDb().transaction(async (tx) => {
     await tx.insert(counselingSessions).values({

@@ -36,6 +36,10 @@ export default async function CounselingDetailPage({
     notFound();
   }
 
+  const hasOutcome = Boolean(session.outcome?.trim());
+  const hasFollowUp = Boolean(session.followUp?.trim());
+  const hasSummary = hasOutcome || hasFollowUp;
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-5 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
@@ -79,32 +83,43 @@ export default async function CounselingDetailPage({
           </div>
         </SectionCard>
 
-        <StudentCounselingSessionActions
-          sessionId={session.id}
-          status={session.invitationStatus}
-          studentConfirmationNote={session.studentConfirmationNote}
-          studentCompletionNote={session.studentCompletionNote}
-        />
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-        <SectionCard title="Catatan sesi">
-          <p className="text-base leading-8 text-ink-soft">{session.note}</p>
-        </SectionCard>
-
-        <SectionCard title="Ringkasan hasil">
-          <div className="grid gap-4">
+        <SectionCard title="Catatan & Respons">
+          <div className="grid gap-5">
             <div className="rounded-[22px] border border-stroke bg-[#f7f8f4] px-4 py-4">
-              <p className="soft-label">Hasil sesi</p>
-              <p className="mt-3 text-base leading-8 text-ink-soft">{session.outcome ?? "-"}</p>
+              <p className="soft-label">Catatan sesi</p>
+              <p className="mt-3 text-base leading-8 text-ink-soft">{session.note}</p>
             </div>
-            <div className="rounded-[22px] border border-stroke bg-white px-4 py-4">
-              <p className="soft-label">Tindak lanjut</p>
-              <p className="mt-3 text-base leading-8 text-ink-soft">{session.followUp ?? "-"}</p>
-            </div>
+
+            <StudentCounselingSessionActions
+              sessionId={session.id}
+              status={session.invitationStatus}
+              studentConfirmationNote={session.studentConfirmationNote}
+              studentCompletionNote={session.studentCompletionNote}
+            />
           </div>
         </SectionCard>
       </section>
+
+      {hasSummary ? (
+        <section className="grid gap-5">
+          <SectionCard title="Ringkasan hasil">
+            <div className="grid gap-4">
+              {hasOutcome ? (
+                <div className="rounded-[22px] border border-stroke bg-[#f7f8f4] px-4 py-4">
+                  <p className="soft-label">Hasil sesi</p>
+                  <p className="mt-3 text-base leading-8 text-ink-soft">{session.outcome}</p>
+                </div>
+              ) : null}
+              {hasFollowUp ? (
+                <div className="rounded-[22px] border border-stroke bg-white px-4 py-4">
+                  <p className="soft-label">Tindak lanjut</p>
+                  <p className="mt-3 text-base leading-8 text-ink-soft">{session.followUp}</p>
+                </div>
+              ) : null}
+            </div>
+          </SectionCard>
+        </section>
+      ) : null}
     </>
   );
 }

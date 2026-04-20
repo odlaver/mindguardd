@@ -10,6 +10,9 @@ type CounselingDetailPageProps = {
   params: Promise<{
     sessionId: string;
   }>;
+  searchParams: Promise<{
+    created?: string;
+  }>;
 };
 
 function getReviewTone(status: "Menunggu Konfirmasi" | "Dikonfirmasi" | "Selesai") {
@@ -26,14 +29,21 @@ function getReviewTone(status: "Menunggu Konfirmasi" | "Dikonfirmasi" | "Selesai
 
 export default async function CounselorCounselingDetailPage({
   params,
+  searchParams,
 }: CounselingDetailPageProps) {
   await requireRole("counselor");
   const { sessionId } = await params;
+  const { created } = await searchParams;
   const session = await getCounselingSessionById(sessionId);
 
   if (!session) {
     notFound();
   }
+
+  const hasOutcome = Boolean(session.outcome?.trim());
+  const hasFollowUp = Boolean(session.followUp?.trim());
+  const hasStudentCompletionNote = Boolean(session.studentCompletionNote?.trim());
+  const hasSummary = hasOutcome || hasFollowUp || hasStudentCompletionNote;
 
   return (
     <>
@@ -53,9 +63,21 @@ export default async function CounselorCounselingDetailPage({
         </div>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.02fr_0.98fr]">
+      <section className={`grid gap-4 ${hasSummary ? "xl:grid-cols-[1.02fr_0.98fr]" : ""}`}>
         <SectionCard title="Catatan Sesi" className="p-5 sm:p-6">
+          {created === "1" ? (
+            <div className="mb-4 rounded-[24px] border border-stroke bg-[#f7f8f4] p-4">
+              <p className="soft-label">Konfirmasi</p>
+              <p className="mt-3 text-base leading-8 text-ink-soft">
+                Jadwal berhasil dibuat dan sudah masuk ke agenda konseling.
+              </p>
+            </div>
+          ) : null}
           <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-[24px] border border-stroke bg-[#f7f8f4] p-4">
+              <p className="soft-label">Siswa</p>
+              <p className="mt-3 text-base font-semibold">{session.studentName}</p>
+            </div>
             <div className="rounded-[24px] border border-stroke bg-[#f7f8f4] p-4">
               <p className="soft-label">Waktu</p>
               <p className="mt-3 text-base font-semibold">{session.when}</p>
@@ -87,28 +109,32 @@ export default async function CounselorCounselingDetailPage({
           </div>
         </SectionCard>
 
-        <SectionCard title="Ringkasan Hasil Konseling" className="p-5 sm:p-6">
-          <div className="grid gap-4">
-            <div className="rounded-[28px] border border-stroke bg-[#f7f8f4] p-5">
-              <p className="soft-label">Hasil sesi</p>
-              <p className="mt-3 text-base leading-8 text-ink-soft">
-                {session.outcome ?? "-"}
-              </p>
+        {hasSummary ? (
+          <SectionCard title="Ringkasan Hasil Konseling" className="p-5 sm:p-6">
+            <div className="grid gap-4">
+              {hasOutcome ? (
+                <div className="rounded-[28px] border border-stroke bg-[#f7f8f4] p-5">
+                  <p className="soft-label">Hasil sesi</p>
+                  <p className="mt-3 text-base leading-8 text-ink-soft">{session.outcome}</p>
+                </div>
+              ) : null}
+              {hasFollowUp ? (
+                <div className="rounded-[28px] border border-stroke bg-white p-5">
+                  <p className="soft-label">Tindak lanjut</p>
+                  <p className="mt-3 text-base leading-8 text-ink-soft">{session.followUp}</p>
+                </div>
+              ) : null}
+              {hasStudentCompletionNote ? (
+                <div className="rounded-[28px] border border-stroke bg-white p-5">
+                  <p className="soft-label">Catatan penutupan siswa</p>
+                  <p className="mt-3 text-base leading-8 text-ink-soft">
+                    {session.studentCompletionNote}
+                  </p>
+                </div>
+              ) : null}
             </div>
-            <div className="rounded-[28px] border border-stroke bg-white p-5">
-              <p className="soft-label">Tindak lanjut</p>
-              <p className="mt-3 text-base leading-8 text-ink-soft">
-                {session.followUp ?? "-"}
-              </p>
-            </div>
-            <div className="rounded-[28px] border border-stroke bg-white p-5">
-              <p className="soft-label">Catatan penutupan siswa</p>
-              <p className="mt-3 text-base leading-8 text-ink-soft">
-                {session.studentCompletionNote ?? "-"}
-              </p>
-            </div>
-          </div>
-        </SectionCard>
+          </SectionCard>
+        ) : null}
       </section>
     </>
   );

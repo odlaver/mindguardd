@@ -33,7 +33,7 @@ export function CounselingScheduleBuilder({ requests }: CounselingScheduleBuilde
   const [sessionDate, setSessionDate] = useState("2026-04-18");
   const [sessionTime, setSessionTime] = useState("10:30");
   const [sessionFormat, setSessionFormat] = useState<"Tatap muka" | "Online">("Tatap muka");
-  const [created, setCreated] = useState(false);
+  const [createdSessionId, setCreatedSessionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -136,8 +136,8 @@ export function CounselingScheduleBuilder({ requests }: CounselingScheduleBuilde
                     {selectedRequest?.studentName ?? "-"}
                   </h2>
                 </div>
-                <StatusBadge tone={created ? "warning" : "danger"}>
-                  {created ? "Menunggu Konfirmasi" : "Baru"}
+                <StatusBadge tone={createdSessionId ? "warning" : "danger"}>
+                  {createdSessionId ? "Menunggu Konfirmasi" : "Baru"}
                 </StatusBadge>
               </div>
               <p className="mt-4 text-sm leading-7 text-ink-soft">
@@ -153,6 +153,11 @@ export function CounselingScheduleBuilder({ requests }: CounselingScheduleBuilde
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="text-sm leading-7 text-ink-soft">
                 <span>{selectedRequest?.className ?? ""}</span>
+                {createdSessionId ? (
+                  <p className="font-medium text-foreground">
+                    Jadwal berhasil dibuat. Membuka detail sesi {createdSessionId}...
+                  </p>
+                ) : null}
                 {error ? <p className="font-medium text-danger">{error}</p> : null}
               </div>
               <button
@@ -177,7 +182,7 @@ export function CounselingScheduleBuilder({ requests }: CounselingScheduleBuilde
                     method: "POST",
                   });
                   const payload = (await response.json().catch(() => null)) as
-                    | { error?: string }
+                    | { error?: string; id?: string }
                     | null;
 
                   if (!response.ok) {
@@ -186,8 +191,15 @@ export function CounselingScheduleBuilder({ requests }: CounselingScheduleBuilde
                     return;
                   }
 
-                  setCreated(true);
+                  if (!payload?.id) {
+                    setError("Jadwal tersimpan, tetapi detail sesi belum bisa dibuka.");
+                    setIsSubmitting(false);
+                    return;
+                  }
+
+                  setCreatedSessionId(payload.id);
                   setIsSubmitting(false);
+                  router.push(`/counselor/counseling/${payload.id}?created=1`);
                   router.refresh();
                 }}
               >

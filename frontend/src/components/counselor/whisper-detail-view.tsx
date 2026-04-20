@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -16,12 +17,50 @@ export function WhisperDetailView({
   report,
   student,
 }: WhisperDetailViewProps) {
+  const router = useRouter();
   const [status, setStatus] = useState<"Baru" | "Sedang Ditinjau" | "Selesai">(
     report.status ?? "Baru",
   );
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const statusTone =
     status === "Baru" ? "danger" : status === "Sedang Ditinjau" ? "warning" : "aman";
+
+  async function updateStatus(nextStatus: "Baru" | "Sedang Ditinjau" | "Selesai") {
+    if (isSaving || nextStatus === status) {
+      return;
+    }
+
+    setError(null);
+    setFeedback(null);
+    setIsSaving(true);
+
+    const response = await fetch(`/api/whispers/${report.id}`, {
+      body: JSON.stringify({
+        status: nextStatus,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
+    });
+    const payload = (await response.json().catch(() => null)) as
+      | { error?: string; report?: { status?: "Baru" | "Sedang Ditinjau" | "Selesai" | null } }
+      | null;
+
+    if (!response.ok || !payload?.report?.status) {
+      setError(payload?.error ?? "Status pengajuan belum bisa diperbarui.");
+      setIsSaving(false);
+      return;
+    }
+
+    setStatus(payload.report.status);
+    setFeedback(`Status pengajuan diperbarui menjadi ${payload.report.status}.`);
+    setIsSaving(false);
+    router.refresh();
+  }
 
   return (
     <>
@@ -68,18 +107,23 @@ export function WhisperDetailView({
                   <button
                     key={option}
                     type="button"
-                    onClick={() => setStatus(option)}
+                    disabled={isSaving}
+                    onClick={() => updateStatus(option)}
                     className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                       active
                         ? "border-foreground bg-foreground text-white"
                         : "border-stroke bg-white text-foreground hover:border-foreground/16"
-                    }`}
+                    } disabled:cursor-not-allowed disabled:opacity-60`}
                   >
                     {option}
                   </button>
                 );
               })}
             </div>
+            {feedback ? (
+              <p className="mt-4 text-sm font-medium text-foreground">{feedback}</p>
+            ) : null}
+            {error ? <p className="mt-4 text-sm font-medium text-danger">{error}</p> : null}
           </SectionCard>
 
           <SectionCard title="Info penanganan">

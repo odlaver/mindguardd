@@ -1,471 +1,498 @@
-# Product Requirements Document
-## MindGuard
-**Early Warning System Kesehatan Mental Siswa**
+# Product Requirements Document (PRD)
+## MindGuard — Early Warning System Kesehatan Mental Siswa
 
-**Status:** Draft Final v2  
-**Tanggal:** 15 April 2026
-
----
-
-## 1. Ringkasan Produk
-
-MindGuard adalah sistem informasi berbasis web yang dirancang untuk membantu sekolah memantau kondisi kesehatan mental siswa secara lebih dini, terstruktur, dan dapat ditindaklanjuti. Sistem berfokus pada pencatatan mood harian siswa, analisis tren emosi, deteksi risiko berbasis aturan, pelaporan anonim, dan tindak lanjut oleh Guru BK. Konsep ini sejalan dengan tujuan awal sistem: mempermudah siswa melakukan check-in emosional dan membantu Guru BK melakukan monitoring berbasis data, bukan observasi manual semata.
-
-MindGuard **bukan alat diagnosis klinis**, melainkan **alat early warning dan dukungan awal** di lingkungan sekolah.
+**Versi Dokumen:** 2.0.0 (Final — Diselaraskan Penuh dengan Source Code)
+**Tanggal Rilis:** 20 April 2026
+**Status:** Approved
 
 ---
 
-## 2. Latar Belakang Masalah
+## 1. Latar Belakang & Problem Statement
 
-Pemantauan kesehatan mental siswa di sekolah masih banyak dilakukan secara manual melalui observasi guru atau sesi konseling yang sifatnya reaktif. Dampaknya:
-- sekolah sulit mendeteksi pola emosi siswa sejak dini,
-- data historis kondisi emosional siswa tidak terdokumentasi dengan baik,
-- siswa tidak memiliki media ringan dan konsisten untuk mencatat kondisi emosionalnya,
-- isu sensitif seperti bullying atau tekanan sosial sulit dilaporkan secara aman,
-- Guru BK kesulitan menentukan prioritas kasus yang harus segera ditangani.
+### 1.1 Gambaran Kondisi Saat Ini
+Pemantauan kesehatan mental siswa di lingkungan sekolah menengah Indonesia mayoritas masih bersifat reaktif: sekolah baru bergerak ketika ada laporan insiden atau ketika kondisi siswa sudah tampak melampaui batas. Guru BK umumnya kewalahan karena perbandingan jumlah Guru BK dengan siswa tidak ideal, sehingga mustahil untuk memonitor ratusan siswa secara personal setiap hari.
+
+**Masalah konkret yang teridentifikasi:**
+- Tidak ada sistem pencatatan mood rutin yang terstandarisasi; semua bergantung ingatan dari guru.
+- Siswa tidak memiliki kanal aman untuk melaporkan isu sensitif (bullying, tekanan sosial, masalah keluarga) tanpa takut diekspos.
+- Guru BK tidak dapat menentukan siapa siswa yang paling membutuhkan perhatian darurat pada hari tertentu.
+- Proses konseling tidak terdokumentasi secara digital; catatan tercecer di kertas atau tidak terjaga konsistensinya.
+- Tidak ada visibilitas data agregat untuk Admin yang bertanggung jawab atas operasional sekolah.
+
+### 1.2 Peluang yang Dapat Ditangkap
+Dengan pencatatan mood harian berbasis skor yang sederhana, sistem dapat mengotomasi identifikasi pola emosi negatif dan langsung memprioritaskan perhatian Guru BK terhadap siswa yang paling berisiko — jauh sebelum masalah berkembang menjadi krisis.
+
+---
+
+## 2. Visi Produk
+
+> **"MindGuard hadir untuk mengubah pemantauan kesehatan mental di sekolah dari pendekatan reaktif menjadi proaktif — berbasis data, terstruktur, dan inklusif bagi seluruh sivitas sekolah."**
+
+MindGuard bukan alat diagnosis klinis. MindGuard adalah sistem early warning dan manajemen tindak lanjut yang membantu ekosistem sumber daya manusia di sekolah berkolaborasi dalam menjaga kesejahteraan emosional siswa.
 
 ---
 
 ## 3. Tujuan Produk
 
-### Tujuan Utama
-- Menyediakan platform digital bagi siswa untuk mencatat kondisi emosional harian secara mandiri dan rutin.
-- Membantu Guru BK memantau tren perubahan mood siswa melalui dashboard yang jelas.
-- Mendeteksi pola emosi negatif lebih dini agar intervensi dapat dilakukan lebih cepat.
-- Menyediakan kanal pelaporan anonim untuk isu sensitif.
-- Mendukung pengelolaan tindak lanjut konseling secara lebih terstruktur.
+### 3.1 Tujuan Utama
+1. Menyediakan platform digital bagi siswa untuk mencatat kondisi emosional harian secara mandiri, rutin, dan ringan (kurang dari 10 detik per sesi).
+2. Mengidentifikasi secara otomatis siswa yang memiliki tren penurunan mood berturut-turut dan mengklasifikasikannya sebagai risiko tinggi / sedang.
+3. Memfasilitasi Guru BK dalam mengelola seluruh alur konseling — dari pengajuan siswa, penjadwalan, pelaksanaan, hingga dokumentasi tindak lanjut — dalam satu platform terpadu.
+4. Menyediakan kanal pelaporan anonim yang aman untuk isu-isu sensitif yang tidak dapat disampaikan langsung.
+5. Memberikan Admin visibilitas menyeluruh atas kondisi kesehatan emosional di seluruh sekolah yang dinaunginya.
 
-### Tujuan Institusional
-- Meningkatkan kualitas monitoring kesejahteraan siswa.
-- Membantu sekolah mengambil keputusan berbasis data.
-- Mengurangi kemungkinan masalah emosional siswa terabaikan.
-
----
-
-## 4. Pengguna dan Role
-
-MindGuard memiliki **3 role utama**:
-1. **Siswa**
-2. **Guru BK**
-3. **Admin**
-
-### 4.1 Siswa
-Kebutuhan utama:
-- mengisi mood harian dengan sangat cepat,
-- melihat riwayat mood pribadi,
-- melapor secara anonim,
-- mengakses konten edukasi kesehatan mental.
-
-### 4.2 Guru BK
-Kebutuhan utama:
-- memantau kondisi siswa secara agregat dan individual,
-- menerima alert risiko,
-- melihat detail riwayat mood siswa,
-- mencatat dan mengelola tindak lanjut konseling.
-
-### 4.3 Admin
-Kebutuhan utama:
-- mengelola akun pengguna,
-- mengelola data sekolah dan kelas,
-- mengatur threshold alert dan konfigurasi sistem.
+### 3.2 Tujuan Sekunder
+- Meningkatkan kebiasaan refleksi diri pada siswa melalui fitur gamifikasi ringan (streak dan completion rate).
+- Mendorong Guru BK untuk beroperasi secara proaktif melalui sistem notifikasi alert terstruktur.
+- Membangun fondasi data historis emosi siswa yang dapat digunakan untuk analisis jangka panjang.
 
 ---
 
-## 5. Struktur UI dan Mekanisme Akses
+## 4. Pengguna & Role
 
-### 5.1 Struktur UI
-UI MindGuard harus terbagi menjadi **3 area utama** sesuai role:
-- **UI Siswa**
-- **UI Guru BK**
-- **UI Admin**
+MindGuard mengoperasikan **tiga role utama** dengan akses, dashboard, dan fungsionalitas yang sepenuhnya terpisah:
 
-Setiap role memiliki dashboard, navigasi, dan hak akses yang berbeda.
+### 4.1 Siswa (Student)
+**Deskripsi:** Pengguna akhir utama aplikasi. Mayoritas mengakses via HP.
+**Kebutuhan fungsional:**
+- Mengisi mood harian dalam waktu sangat singkat.
+- Melihat riwayat perkembangan mood pribadi.
+- Melaporkan masalah sensitif secara anonim maupun terbuka.
+- Mengajukan permintaan untuk sesi konseling.
+- Melihat dan mengonfirmasi jadwal sesi konseling yang sudah dijadwalkan.
+- Mengakses materi edukasi kesehatan mental.
 
-### 5.2 Mekanisme Login
-MindGuard menggunakan **single login page** untuk seluruh pengguna. Pengguna tidak memilih role secara manual di halaman login.
+**Karakteristik UX:** Antarmuka harus terasa ringan, ramah, tidak klinis, dan mobile-first. Setiap penghalang interaksi tambahan berpotensi mengurangi angka check-in harian.
 
-Setelah autentikasi berhasil, sistem akan:
-- memverifikasi akun,
-- membaca role pengguna dari database,
-- mengarahkan pengguna otomatis ke dashboard sesuai role.
+### 4.2 Guru BK (Counselor)
+**Deskripsi:** Otoritas konseling satu-satunya dalam sistem. Bertanggung jawab penuh atas tindak lanjut kesehatan mental siswa.
+**Kebutuhan fungsional:**
+- Memantau seluruh data siswa dalam satu dashboard: jumlah alert aktif, laporan masuk, jumlah ditinjau hari ini, dan total siswa yang dipantau.
+- Melihat daftar siswa beserta status risiko (Tinggi, Sedang, Aman), tren mood terkini, dan ringkasan fokus masalah.
+- Masuk ke halaman detail tiap siswa untuk membaca riwayat mood secara mendalam.
+- Meninjau, mengubah status, dan menindaklanjuti peringatan risiko (Alert).
+- Mengelola pengajuan konseling dari siswa: menyetujui atau menolak, menjadwalkan sesi, dan mencatat hasil sesi.
+- Melihat dan mengelola seluruh laporan Whisper Portal.
+- Mencatat riwayat intervensi (Student Interventions) untuk siswa berisiko tinggi.
 
-### 5.3 Aturan Akses
-- **Siswa** hanya dapat mengakses fitur milik siswa.
-- **Guru BK** hanya dapat mengakses fitur monitoring, alert, detail siswa, laporan anonim, dan konseling.
-- **Admin** hanya dapat mengakses fitur administrasi dan konfigurasi.
-- Sistem harus menolak akses ke halaman role lain tanpa izin.
+**Karakteristik UX:** Antarmuka informatif, terstruktur, dan cepat dibaca. Prioritas informasi harus berbasis tingkat risiko. Guru BK tidak boleh membuang waktu membaca data yang tidak relevan.
 
-### 5.4 Landing Page per Role Setelah Login
-- **Siswa**: halaman pertama setelah login adalah **halaman input mood (Daily Mood Tracker)** agar alur check-in harian menjadi paling cepat dan langsung.
-- **Guru BK**: halaman pertama setelah login adalah **Dashboard Monitoring**.
-- **Admin**: halaman pertama setelah login adalah **Dashboard Admin / User & System Overview**.
-
----
-
-## 6. Nilai Utama Produk
-
-### Untuk Siswa
-- check-in emosional yang ringan dan cepat,
-- ruang refleksi pribadi,
-- saluran aman untuk menyampaikan masalah sensitif.
-
-### Untuk Guru BK
-- visibilitas kondisi siswa secara lebih jelas,
-- prioritas kasus berdasarkan risiko,
-- proses tindak lanjut yang terdokumentasi.
-
-### Untuk Sekolah
-- sistem early warning yang terukur,
-- pengambilan keputusan berbasis data,
-- dokumentasi monitoring kesejahteraan siswa.
+### 4.3 Admin Sekolah (Admin)
+**Deskripsi:** Pengelola operasional sistem. Bertanggung jawab atas integritas data pengguna dan konfigurasi parameter sistem.
+**Kebutuhan fungsional:**
+- Melihat ringkasan sistem secara menyeluruh: jumlah pengguna, siswa aktif, Guru BK, kelas, dan status completion rate tiap sekolah.
+- Mengidentifikasi sekolah dan kelas yang memerlukan perhatian khusus (berdasarkan riskBand).
+- Mengelola akun seluruh pengguna (Siswa, Guru BK, dan Admin).
+- Mengelola data sekolah dan kelas.
+- Melihat dan mengubah konfigurasi sistem (system configs), termasuk threshold alert.
 
 ---
 
-## 7. Ruang Lingkup Produk
+## 5. Pemetaan Fitur Berdasarkan Role
 
-### In Scope
-- autentikasi dan otorisasi berbasis role,
-- single login page,
-- dashboard berbeda untuk Siswa, Guru BK, dan Admin,
-- Daily Mood Tracker,
-- Mood History,
-- Dashboard Monitoring BK,
-- Student Mood Detail,
-- Alert System,
-- Whisper Portal,
-- Counseling Management,
-- Resource Center,
-- User & School Management,
-- System Configuration.
-
-### Out of Scope untuk MVP
-- diagnosis klinis,
-- video counseling,
-- integrasi penuh dengan sistem akademik sekolah,
-- notifikasi eksternal seperti WhatsApp, email, atau SMS,
-- AI prediktif lanjutan.
-
-Integrasi eksternal dapat dipertimbangkan pada fase berikutnya.
+| Fitur / Halaman                         | Siswa | Guru BK | Admin |
+|-----------------------------------------|:-----:|:-------:|:-----:|
+| Mood Tracker Harian                     | ✅    | —       | —     |
+| Riwayat Mood Pribadi                    | ✅    | —       | —     |
+| Whisper Portal (Kirim Laporan)          | ✅    | —       | —     |
+| Resource Center (Materi Edukasi)        | ✅    | —       | —     |
+| Konseling Hub (Ajukan & Lihat Jadwal)   | ✅    | —       | —     |
+| Dashboard Monitoring Mood               | —     | ✅      | —     |
+| Detail Mood Siswa (per individu)        | —     | ✅      | —     |
+| Alert Risiko (Daftar & Detail)          | —     | ✅      | —     |
+| Kelola Konseling (Jadwal & Agenda)      | —     | ✅      | —     |
+| Whisper Reports (Kelola Laporan)        | —     | ✅      | —     |
+| Dashboard Admin (Ringkasan Sistem)      | —     | —       | ✅    |
+| Akun Pengguna (User Management)         | —     | —       | ✅    |
+| Data Kelas & Sekolah                    | —     | —       | ✅    |
+| Konfigurasi Sistem (System Config)      | —     | —       | ✅    |
 
 ---
 
-## 8. Fitur Utama
+## 6. Logika Sistem & Business Rules
 
-### 8.1 Daily Mood Tracker
-Siswa mencatat mood harian menggunakan skala 1-5 berbasis emoji dengan catatan opsional.
+### 6.1 Mekanisme Autentikasi & Redirect
+- Sistem menggunakan **satu halaman login tunggal** (`/login`) untuk semua role.
+- Setelah login berhasil, Better Auth memvalidasi kredensial dan sistem membaca field `role` dari tabel `user` di database.
+- Redirect otomatis dilakukan berdasarkan peta berikut:
+  - `student` → `/student` (Daily Mood Tracker)
+  - `counselor` → `/counselor` (Dashboard Monitoring)
+  - `admin` → `/admin` (Ringkasan Sistem)
+- Middleware Next.js (`requireRole`) menjaga setiap halaman agar hanya dapat diakses oleh role yang sesuai dan menolak akses pihak lain dengan redirect ke halaman tidak ditemukan.
 
-**Acceptance Criteria**
-- Siswa hanya dapat mengirim 1 input mood per hari.
-- Input wajib: skor mood.
-- Input opsional: catatan singkat.
-- Proses pengisian idealnya selesai dalam <10 detik.
-- Sistem menolak duplikasi input pada hari yang sama.
-- Halaman ini menjadi **tampilan awal siswa setelah login**.
+### 6.2 Logika Daily Mood Tracker
+- Siswa hanya dapat melakukan **satu kali check-in per hari kalender** berdasarkan zona waktu **Jakarta (Asia/Jakarta, GMT+7)**.
+- Sistem menentukan apakah siswa sudah check-in hari ini dengan mengambil `moodEntries` yang `recordedAt`-nya berada dalam rentang awal hari (00:00:00+07:00) hingga akhir hari (23:59:59+07:00) untuk tanggal berjalan.
+- Jika sudah ada entri hari ini, halaman tracker menampilkan submission yang sudah masuk (bukan form kosong).
 
-### 8.2 Mood History
-Menampilkan riwayat mood siswa dalam tampilan mingguan dan bulanan.
+### 6.3 Logika Risk Assessment (Penentuan Risiko Siswa)
+Sistem mengklasifikasikan setiap siswa ke dalam tiga tingkatan risiko secara otomatis berdasarkan dua data utama:
 
-**Acceptance Criteria**
-- Data dapat difilter berdasarkan periode.
-- Siswa hanya melihat datanya sendiri.
-- Guru BK hanya melihat data siswa yang menjadi kewenangannya.
+| Tingkatan | Kondisi Pemicu |
+|-----------|----------------|
+| **Tinggi** | Terdapat alert aktif (status ≠ "Selesai") dengan severity = "Tinggi" |
+| **Sedang** | Terdapat alert aktif dengan severity = "Sedang" ATAU skor mood terakhir ≤ 2 |
+| **Aman** | Tidak ada alert aktif DAN skor mood terakhir > 2 |
 
-### 8.3 Dashboard Monitoring Guru BK
-Dashboard agregat untuk memantau kondisi siswa.
+### 6.4 Logika Trend Analysis
+Tren mood siswa dihitung dari **3 entri mood terakhir** dalam riwayatnya:
 
-**Acceptance Criteria**
-- Menampilkan distribusi mood.
-- Menampilkan daftar siswa dengan tren memburuk.
-- Menampilkan alert aktif.
-- Menyediakan akses ke detail siswa.
+| Tren | Kondisi |
+|------|---------|
+| **Naik 3 hari** | Skor hari ke-3 > hari ke-2 > hari ke-1 (perbaikan progresif) |
+| **Turun 3 hari** | Skor hari ke-3 < hari ke-2 < hari ke-1 (pemicu utama alert) |
+| **Stabil Rendah** | Ketiga skor berada di ≤ 2 |
+| **Fluktuatif** | Tidak memenuhi pola di atas |
+| **Belum cukup data** | Jumlah entri mood < 3 |
 
-### 8.4 Student Mood Detail
-Halaman detail siswa untuk analisis individual.
+### 6.5 Logika Streak & Completion Rate (Siswa)
+- **Streak**: Dihitung mundur dari entri mood paling baru. Selama ada entri di hari tersebut, counter naik. Berhenti ketika ada hari yang tidak memiliki entri.
+- **Completion Rate**: Dihitung berdasarkan berapa hari dari 14 hari terakhir siswa melakukan check-in. Formula: `(jumlah_hari_aktif / 14) × 100%`, maksimum 100%.
 
-**Acceptance Criteria**
-- Menampilkan histori mood siswa.
-- Menampilkan status risiko.
-- Menampilkan catatan intervensi jika ada.
+### 6.6 Logika Alert System
+- Alert dibuat secara manual (oleh admin atau batch-seed) atau secara otomatis (berdasarkan threshold yang dikonfigurasi) dan disimpan di tabel `alerts`.
+- Setiap alert memiliki `severity` (`Tinggi` atau `Sedang`) dan `status` (`Baru`, `Sedang Ditinjau`, `Selesai`).
+- Di halaman Alert Risiko Guru BK, badge warna merah (danger) diberikan untuk status "Baru" dan kuning (warning) untuk "Sedang Ditinjau".
+- Threshold pemicu alert yang tertulis di UI adalah: **mood ≤ 2 selama 3 hari berturut-turut**.
 
-### 8.5 Alert System
-Sistem memberi peringatan otomatis jika pola mood buruk terdeteksi.
+### 6.7 Siklus Hidup Konseling (Counseling Lifecycle)
+Terdapat empat milestone utama dalam alur konseling MindGuard:
 
-**Aturan awal**
-- Mood buruk selama 3-5 hari berturut-turut memicu alert.
+```
+1. [REQUEST oleh SISWA]
+   - Siswa mengisi form: Topik, Ringkasan kebutuhan, Slot waktu yang diinginkan.
+   - Status Request: "Baru" → menunggu respons BK.
 
-**Acceptance Criteria**
-- Threshold dapat diatur admin.
-- Alert muncul di dashboard BK.
-- Alert memiliki status: baru, ditinjau, ditindaklanjuti, selesai.
+2. [PENJADWALAN oleh GURU BK]
+   - BK meninjau request, membuat CounselingSession:
+     Format (Tatap Muka / Online), Lokasi/Link, Waktu, Fokus, dan Catatan.
+   - Status Session: "Menunggu Konfirmasi".
 
-### 8.6 Whisper Portal
-Saluran pelaporan anonim untuk isu sensitif.
+3. [KONFIRMASI oleh SISWA]
+   - Siswa melihat sesi yang sudah terjadwal, mengonfirmasi kehadiran.
+   - Status Session: "Dikonfirmasi".
 
-**Acceptance Criteria**
-- Pelapor tidak perlu menampilkan identitas.
-- Guru BK dapat membaca dan menindaklanjuti laporan.
-- Admin dapat mengatur kategori laporan.
+4. [PENYELESAIAN & DOKUMENTASI]
+   - Setelah sesi berlangsung, BK mengisi Hasil (Outcome) dan Saran Tindak Lanjut (Follow-up).
+   - Siswa dapat menambahkan catatan penyelesaian dari sisi mereka.
+   - Status Session: "Selesai".
+```
 
-### 8.7 Counseling Management
-Modul pencatatan tindak lanjut konseling oleh Guru BK.
+### 6.8 Logika Whisper Portal
+- Pelapor dapat memilih menjadi **Anonim** (identitas disembunyikan) atau menampilkan identitas terbuka.
+- Sistem menyimpan field `ownerLabel` (misal: "Anonim" atau nama lengkap) dan `studentUserId` (bisa null jika benar-benar anonim).
+- Setiap laporan memiliki `urgency` (`Normal` / `Tinggi`), `category`, `status` (`Baru`, `Sedang Ditinjau`, `Selesai`).
+- Guru BK yang ditugaskan disimpan di field `assignedTo` dan langkah tindak lanjut di `nextStep`.
 
-**Acceptance Criteria**
-- Guru BK dapat membuat catatan sesi.
-- Status sesi dapat diperbarui.
-- Riwayat intervensi tersimpan per siswa.
-
-### 8.8 Resource Center
-Pusat konten edukasi kesehatan mental untuk siswa.
-
-**Acceptance Criteria**
-- Artikel dan tips dapat dikategorikan.
-- Dapat diakses kapan saja oleh siswa.
-
-### 8.9 User & School Management
-Modul admin untuk mengelola akun dan struktur sekolah.
-
-### 8.10 System Configuration
-Modul admin untuk mengatur threshold alert dan parameter operasional lain.
-
----
-
-## 9. Struktur UI per Role
-
-### 9.1 Dashboard Siswa
-**Landing page:** Daily Mood Tracker
-
-Menu utama:
-- Daily Mood Tracker
-- Mood History
-- Whisper Portal
-- Resource Center
-- Profile
-
-**Prinsip UX:** sederhana, minim friksi, mobile-first.
-
-### 9.2 Dashboard Guru BK
-**Landing page:** Dashboard Monitoring
-
-Menu utama:
-- Dashboard Monitoring
-- Alert Center
-- Student Mood Detail
-- Counseling Management
-- Whisper Reports
-
-**Prinsip UX:** informatif, cepat dibaca, prioritas berbasis risiko.
-
-### 9.3 Dashboard Admin
-**Landing page:** Dashboard Admin / Overview
-
-Menu utama:
-- User Management
-- School/Class Management
-- System Configuration
-- Category/Threshold Settings
-- Access Control
-
-**Prinsip UX:** efisien untuk pengelolaan data dan kontrol sistem.
+### 6.9 Logika Risk Band (Sekolah & Kelas – Perspektif Admin)
+- Setiap `schoolClass` memiliki field `riskBand` dengan nilai: `Stabil`, `Monitor`, atau `Perlu perhatian`.
+- Di Dashboard Admin, sekolah yang memiliki kelas dengan `riskBand = "Perlu perhatian"` akan muncul di list "Sekolah membutuhkan perhatian" dan diurutkan dari completion rate terendah.
+- Completion Rate Sekolah diwarnai: ≥85% = Aman (hijau), ≥80% = Waspada (kuning), <80% = Risiko (merah).
 
 ---
 
-## 10. User Personas
+## 7. Struktur Navigasi & Halaman
 
-### Siswa
-- Mobile-first
-- Ingin interaksi cepat
-- Tidak suka form yang panjang
-- Butuh ruang aman dan tidak menghakimi
+### 7.1 Dashboard Siswa (`/student`)
+**Menu Navigasi Siswa:**
+1. **Mood Harian** (`/student`) — Halaman pertama setelah login.
+2. **Riwayat Mood** (`/student/history`)
+3. **Kirim Laporan** (`/student/whisper`) — Whisper Portal.
+4. **Materi Edukasi** (`/student/resources`) — Resource Center.
+5. **Konseling** (`/student/counseling`) — Hub konseling.
 
-### Guru BK
-- Waktu terbatas
-- Membutuhkan data yang ringkas dan actionable
-- Perlu prioritas kasus secara jelas
+**Sub-halaman Konseling Siswa:**
+- `/student/counseling/schedule` — Daftar sesi terjadwal.
+- `/student/counseling/request` — Form pengajuan sesi baru.
+- `/student/counseling/[sessionId]` — Detail sesi tertentu.
 
-### Admin
-- Fokus pada operasional sistem
-- Membutuhkan kontrol konfigurasi yang stabil dan mudah
+### 7.2 Dashboard Guru BK (`/counselor`)
+**Menu Navigasi Guru BK:**
+1. **Dashboard Mood** (`/counselor`) — Halaman pertama setelah login.
+2. **Detail Mood Siswa** (`/counselor/students`) — Daftar semua siswa.
+3. **Lihat Alert Risiko** (`/counselor/alerts`) — Daftar alert aktif.
+4. **Kelola Konseling** (`/counselor/counseling`) — Hub konseling BK.
 
----
+**Sub-halaman Guru BK:**
+- `/counselor/students/[studentId]` — Detail mood dan intervensi seorang siswa.
+- `/counselor/alerts/[alertId]` — Detail alert tertentu.
+- `/counselor/counseling/schedule` — Pengajuan masuk & penjadwalan.
+- `/counselor/counseling/agenda` — Agenda & Riwayat Sesi.
+- `/counselor/counseling/[sessionId]` — Detail sesi tertentu.
+- `/counselor/whispers` — Daftar semua laporan Whisper.
+- `/counselor/whispers/[id]` — Detail laporan Whisper.
 
-## 11. Jobs-to-be-Done
+### 7.3 Dashboard Admin (`/admin`)
+**Menu Navigasi Admin:**
+1. **Ringkasan** (`/admin`) — Halaman pertama setelah login.
+2. **Akun Pengguna** (`/admin/users`) — Kelola semua pengguna.
+3. **Data Kelas** (`/admin/schools`) — Kelola sekolah dan kelas.
+4. **Pengaturan** (`/admin/system`) — Konfigurasi sistem.
 
-### Siswa
-"Saat saya merasa tidak baik-baik saja, saya ingin mencatat mood saya dengan cepat agar saya bisa lebih sadar pada kondisi saya tanpa merasa terbebani."
-
-### Guru BK
-"Saat ada siswa berisiko, saya ingin segera mengetahuinya agar saya bisa menentukan tindak lanjut lebih cepat."
-
-### Admin
-"Saat sistem dipakai banyak pengguna, saya ingin dapat mengelola akun dan aturan sistem dengan rapi agar operasional sekolah tetap lancar."
-
----
-
-## 12. User Flow Inti
-
-### 12.1 Alur Siswa
-1. Siswa login.
-2. Sistem membaca role dan mengarahkan ke **halaman input mood**.
-3. Siswa mengisi mood harian.
-4. Sistem menyimpan data.
-5. Siswa dapat melihat riwayat mood atau mengakses Resource Center.
-
-### 12.2 Alur Early Warning
-1. Sistem mengevaluasi histori mood siswa.
-2. Jika threshold tercapai, sistem membuat alert.
-3. Alert muncul di dashboard Guru BK.
-4. Guru BK membuka detail siswa.
-5. Guru BK melakukan review dan tindak lanjut.
-
-### 12.3 Alur Pelaporan Anonim
-1. Siswa membuka Whisper Portal.
-2. Siswa mengirim laporan.
-3. Sistem menyimpan laporan tanpa menampilkan identitas.
-4. Guru BK meninjau laporan.
-5. Jika perlu, Guru BK menindaklanjuti.
-
-### 12.4 Alur Admin
-1. Admin login.
-2. Sistem mengarahkan ke dashboard admin.
-3. Admin mengelola akun, kelas, dan konfigurasi threshold.
+**Sub-halaman Admin:**
+- `/admin/users/[userId]` — Detail akun pengguna.
+- `/admin/schools/[schoolId]` — Detail sekolah.
+- `/admin/schools/classes/[classId]` — Detail kelas.
+- `/admin/system/[configId]` — Detail & ubah nilai konfigurasi.
 
 ---
 
-## 13. Kebutuhan Fungsional
+## 8. Spesifikasi Data (Skema Entitas)
 
-- Sistem harus menyediakan satu halaman login untuk semua role.
-- Sistem harus menentukan role pengguna setelah login berhasil.
-- Sistem harus mengarahkan user otomatis ke dashboard sesuai role.
-- Sistem harus mengarahkan **Siswa langsung ke halaman input mood** setelah login.
-- Sistem harus membatasi akses halaman sesuai role.
-- Sistem harus menyediakan input mood harian skala 1-5.
-- Sistem harus menyimpan data mood dengan aman.
-- Sistem harus mencegah input mood ganda di hari yang sama.
-- Sistem harus menampilkan histori mood mingguan dan bulanan.
-- Sistem harus menganalisis tren mood secara otomatis.
-- Sistem harus membuat alert sesuai threshold.
-- Sistem harus menyediakan modul laporan anonim.
-- Sistem harus menyediakan modul tindak lanjut konseling.
-- Sistem harus menyediakan modul admin untuk manajemen data dan konfigurasi.
+### 8.1 Tabel `user` (via Better Auth)
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `id` | string | Primary key |
+| `name` | string | Nama lengkap pengguna |
+| `email` | string | Email login (unik) |
+| `role` | enum | `student` / `counselor` / `admin` |
+| `schoolId` | string | Referensi ke tabel sekolah |
+| `classId` | string (nullable) | Khusus siswa dan wali kelas |
+| `studentCode` | string (nullable) | NIS (khusus siswa) |
+| `lastAccessAt` | timestamp | Waktu login terakhir |
 
----
+### 8.2 Tabel `mood_entry`
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `id` | string | Primary key |
+| `userId` | string (FK) | Referensi ke `user` |
+| `score` | integer (1–5) | Skor mood harian |
+| `note` | text (nullable) | Catatan opsional siswa |
+| `recordedAt` | timestamp | Waktu pengisian (basis Jakarta Time) |
 
-## 14. Kebutuhan Non-Fungsional
+### 8.3 Tabel `alert`
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `id` | string | Primary key |
+| `studentUserId` | string (FK) | Siswa yang memicu alert |
+| `reason` | text | Alasan alert dibuat |
+| `severity` | enum | `Tinggi` / `Sedang` |
+| `status` | enum | `Baru` / `Sedang Ditinjau` / `Selesai` |
+| `lastUpdatedAt` | timestamp | Waktu pembaruan terakhir |
+| `summary` | text | Ringkasan situasi siswa |
+| `recommendation` | text | Saran tindak lanjut untuk BK |
 
-- **Usability:** input mood harus cepat, sederhana, dan intuitif.
-- **Security:** autentikasi aman, role-based access, proteksi data sensitif.
-- **Performance:** dashboard dan histori dimuat cepat pada koneksi normal.
-- **Responsiveness:** optimal di HP, tablet, dan laptop.
-- **Reliability:** data yang berhasil dikirim tidak boleh hilang.
-- **Privacy:** hanya role berwenang yang dapat mengakses data sensitif siswa.
-- **Availability:** sistem tersedia secara stabil untuk penggunaan rutin sekolah.
+### 8.4 Tabel `whisper_report`
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `id` | string | Primary key |
+| `studentUserId` | string (FK, nullable) | Null jika benar-benar anonim |
+| `ownerLabel` | string | Label identitas pengirim (misal: "Anonim") |
+| `title` | string | Judul laporan |
+| `category` | string | Kategori masalah |
+| `urgency` | enum | `Tinggi` / `Normal` |
+| `status` | enum | `Baru` / `Sedang Ditinjau` / `Selesai` |
+| `submittedAt` | timestamp | Waktu pengiriman |
+| `excerpt` | text | Cuplikan singkat isi laporan |
+| `detail` | text | Isi laporan lengkap |
+| `nextStep` | text | Rencana tindak lanjut oleh BK |
+| `assignedTo` | string | Nama Guru BK yang ditugaskan |
 
----
+### 8.5 Tabel `counseling_request`
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `id` | string | Primary key |
+| `studentUserId` | string (FK) | Siswa pemohon |
+| `topic` | string | Topik konseling |
+| `preferredSlot` | string | Waktu yang diinginkan siswa |
+| `summary` | string | Ringkasan singkat kebutuhan |
+| `status` | enum | `Baru` / `Dijadwalkan` / `Selesai` |
+| `submittedAt` | timestamp | Waktu pengajuan |
+| `scheduledSessionId` | string (FK, nullable) | Sesi yang dihasilkan dari request ini |
 
-## 15. Data Utama
+### 8.6 Tabel `counseling_session`
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `id` | string | Primary key |
+| `requestId` | string (FK, nullable) | Request yang memicu sesi ini |
+| `studentUserId` | string (FK) | Siswa peserta sesi |
+| `counselorUserId` | string (FK, nullable) | Guru BK yang memimpin sesi |
+| `title` | string | Judul sesi |
+| `counselorName` | string | Nama BK (cache) |
+| `scheduledAt` | timestamp | Waktu sesi dijadwalkan |
+| `format` | enum | `Tatap muka` / `Online` |
+| `location` | string | Tempat / link sesi |
+| `status` | enum | `Menunggu Konfirmasi` / `Dikonfirmasi` / `Selesai` |
+| `invitationStatus` | enum | Status konfirmasi dari sisi siswa |
+| `focus` | string | Topik utama sesi |
+| `note` | string | Catatan Guru BK sebelum sesi |
+| `outcome` | text (nullable) | Hasil yang dicapai setelah sesi |
+| `followUp` | text (nullable) | Rencana tindak lanjut |
+| `studentConfirmationNote` | text (nullable) | Catatan konfirmasi dari siswa |
+| `studentCompletionNote` | text (nullable) | Catatan penyelesaian dari siswa |
 
-- Data siswa: nama, NIS, kelas, akun
-- Data Guru BK: nama, akun, kelas binaan
-- Data admin: akun dan hak akses
-- Data mood: skor, tanggal, catatan
-- Data tren emosi: hasil agregasi mingguan/bulanan
-- Data alert: status, waktu terpicu, alasan
-- Data laporan anonim: isi laporan, kategori, tanggal
-- Data konseling: jadwal, status, hasil sesi
-- Data konfigurasi: threshold alert, kategori laporan, data sekolah/kelas
+### 8.7 Tabel `student_intervention`
+| Field | Tipe | Keterangan |
+|---|---|---|
+| `id` | string | Primary key |
+| `studentUserId` | string (FK) | Siswa yang diintervensi |
+| `title` | string | Judul / ringkasan intervensi |
+| `owner` | string | Nama pihak yang bertanggung jawab |
+| `status` | enum | `Baru` / `Sedang Ditinjau` / `Selesai` |
+| `whenLabel` | string | Label waktu intervensi |
 
----
+### 8.8 Tabel `resource` & `resource_point`
+- `resource`: Menyimpan judul artikel, kategori, read time, dan ringkasan.
+- `resource_point`: Menyimpan poin-poin detail dalam sebuah artikel, berurutan berdasarkan `sortOrder`.
 
-## 16. Edge Cases
+### 8.9 Tabel `school` & `school_class`
+- `school`: Nama sekolah, kepala sekolah, jumlah BK, kelas, dan siswa.
+- `school_class`: Nama kelas, schoolId, nama wali kelas (`homeroomName`), nama BK (`counselorName`), jumlah siswa, completion rate, dan risk band.
 
-- Siswa tidak mengisi mood selama beberapa hari.
-- Siswa mencoba input mood lebih dari sekali dalam sehari.
-- Laporan anonim digunakan untuk spam atau laporan palsu.
-- Alert terlalu banyak sehingga Guru BK mengalami alert fatigue.
-- Guru BK mencoba mengakses data siswa di luar kewenangannya.
-- Admin salah mengatur threshold sehingga alert terlalu sensitif atau terlalu longgar.
-- Koneksi internet terputus saat submit data.
-
----
-
-## 17. KPI dan Success Metrics
-
-- Persentase siswa yang mengisi mood minimal 4 kali per minggu.
-- Rata-rata waktu input mood <10 detik.
-- Persentase alert yang ditinjau Guru BK dalam 24 jam.
-- Persentase alert yang ditindaklanjuti.
-- Jumlah laporan anonim valid yang diproses.
-- Stabilitas sistem bulanan.
-- Tingkat penggunaan dashboard BK secara aktif.
-
----
-
-## 18. Risiko Produk
-
-- Siswa tidak rutin melakukan input.
-- Data emosional bersifat sangat sensitif.
-- Penyalahgunaan fitur anonim.
-- Alert fatigue pada Guru BK.
-- Keterbatasan koneksi internet di lingkungan sekolah.
-- Risiko misklasifikasi karena sistem masih berbasis aturan sederhana.
-
----
-
-## 19. Prinsip Desain Produk
-
-- **Low friction first**: interaksi siswa harus singkat dan ringan.
-- **Privacy by design**: data emosional diperlakukan sebagai data sensitif.
-- **Actionable over complex**: dashboard harus membantu tindakan, bukan hanya menampilkan data.
-- **Role clarity**: UI, fitur, dan akses harus tegas dibedakan per role.
-
-### Arah Visual UI
-- **Primary color:** `#80c394`
-- **Secondary color:** `#77bed7`
-- **Additional colors:** menyesuaikan kebutuhan UI, dengan prinsip emotional clarity
-  - Hijau = aman
-  - Kuning = waspada
-  - Merah = risiko tinggi
-
-UI siswa harus terasa ramah, ringan, dan tidak menegangkan. UI Guru BK harus jelas, informatif, dan cepat dibaca. UI admin harus efisien dan fokus pada kontrol data.
-
----
-
-## 20. MVP Scope
-
-### Wajib Ada di MVP
-- Single login page
-- Role-based redirect
-- Dashboard siswa
-- Dashboard Guru BK
-- Dashboard admin
-- Daily Mood Tracker
-- Mood History
-- Dashboard Monitoring BK
-- Student Mood Detail
-- Alert System berbasis threshold
-- Whisper Portal
-- Manajemen dasar pengguna dan kelas
-
-### Fase Berikutnya
-- Counseling Management yang lebih lengkap
-- Resource Center yang lebih kaya
-- Integrasi notifikasi eksternal
-- Integrasi sistem sekolah
-- Analitik lanjutan
+### 8.10 Tabel `system_config`
+- Menyimpan parameter konfigurasi sistem: nama, kelompok (`groupName`), nilai aktif (`value`), status (`Aktif`/`Tertunda`), ringkasan, dan dampak perubahan.
 
 ---
 
-## 21. Open Questions
+## 9. Kebutuhan Non-Fungsional
 
-- Apakah siswa boleh mengedit input mood di hari yang sama?
-- Apakah satu siswa bisa berada di bawah lebih dari satu Guru BK?
-- Bagaimana SLA tindak lanjut alert oleh Guru BK?
-- Apakah laporan anonim memerlukan level urgensi?
-- Apakah orang tua/wali akan menjadi role baru di fase lanjutan?
-- Apakah notifikasi eksternal akan menjadi kebutuhan prioritas pada fase 2?
+### 9.1 Keamanan (Security)
+- Semua halaman dilindungi oleh middleware `requireRole` yang memvalidasi role setiap kali halaman diakses, bukan hanya saat login.
+- Tidak ada data mood atau intervensi siswa yang dapat diakses lintas role tanpa otorisasi.
+- Whisper Portal menjamin anonimitas penuh jika dipilih (tidak menyimpan `studentUserId`).
+- Session dikelola oleh Better Auth dengan enkripsi backend modern.
+- File `.env.local` tidak boleh masuk ke version control (terlindungi oleh `.gitignore`).
+
+### 9.2 Performa (Performance)
+- Seluruh data halaman diambil secara **server-side** (Next.js Server Component), sehingga pengguna menerima HTML siap-tampil tanpa loading state tambahan.
+- Seluruh query database dioptimalkan dengan `Promise.all` untuk pemanggilan paralel maksimum.
+
+### 9.3 Lokalisasi (Localization)
+- Sistem dioperasikan dalam **Bahasa Indonesia** penuh.
+- Seluruh log waktu menggunakan **Zona Waktu Asia/Jakarta (GMT+7)** secara konsisten untuk menentukan hari operasional.
+
+### 9.4 Responsivitas (Responsive Design)
+- Dashboard Siswa dioptimalkan untuk **mobile-first** (layar 375px ke atas).
+- Dashboard Guru BK dan Admin dioptimalkan untuk **desktop/tablet** (layar ≥1024px) namun tetap dapat diakses dari HP.
+
+### 9.5 Ketersediaan (Availability)
+- Aplikasi di-deploy ke **Vercel** (Edge Network global).
+- Database menggunakan **Turso (LibSQL Serverless)** yang terdistribusi di region AP-Northeast untuk latensi minimum bagi pengguna Asia Tenggara.
 
 ---
 
-## 22. Kesimpulan
+## 10. Desain & Panduan UI/UX
 
-MindGuard dirancang sebagai sistem early warning kesehatan mental siswa yang sederhana, terstruktur, dan dapat ditindaklanjuti. Dengan **3 area UI utama—Siswa, Guru BK, dan Admin—serta single login yang menentukan role secara otomatis**, sistem ini memiliki fondasi produk yang lebih jelas dari sisi UX, akses, dan implementasi teknis. Khusus untuk role siswa, alur dibuat sependek mungkin dengan menjadikan **halaman input mood sebagai tampilan awal setelah login** agar proses check-in harian menjadi cepat, natural, dan konsisten.
+### 10.1 Tema Visual
+- **Warna Primer:** `#80c394` (Sea Green — melambangkan ketenangan dan harapan).
+- **Warna Sekunder:** `#77bed7` (Sky Blue).
+- **Warna Peringatan:** Sistem tiga level menggunakan Green (Aman), Yellow/Orange (Waspada/Monitor), Red (Bahaya/Tinggi).
+- **Typography:** Font Google — Inter, dengan variabel CSS `--font-inter`.
+
+### 10.2 Komponen UI Utama
+- **MetricCard**: Menampilkan angka statistik utama beserta label tren.
+- **SectionCard**: Kontainer kartu dalam layout konten.
+- **StatusBadge**: Badge warna berdasarkan "tone" (`aman`, `warning`, `danger`, `monitor`, `neutral`).
+- **AppShell**: Layout kerangka utama aplikasi yang memuat sidebar navigasi dan konten halaman.
+
+### 10.3 Prinsip UX
+- **Low Friction First**: Setiap interaksi siswa harus bisa diselesaikan dalam sesedikit mungkin langkah.
+- **Actionable by Default**: Dashboard Guru BK harus langsung menunjukkan "apa yang harus dilakukan hari ini."
+- **Clarity over Complexity**: Tidak ada jargon teknis di antarmuka pengguna; semua label menggunakan bahasa Indonesia yang mudah dimengerti.
+
+---
+
+## 11. User Flows Utama
+
+### 11.1 Flow Siswa: Check-In Harian
+1. Siswa login → Diarahkan ke `/student`.
+2. Jika belum check-in hari ini: Form mood muncul (pilih skor 1-5, tambahkan catatan opsional, submit).
+3. Sistem menyimpan entry ke database dengan timestamp Jakarta.
+4. Jika sudah check-in: Halaman menampilkan submission hari ini.
+
+### 11.2 Flow Siswa: Ajukan Konseling
+1. Siswa membuka `/student/counseling`.
+2. Klik "Ajukan Konseling" → Masuk ke `/student/counseling/request`.
+3. Isi form: topik, ringkasan kebutuhan, pilih slot waktu.
+4. Submit → Data tersimpan di `counseling_request` dengan status "Baru".
+5. Siswa kembali ke hub konseling, menunggu jadwal dari Guru BK.
+
+### 11.3 Flow Guru BK: Menangani Alert
+1. Guru BK login → Melihat Dashboard `/counselor`.
+2. Melihat jumlah alert aktif di metric card dan daftar "Siswa prioritas".
+3. Klik "Alert Risiko" → Masuk ke `/counselor/alerts`.
+4. Memilih alert → Detail alert di `/counselor/alerts/[alertId]`.
+5. Mengubah status alert menjadi "Sedang Ditinjau" → Proses tindak lanjut dimulai.
+6. Ketika selesai ditangani → Status diubah menjadi "Selesai".
+
+### 11.4 Flow Guru BK: Menjadwalkan Konseling
+1. Guru BK ke `/counselor/counseling` → Klik "Jadwal & Pengajuan".
+2. Melihat daftar request masuk (status "Baru").
+3. Memilih request → Membuat sesi baru (mengisi waktu, format, lokasi, fokus).
+4. Sesi tersimpan dan status request berubah menjadi "Dijadwalkan".
+5. Siswa melihat sesi di halaman `/student/counseling/schedule` dan mengonfirmasi.
+
+### 11.5 Flow Admin: Memantau Kondisi Sistem
+1. Admin login → Melihat Ringkasan di `/admin`.
+2. Melihat metric: Total pengguna, Siswa aktif, Guru BK, dan Kelas.
+3. Melihat daftar sekolah yang memerlukan perhatian berdasarkan completion rate.
+4. Menavigasi ke `/admin/users` untuk verifikasi akun baru.
+5. Menavigasi ke `/admin/system` untuk mengelola konfigurasi (misalnya mengubah threshold alert).
+
+---
+
+## 12. Skenario Edge Cases
+
+| Skenario | Penanganan Sistem |
+|---|---|
+| Siswa submit mood dua kali dalam satu hari | Sistem menolak; menampilkan submission pertama. |
+| Siswa dengan 0 entri mood | Trend = "Belum cukup data"; Risk = "Aman" (tidak ada alert). |
+| Guru BK mengakses halaman `/student` | Middleware menolak akses; redirect ke halaman tidak ditemukan. |
+| Siswa mencoba mengakses `/counselor` | Middleware menolak akses. |
+| Whisper report dikirim anonim | `studentUserId` tidak disimpan; hanya `ownerLabel = "Anonim"`. |
+| Konfigurasi sistem status "Tertunda" | Muncul di ringkasan Admin sebagai "Permintaan Tertunda". |
+
+---
+
+## 13. Ruang Lingkup (Scope)
+
+### 13.1 In Scope (Fitur yang Sudah Ada di Codebase)
+- Autentikasi email & password berbasis Better Auth.
+- Role-based access control dan redirect otomatis.
+- Daily Mood Tracker dengan daily lockout.
+- Riwayat Mood & Streak/Completion Rate siswa.
+- Dashboard Monitoring Guru BK dengan student priority list.
+- Detail Mood Siswa (per individu dengan tren & alert).
+- Alert System dengan severity dan status management.
+- Whisper Portal (kirim, kelola, tindak lanjut).
+- Counseling Management lengkap (request → schedule → session → closure).
+- Student Interventions (pencatatan tindak lanjut).
+- Resource Center (artikel & poin edukasi).
+- Admin Dashboard (ringkasan sistem, permintaan tertunda, log admin).
+- User Management (daftar & detail pengguna).
+- School & Class Management.
+- System Configuration (konfigurasi & threshold).
+
+### 13.2 Out of Scope (Belum Ada/Fase Berikutnya)
+- Diagnosis klinis atau saran medis otomatis berbasis AI.
+- Notifikasi eksternal (email, WhatsApp, push notification).
+- Video counseling terintegrasi.
+- Integrasi dengan sistem akademik sekolah (raport, absensi).
+- AI prediktif lanjutan untuk analisis tren jangka panjang.
+- Multi-bahasa (i18n).
+
+---
+
+## 14. Risiko & Mitigasi
+
+| Risiko | Dampak | Mitigasi |
+|---|---|---|
+| Siswa mengisi mood asal-asalan (data tidak valid) | Analisis tren tidak akurat | Desain UI yang ramah dan tidak membebani; catatan opsional mengurangi tekanan. |
+| Alert fatigue: terlalu banyak alert membuat BK abai | Penurunan efektivitas sistem | Threshold dapat dikonfigurasi Admin; prioritasi berdasarkan severity. |
+| Penyalahgunaan Whisper Portal untuk spam | Beban kerja BK meningkat | Kategorisasi wajib dan urgency level membantu filter laporan valid. |
+| Kebocoran data emosional siswa | Risiko privasi & legal | Middleware role ketat; tidak ada data lintas role; session dienkripsi. |
+| Koneksi ke Turso terputus | Downtime database | Turso menggunakan LibSQL dengan replikasi otomatis. |
+
+---
+
+## 15. Kesimpulan
+
+MindGuard adalah sistem early warning mental health yang memberikan:
+- **Siswa**: Ruang aman, kanal ekspresi, dan jalur bantuan yang jelas.
+- **Guru BK**: Alat navigasi berbasis data untuk menentukan prioritas tindakan dan mendokumentasikan seluruh alur konseling secara digital.
+- **Admin**: Visibilitas operasional penuh atas kondisi ekosistem mental sekolah.
+
+Dokumen PRD ini mencerminkan **kondisi aktual codebase** — setiap fitur, entitas data, dan logika bisnis yang tercantum di sini telah diimplementasikan dan dapat diuji secara langsung di aplikasi.
+
+---
+*[End of Master PRD — MindGuard v2.0.0]*

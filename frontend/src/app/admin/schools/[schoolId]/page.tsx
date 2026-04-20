@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { adminClasses, adminSchools, adminUsers } from "@/lib/mock-data";
+import {
+  getAdminClasses,
+  getAdminSchoolById,
+  getAdminUsers,
+} from "@/lib/server/data";
 
 type AdminSchoolDetailPageProps = {
   params: Promise<{
@@ -15,12 +19,16 @@ export default async function AdminSchoolDetailPage({
   params,
 }: AdminSchoolDetailPageProps) {
   const { schoolId } = await params;
-  const school = adminSchools.find((item) => item.id === schoolId);
+  const school = await getAdminSchoolById(schoolId);
 
   if (!school) {
     notFound();
   }
 
+  const [adminClasses, adminUsers] = await Promise.all([
+    getAdminClasses(),
+    getAdminUsers(),
+  ]);
   const schoolClasses = adminClasses.filter((item) => item.schoolId === school.id);
   const schoolUsers = adminUsers.filter((item) => item.schoolId === school.id);
 

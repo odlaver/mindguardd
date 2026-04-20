@@ -1,8 +1,12 @@
 import { MoodHistoryChart } from "@/components/student/mood-history-chart";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { studentMoodHistory } from "@/lib/mock-data";
+import { getStudentMoodHistory } from "@/lib/server/data";
+import { requireRole } from "@/lib/server/session";
 
-export default function StudentHistoryPage() {
+export default async function StudentHistoryPage() {
+  const session = await requireRole("student");
+  const studentMoodHistory = await getStudentMoodHistory(session.user.id);
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-5 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">

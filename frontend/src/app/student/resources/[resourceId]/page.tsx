@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SectionCard } from "@/components/ui/section-card";
-import { resources } from "@/lib/mock-data";
+import { getStudentResourceById } from "@/lib/server/data";
+import { requireRole } from "@/lib/server/session";
 
 type ResourceDetailPageProps = {
   params: Promise<{
@@ -13,8 +14,9 @@ type ResourceDetailPageProps = {
 export default async function ResourceDetailPage({
   params,
 }: ResourceDetailPageProps) {
+  await requireRole("student");
   const { resourceId } = await params;
-  const resource = resources.find((item) => item.id === resourceId);
+  const resource = await getStudentResourceById(resourceId);
 
   if (!resource) {
     notFound();

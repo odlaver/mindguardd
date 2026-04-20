@@ -66,7 +66,7 @@ export function MoodHistoryChart({ data }: MoodHistoryChartProps) {
               7 hari
             </span>
           </div>
-          <div className="text-sm text-ink-soft">Hover atau klik titik</div>
+          <div className="text-sm text-ink-soft"></div>
         </div>
 
         <div className="mt-6 min-w-0">

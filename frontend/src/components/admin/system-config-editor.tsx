@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import type { AdminSystemConfig } from "@/lib/mock-data";
 
@@ -16,11 +17,14 @@ function configTone(status: "Aktif" | "Tertunda") {
 }
 
 export function SystemConfigEditor({ config }: SystemConfigEditorProps) {
+  const router = useRouter();
   const [value, setValue] = useState(config.value);
   const [status, setStatus] = useState<"Aktif" | "Tertunda">(config.status);
   const [summary, setSummary] = useState(config.summary);
   const [impact, setImpact] = useState(config.impact);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <section className="grid gap-4 xl:grid-cols-[1.04fr_0.96fr]">
@@ -96,15 +100,46 @@ export function SystemConfigEditor({ config }: SystemConfigEditorProps) {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[20px] border border-stroke bg-[#f7f8f4] px-4 py-4">
-            <span className="text-sm text-ink-soft">
-              {saved ? "Perubahan tersimpan." : "Simpan perubahan."}
-            </span>
+            <div className="text-sm text-ink-soft">
+              <span>{saved ? "Perubahan tersimpan." : "Simpan perubahan."}</span>
+              {error ? <p className="mt-1 font-medium text-danger">{error}</p> : null}
+            </div>
             <button
               type="button"
-              onClick={() => setSaved(true)}
-              className="button-primary min-w-[160px]"
+              onClick={async () => {
+                setSaving(true);
+                setError(null);
+
+                const response = await fetch(`/api/admin/system-configs/${config.id}`, {
+                  body: JSON.stringify({
+                    impact,
+                    status,
+                    summary,
+                    value,
+                  }),
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  method: "PATCH",
+                });
+                const payload = (await response.json().catch(() => null)) as
+                  | { error?: string }
+                  | null;
+
+                if (!response.ok) {
+                  setError(payload?.error ?? "Perubahan belum bisa disimpan.");
+                  setSaving(false);
+                  return;
+                }
+
+                setSaved(true);
+                setSaving(false);
+                router.refresh();
+              }}
+              className="button-primary min-w-[160px] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={saving}
             >
-              Simpan perubahan
+              {saving ? "Menyimpan..." : "Simpan perubahan"}
             </button>
           </div>
         </div>

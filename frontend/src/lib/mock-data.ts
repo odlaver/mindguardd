@@ -5,6 +5,11 @@ export type MoodPoint = {
 };
 
 export type ReviewStatus = "Baru" | "Sedang Ditinjau" | "Selesai";
+export type CounselingRequestStatus = "Baru" | "Dijadwalkan" | "Selesai";
+export type CounselingSessionStatus =
+  | "Menunggu Konfirmasi"
+  | "Dikonfirmasi"
+  | "Selesai";
 
 export type AlertStatus = ReviewStatus;
 
@@ -47,6 +52,7 @@ export type ResourceItem = {
 
 export type CounselingSession = {
   id: string;
+  requestId?: string;
   studentId: string;
   studentName: string;
   title: string;
@@ -54,12 +60,14 @@ export type CounselingSession = {
   when: string;
   format: "Tatap muka" | "Online";
   location: string;
-  status: ReviewStatus;
-  invitationStatus: ReviewStatus;
+  status: CounselingSessionStatus;
+  invitationStatus: CounselingSessionStatus;
   focus: string;
   note: string;
   outcome?: string;
   followUp?: string;
+  studentConfirmationNote?: string;
+  studentCompletionNote?: string;
 };
 
 export type CounselingRequest = {
@@ -70,8 +78,9 @@ export type CounselingRequest = {
   topic: string;
   preferredSlot: string;
   summary: string;
-  status: ReviewStatus;
+  status: CounselingRequestStatus;
   submittedAt: string;
+  scheduledSessionId?: string;
 };
 
 export type CounselorStudent = {
@@ -194,6 +203,81 @@ export const counselorStudents: CounselorStudent[] = [
       { date: "15 Apr", score: 4, note: "Konsisten lebih stabil." },
     ],
   },
+  {
+    id: "dinda-ayu",
+    name: "Dinda Ayu",
+    className: "X IPA 3",
+    trend: "Fluktuatif",
+    latestMood: 3,
+    risk: "Sedang",
+    focus: "Mulai kewalahan dengan ritme organisasi dan tuntutan akademik.",
+    moodHistory: [
+      { date: "02 Apr", score: 4, note: "Masih cukup seimbang." },
+      { date: "03 Apr", score: 3 },
+      { date: "04 Apr", score: 3, note: "Tugas mulai menumpuk." },
+      { date: "05 Apr", score: 2 },
+      { date: "06 Apr", score: 3, note: "Sedikit lebih tenang setelah istirahat." },
+      { date: "07 Apr", score: 4 },
+      { date: "08 Apr", score: 3 },
+      { date: "09 Apr", score: 2, note: "Panik saat persiapan lomba." },
+      { date: "10 Apr", score: 3 },
+      { date: "11 Apr", score: 3 },
+      { date: "12 Apr", score: 4 },
+      { date: "13 Apr", score: 3 },
+      { date: "14 Apr", score: 2, note: "Mulai kurang tidur." },
+      { date: "15 Apr", score: 3, note: "Butuh bantu atur prioritas." },
+    ],
+  },
+  {
+    id: "bagas-nugroho",
+    name: "Bagas Nugroho",
+    className: "XII IPA 3",
+    trend: "Turun 3 hari",
+    latestMood: 1,
+    risk: "Tinggi",
+    focus: "Cemas tinggi menjelang kelulusan dan makin menarik diri dari kelas.",
+    moodHistory: [
+      { date: "02 Apr", score: 3, note: "Masih bisa ikut ritme kelas." },
+      { date: "03 Apr", score: 3 },
+      { date: "04 Apr", score: 2, note: "Mulai sulit fokus." },
+      { date: "05 Apr", score: 2 },
+      { date: "06 Apr", score: 2, note: "Merasa gagal sebelum ujian dimulai." },
+      { date: "07 Apr", score: 3 },
+      { date: "08 Apr", score: 2 },
+      { date: "09 Apr", score: 2 },
+      { date: "10 Apr", score: 2, note: "Menghindari obrolan soal kampus." },
+      { date: "11 Apr", score: 2 },
+      { date: "12 Apr", score: 2 },
+      { date: "13 Apr", score: 2, note: "Tidur makin tidak teratur." },
+      { date: "14 Apr", score: 1, note: "Merasa sangat kewalahan." },
+      { date: "15 Apr", score: 1, note: "Butuh respons cepat dari BK." },
+    ],
+  },
+  {
+    id: "salma-kirana",
+    name: "Salma Kirana",
+    className: "XI IPS 2",
+    trend: "Naik 3 hari",
+    latestMood: 4,
+    risk: "Aman",
+    focus: "Mulai stabil setelah dapat ruang bicara dengan wali kelas.",
+    moodHistory: [
+      { date: "02 Apr", score: 2, note: "Masih canggung setelah konflik kelompok." },
+      { date: "03 Apr", score: 2 },
+      { date: "04 Apr", score: 3 },
+      { date: "05 Apr", score: 3 },
+      { date: "06 Apr", score: 2, note: "Masih kepikiran komentar teman." },
+      { date: "07 Apr", score: 3 },
+      { date: "08 Apr", score: 3 },
+      { date: "09 Apr", score: 3 },
+      { date: "10 Apr", score: 3 },
+      { date: "11 Apr", score: 4, note: "Mulai merasa lebih aman." },
+      { date: "12 Apr", score: 4 },
+      { date: "13 Apr", score: 4 },
+      { date: "14 Apr", score: 4, note: "Sudah lebih nyaman di kelas." },
+      { date: "15 Apr", score: 4, note: "Ingin tetap rutin check-in." },
+    ],
+  },
 ];
 
 export const alerts: AlertItem[] = [
@@ -232,6 +316,42 @@ export const alerts: AlertItem[] = [
     lastUpdated: "14 Apr 2026, 15.20",
     summary: "Catatan harian menunjukkan konflik berulang dengan teman sebaya dan penurunan energi saat di sekolah.",
     recommendation: "Pantau dua hari lagi sambil koordinasi dengan wali kelas untuk observasi terbatas.",
+  },
+  {
+    id: "ALT-025",
+    studentId: "bagas-nugroho",
+    student: "Bagas Nugroho",
+    className: "XII IPA 3",
+    reason: "Mood 1 selama 2 hari dengan catatan kecemasan ujian",
+    severity: "Tinggi",
+    status: "Baru",
+    lastUpdated: "15 Apr 2026, 09.05",
+    summary: "Catatan terbaru menunjukkan kecemasan intens, gangguan tidur, dan kecenderungan menarik diri dari pembahasan akademik.",
+    recommendation: "Prioritaskan check-in hari ini dan siapkan opsi pendampingan singkat dengan wali kelas.",
+  },
+  {
+    id: "ALT-022",
+    studentId: "dinda-ayu",
+    student: "Dinda Ayu",
+    className: "X IPA 3",
+    reason: "Mood fluktuatif dengan catatan kelelahan",
+    severity: "Sedang",
+    status: "Sedang Ditinjau",
+    lastUpdated: "15 Apr 2026, 08.22",
+    summary: "Mood berubah cukup tajam antara aktivitas organisasi dan sekolah, dengan pola kurang tidur mulai muncul.",
+    recommendation: "Bantu siswa memetakan prioritas pekan ini dan cek batas beban kegiatan tambahan.",
+  },
+  {
+    id: "ALT-020",
+    studentId: "salma-kirana",
+    student: "Salma Kirana",
+    className: "XI IPS 2",
+    reason: "Pemulihan pasca konflik kelompok",
+    severity: "Sedang",
+    status: "Selesai",
+    lastUpdated: "13 Apr 2026, 11.30",
+    summary: "Monitoring ditutup setelah siswa menunjukkan kenaikan mood stabil dan relasi kelas membaik.",
+    recommendation: "Lanjutkan check-in ringan mingguan selama dua minggu.",
   },
 ];
 
@@ -281,6 +401,51 @@ export const whisperReports: WhisperReport[] = [
     nextStep: "Kasus sudah ditutup setelah sesi pendampingan awal selesai.",
     assignedTo: "Bu Sinta",
   },
+  {
+    id: "WSP-094",
+    studentId: "bagas-nugroho",
+    ownerLabel: "Anonim XII IPA 3",
+    title: "Teman terlihat makin menutup diri",
+    category: "Kesehatan mental",
+    urgency: "Tinggi",
+    status: "Baru",
+    submittedAt: "15 Apr 2026, 09.18",
+    excerpt: "Sudah beberapa hari dia diam terus dan bilang takut banget soal ujian akhir.",
+    detail:
+      "Teman saya mulai menghindar dari obrolan kelas, sering duduk sendiri, dan pernah bilang tidak sanggup mengejar semua target menjelang kelulusan.",
+    nextStep: "Perlu validasi cepat dan penentuan tindak lanjut aman bersama BK.",
+    assignedTo: "Bu Maya",
+  },
+  {
+    id: "WSP-090",
+    studentId: "dinda-ayu",
+    ownerLabel: "Anonim X IPA 3",
+    title: "Kelelahan karena kegiatan berlapis",
+    category: "Beban aktivitas",
+    urgency: "Normal",
+    status: "Sedang Ditinjau",
+    submittedAt: "15 Apr 2026, 07.48",
+    excerpt: "Dia kelihatan capek terus karena sekolah, lomba, dan organisasi numpuk bareng.",
+    detail:
+      "Belakangan ini dia sering datang terlihat lelah dan bilang jam tidurnya berantakan karena persiapan lomba ditambah tugas sekolah.",
+    nextStep: "BK meninjau kemungkinan check-in preventif dan koordinasi ringan dengan pembina kegiatan.",
+    assignedTo: "Bu Maya",
+  },
+  {
+    id: "WSP-085",
+    studentId: "salma-kirana",
+    ownerLabel: "Anonim XI IPS 2",
+    title: "Minta ruang aman untuk bercerita",
+    category: "Relasi sosial",
+    urgency: "Normal",
+    status: "Selesai",
+    submittedAt: "13 Apr 2026, 09.40",
+    excerpt: "Awalnya bingung harus cerita ke siapa setelah konflik kelompok membesar.",
+    detail:
+      "Laporan ini masuk sebelum mediasi kelas dilakukan. Setelah ditindaklanjuti, siswa sudah mendapat ruang bicara dengan wali kelas dan guru BK.",
+    nextStep: "Kasus ditutup, lanjut monitoring ringan.",
+    assignedTo: "Bu Sinta",
+  },
 ];
 
 export const studentInterventions: StudentIntervention[] = [
@@ -311,6 +476,27 @@ export const studentInterventions: StudentIntervention[] = [
     owner: "Bu Sinta",
     status: "Selesai",
     when: "11 Apr 2026",
+  },
+  {
+    studentId: "bagas-nugroho",
+    title: "Check-in prioritas",
+    owner: "Bu Maya",
+    status: "Baru",
+    when: "15 Apr 2026, 11.00",
+  },
+  {
+    studentId: "dinda-ayu",
+    title: "Review beban kegiatan",
+    owner: "Bu Maya",
+    status: "Sedang Ditinjau",
+    when: "16 Apr 2026",
+  },
+  {
+    studentId: "salma-kirana",
+    title: "Monitoring pasca mediasi",
+    owner: "Wali kelas XI IPS 2",
+    status: "Selesai",
+    when: "12 Apr 2026",
   },
 ];
 
@@ -392,6 +578,7 @@ export const resources: ResourceItem[] = [
 export const counselingSessions: CounselingSession[] = [
   {
     id: "CS-201",
+    requestId: "REQ-031",
     studentId: "raka-pratama",
     studentName: "Raka Pratama",
     title: "Check-in mingguan",
@@ -399,13 +586,14 @@ export const counselingSessions: CounselingSession[] = [
     when: "17 Apr 2026, 10.30",
     format: "Tatap muka",
     location: "Ruang BK 2",
-    status: "Baru",
-    invitationStatus: "Sedang Ditinjau",
+    status: "Menunggu Konfirmasi",
+    invitationStatus: "Menunggu Konfirmasi",
     focus: "Tekanan tugas dan pola tidur",
-    note: "Datang 5 menit lebih awal dan bawa catatan jika ada hal yang ingin dibahas.",
+    note: "Jadwal dibuat guru BK dan menunggu konfirmasi siswa.",
   },
   {
     id: "CS-196",
+    requestId: "REQ-027",
     studentId: "nabila-rahma",
     studentName: "Nabila Rahma",
     title: "Sesi tindak lanjut",
@@ -413,10 +601,11 @@ export const counselingSessions: CounselingSession[] = [
     when: "22 Apr 2026, 13.00",
     format: "Online",
     location: "Google Meet sekolah",
-    status: "Sedang Ditinjau",
-    invitationStatus: "Baru",
+    status: "Dikonfirmasi",
+    invitationStatus: "Dikonfirmasi",
     focus: "Evaluasi progress setelah sesi pertama",
     note: "Link meeting akan dibagikan lewat wali kelas sebelum sesi dimulai.",
+    studentConfirmationNote: "Saya setuju dengan jadwal online dan ingin membahas dinamika kelompok.",
   },
   {
     id: "CS-184",
@@ -433,6 +622,56 @@ export const counselingSessions: CounselingSession[] = [
     note: "Sesi selesai dengan rencana check-in lanjutan minggu berikutnya.",
     outcome: "Siswa mampu menjelaskan pemicu utama dan setuju menjalani sesi evaluasi lanjutan.",
     followUp: "Pantau ritme belajar selama satu minggu dan cek ulang di sesi berikutnya.",
+    studentCompletionNote: "Sesi membantu saya lebih paham apa yang memicu tekanan saat belajar.",
+  },
+  {
+    id: "CS-205",
+    requestId: "REQ-034",
+    studentId: "bagas-nugroho",
+    studentName: "Bagas Nugroho",
+    title: "Sesi respons cepat",
+    counselor: "Bu Maya",
+    when: "15 Apr 2026, 14.00",
+    format: "Tatap muka",
+    location: "Ruang BK 1",
+    status: "Menunggu Konfirmasi",
+    invitationStatus: "Menunggu Konfirmasi",
+    focus: "Kecemasan menjelang ujian dan rasa kewalahan",
+    note: "Sesi dibuat dari alert prioritas dan menunggu respons siswa.",
+  },
+  {
+    id: "CS-199",
+    requestId: "REQ-033",
+    studentId: "dinda-ayu",
+    studentName: "Dinda Ayu",
+    title: "Sesi penataan prioritas",
+    counselor: "Bu Maya",
+    when: "18 Apr 2026, 09.30",
+    format: "Online",
+    location: "Google Meet sekolah",
+    status: "Dikonfirmasi",
+    invitationStatus: "Dikonfirmasi",
+    focus: "Mengatur beban organisasi dan akademik",
+    note: "Sesi lanjutan untuk menyusun ritme mingguan yang lebih realistis.",
+    studentConfirmationNote: "Saya bisa hadir pagi dan ingin fokus bahas jadwal kegiatan.",
+  },
+  {
+    id: "CS-188",
+    requestId: "REQ-029",
+    studentId: "salma-kirana",
+    studentName: "Salma Kirana",
+    title: "Sesi pemulihan relasi",
+    counselor: "Bu Sinta",
+    when: "11 Apr 2026, 13.30",
+    format: "Tatap muka",
+    location: "Ruang BK 2",
+    status: "Selesai",
+    invitationStatus: "Selesai",
+    focus: "Pemulihan rasa aman setelah konflik kelompok",
+    note: "Sesi berjalan baik dengan target memastikan dukungan di kelas.",
+    outcome: "Siswa merasa lebih aman untuk kembali aktif dan sepakat pada monitoring singkat.",
+    followUp: "Check-in ringan bersama wali kelas pekan depan.",
+    studentCompletionNote: "Saya merasa lebih lega setelah situasinya dibicarakan dengan tenang.",
   },
 ];
 
@@ -445,8 +684,9 @@ export const counselingRequests: CounselingRequest[] = [
     topic: "Tekanan akademik",
     preferredSlot: "Setelah jam sekolah",
     summary: "Butuh sesi lanjutan untuk membahas tugas yang terasa menumpuk dan pola tidur yang belum stabil.",
-    status: "Baru",
+    status: "Dijadwalkan",
     submittedAt: "16 Apr 2026, 08.10",
+    scheduledSessionId: "CS-201",
   },
   {
     id: "REQ-027",
@@ -456,8 +696,45 @@ export const counselingRequests: CounselingRequest[] = [
     topic: "Relasi pertemanan",
     preferredSlot: "Istirahat siang",
     summary: "Ingin bicara soal dinamika kelompok kelas yang mulai terasa menguras energi.",
-    status: "Sedang Ditinjau",
+    status: "Dijadwalkan",
     submittedAt: "15 Apr 2026, 13.20",
+    scheduledSessionId: "CS-196",
+  },
+  {
+    id: "REQ-034",
+    studentId: "bagas-nugroho",
+    studentName: "Bagas Nugroho",
+    className: "XII IPA 3",
+    topic: "Kecemasan ujian",
+    preferredSlot: "Jam BK pagi",
+    summary: "Butuh ruang bicara cepat karena kecemasan menjelang ujian mulai terasa sangat berat dan mengganggu tidur.",
+    status: "Dijadwalkan",
+    submittedAt: "15 Apr 2026, 09.10",
+    scheduledSessionId: "CS-205",
+  },
+  {
+    id: "REQ-033",
+    studentId: "dinda-ayu",
+    studentName: "Dinda Ayu",
+    className: "X IPA 3",
+    topic: "Manajemen beban",
+    preferredSlot: "Pagi sebelum kelas",
+    summary: "Ingin menyusun ulang prioritas karena kegiatan sekolah dan organisasi mulai terasa tidak seimbang.",
+    status: "Dijadwalkan",
+    submittedAt: "15 Apr 2026, 07.55",
+    scheduledSessionId: "CS-199",
+  },
+  {
+    id: "REQ-029",
+    studentId: "salma-kirana",
+    studentName: "Salma Kirana",
+    className: "XI IPS 2",
+    topic: "Konflik kelompok",
+    preferredSlot: "Setelah istirahat kedua",
+    summary: "Meminta ruang aman untuk membahas konflik kelompok yang sempat bikin tidak nyaman berada di kelas.",
+    status: "Selesai",
+    submittedAt: "10 Apr 2026, 10.40",
+    scheduledSessionId: "CS-188",
   },
 ];
 
@@ -594,6 +871,49 @@ export const adminUsers: AdminUser[] = [
     status: "Aktif",
     lastAccess: "16 Apr 2026, 09.00",
   },
+  {
+    id: "usr-006",
+    name: "Dinda Ayu",
+    role: "Siswa",
+    schoolId: "sch-001",
+    schoolName: "SMA Nusantara",
+    className: "X IPA 3",
+    email: "dinda.ayu@mindguard.id",
+    status: "Aktif",
+    lastAccess: "15 Apr 2026, 07.50",
+  },
+  {
+    id: "usr-007",
+    name: "Bagas Nugroho",
+    role: "Siswa",
+    schoolId: "sch-002",
+    schoolName: "SMA Cakrawala",
+    className: "XII IPA 3",
+    email: "bagas.nugroho@mindguard.id",
+    status: "Aktif",
+    lastAccess: "15 Apr 2026, 08.02",
+  },
+  {
+    id: "usr-008",
+    name: "Salma Kirana",
+    role: "Siswa",
+    schoolId: "sch-001",
+    schoolName: "SMA Nusantara",
+    className: "XI IPS 2",
+    email: "salma.kirana@mindguard.id",
+    status: "Aktif",
+    lastAccess: "15 Apr 2026, 09.14",
+  },
+  {
+    id: "usr-009",
+    name: "Bu Maya",
+    role: "Guru BK",
+    schoolId: "sch-002",
+    schoolName: "SMA Cakrawala",
+    email: "maya.bk@mindguard.id",
+    status: "Aktif",
+    lastAccess: "15 Apr 2026, 16.05",
+  },
 ];
 
 export const adminSchools: AdminSchool[] = [
@@ -614,6 +934,15 @@ export const adminSchools: AdminSchool[] = [
     studentCount: 272,
     classCount: 7,
     completion: "81%",
+  },
+  {
+    id: "sch-003",
+    name: "SMA Bhaskara",
+    principal: "Rizal Mahendra, M.Pd.",
+    counselorCount: 2,
+    studentCount: 318,
+    classCount: 9,
+    completion: "84%",
   },
 ];
 
@@ -651,6 +980,39 @@ export const adminClasses: AdminClass[] = [
     completion: "91%",
     riskBand: "Stabil",
   },
+  {
+    id: "cls-004",
+    schoolId: "sch-001",
+    schoolName: "SMA Nusantara",
+    className: "X IPA 3",
+    homeroom: "Bu Laras",
+    studentCount: 32,
+    counselor: "Bu Maya",
+    completion: "77%",
+    riskBand: "Monitor",
+  },
+  {
+    id: "cls-005",
+    schoolId: "sch-002",
+    schoolName: "SMA Cakrawala",
+    className: "XII IPA 3",
+    homeroom: "Pak Bimo",
+    studentCount: 30,
+    counselor: "Bu Maya",
+    completion: "73%",
+    riskBand: "Perlu perhatian",
+  },
+  {
+    id: "cls-006",
+    schoolId: "sch-003",
+    schoolName: "SMA Bhaskara",
+    className: "XI IPS 2",
+    homeroom: "Bu Dina",
+    studentCount: 33,
+    counselor: "Bu Sinta",
+    completion: "89%",
+    riskBand: "Stabil",
+  },
 ];
 
 export const adminSystemConfigs: AdminSystemConfig[] = [
@@ -680,5 +1042,14 @@ export const adminSystemConfigs: AdminSystemConfig[] = [
     status: "Tertunda",
     summary: "Pengingat check-in siswa.",
     impact: "Belum dijalankan di rilis ini.",
+  },
+  {
+    id: "cfg-004",
+    name: "Escalation ujian akhir",
+    group: "Alert",
+    value: "Mood 1-2 + kata kunci ujian",
+    status: "Aktif",
+    summary: "Prioritas tambahan untuk siswa akhir yang menunjukkan kecemasan intens.",
+    impact: "Masuk ke antrean prioritas tinggi BK.",
   },
 ];

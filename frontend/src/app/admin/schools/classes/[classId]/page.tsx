@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { adminClasses, adminUsers } from "@/lib/mock-data";
+import { getAdminClassById, getAdminUsers } from "@/lib/server/data";
 
 type AdminClassDetailPageProps = {
   params: Promise<{
@@ -27,12 +27,13 @@ export default async function AdminClassDetailPage({
   params,
 }: AdminClassDetailPageProps) {
   const { classId } = await params;
-  const classItem = adminClasses.find((item) => item.id === classId);
+  const classItem = await getAdminClassById(classId);
 
   if (!classItem) {
     notFound();
   }
 
+  const adminUsers = await getAdminUsers();
   const classUsers = adminUsers.filter((item) => item.className === classItem.className);
 
   return (

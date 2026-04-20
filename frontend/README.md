@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MindGuard Frontend
 
-## Getting Started
+## Local setup
 
-First, run the development server:
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Copy env template and fill the values you need:
+
+```bash
+cp .env.example .env.local
+```
+
+3. For local-only development without Turso, you can set:
+
+```bash
+TURSO_DATABASE_URL=file:./data/mindguard.db
+```
+
+4. Run migrations and seed data:
+
+```bash
+npm run db:setup
+```
+
+5. Start the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Turso
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a database and token:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run turso:login
+turso db create mindguardd
+turso db show --url mindguardd
+turso db tokens create mindguardd
+```
 
-## Learn More
+On Windows, `npm run turso:login` checks for WSL, installs the Turso CLI inside WSL when needed, and runs `turso auth login --headless`. If WSL is missing, it tells you to run `wsl.exe --install` first.
 
-To learn more about Next.js, take a look at the following resources:
+Then put the resulting values into `.env.local`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+TURSO_DATABASE_URL=libsql://...
+TURSO_AUTH_TOKEN=...
+BETTER_AUTH_SECRET=...
+BETTER_AUTH_URL=http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Apply schema and seed:
 
-## Deploy on Vercel
+```bash
+npm run db:migrate
+npm run db:seed
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This repo is structured with the Next.js app inside `frontend`, so the Vercel project should use `frontend` as its Root Directory.
+
+Required environment variables:
+
+```bash
+BETTER_AUTH_SECRET
+BETTER_AUTH_URL
+TURSO_DATABASE_URL
+TURSO_AUTH_TOKEN
+```
+
+Recommended CLI flow:
+
+```bash
+vercel link --yes --project mindguardd --scope <your-team>
+vercel env add BETTER_AUTH_SECRET production
+vercel env add BETTER_AUTH_SECRET preview
+vercel env add BETTER_AUTH_SECRET development
+vercel env add BETTER_AUTH_URL production
+vercel env add BETTER_AUTH_URL preview
+vercel env add BETTER_AUTH_URL development
+vercel env add TURSO_DATABASE_URL production
+vercel env add TURSO_DATABASE_URL preview
+vercel env add TURSO_DATABASE_URL development
+vercel env add TURSO_AUTH_TOKEN production --sensitive
+vercel env add TURSO_AUTH_TOKEN preview --sensitive
+vercel env add TURSO_AUTH_TOKEN development
+vercel env pull .env.local --yes
+```
+
+After changing env vars, trigger a new deployment.

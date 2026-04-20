@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { StudentCounselingSessionActions } from "@/components/student/student-counseling-session-actions";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { counselingSessions } from "@/lib/mock-data";
+import { getCounselingSessionById } from "@/lib/server/data";
+import { requireRole } from "@/lib/server/session";
 
 type CounselingDetailPageProps = {
   params: Promise<{
@@ -12,12 +14,12 @@ type CounselingDetailPageProps = {
 };
 
 function getSessionTone(status: string) {
-  if (status === "Baru") {
-    return "danger";
+  if (status === "Menunggu Konfirmasi") {
+    return "warning";
   }
 
-  if (status === "Sedang Ditinjau") {
-    return "warning";
+  if (status === "Dikonfirmasi") {
+    return "monitor";
   }
 
   return "aman";
@@ -26,10 +28,11 @@ function getSessionTone(status: string) {
 export default async function CounselingDetailPage({
   params,
 }: CounselingDetailPageProps) {
+  const viewer = await requireRole("student");
   const { sessionId } = await params;
-  const session = counselingSessions.find((item) => item.id === sessionId);
+  const session = await getCounselingSessionById(sessionId);
 
-  if (!session) {
+  if (!session || session.studentId !== viewer.user.id) {
     notFound();
   }
 
@@ -76,8 +79,30 @@ export default async function CounselingDetailPage({
           </div>
         </SectionCard>
 
+        <StudentCounselingSessionActions
+          sessionId={session.id}
+          status={session.invitationStatus}
+          studentConfirmationNote={session.studentConfirmationNote}
+          studentCompletionNote={session.studentCompletionNote}
+        />
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[1fr_1fr]">
         <SectionCard title="Catatan sesi">
           <p className="text-base leading-8 text-ink-soft">{session.note}</p>
+        </SectionCard>
+
+        <SectionCard title="Ringkasan hasil">
+          <div className="grid gap-4">
+            <div className="rounded-[22px] border border-stroke bg-[#f7f8f4] px-4 py-4">
+              <p className="soft-label">Hasil sesi</p>
+              <p className="mt-3 text-base leading-8 text-ink-soft">{session.outcome ?? "-"}</p>
+            </div>
+            <div className="rounded-[22px] border border-stroke bg-white px-4 py-4">
+              <p className="soft-label">Tindak lanjut</p>
+              <p className="mt-3 text-base leading-8 text-ink-soft">{session.followUp ?? "-"}</p>
+            </div>
+          </div>
         </SectionCard>
       </section>
     </>

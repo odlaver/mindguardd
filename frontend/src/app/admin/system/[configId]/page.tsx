@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { SystemConfigEditor } from "@/components/admin/system-config-editor";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { adminSystemConfigs } from "@/lib/mock-data";
+import { getAdminSystemConfigById } from "@/lib/server/data";
 
 type AdminSystemDetailPageProps = {
   params: Promise<{
@@ -19,7 +19,7 @@ export default async function AdminSystemDetailPage({
   params,
 }: AdminSystemDetailPageProps) {
   const { configId } = await params;
-  const config = adminSystemConfigs.find((item) => item.id === configId);
+  const config = await getAdminSystemConfigById(configId);
 
   if (!config) {
     notFound();

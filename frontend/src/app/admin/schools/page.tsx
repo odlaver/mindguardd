@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { adminClasses, adminSchools } from "@/lib/mock-data";
+import { getAdminClasses, getAdminSchools } from "@/lib/server/data";
 
 function classTone(riskBand: "Stabil" | "Monitor" | "Perlu perhatian") {
   if (riskBand === "Stabil") {
@@ -30,7 +30,12 @@ function completionTone(completion: string) {
   return "danger";
 }
 
-export default function AdminSchoolsPage() {
+export default async function AdminSchoolsPage() {
+  const [adminClasses, adminSchools] = await Promise.all([
+    getAdminClasses(),
+    getAdminSchools(),
+  ]);
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">

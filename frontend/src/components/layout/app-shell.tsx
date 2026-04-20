@@ -1,8 +1,10 @@
 "use client";
 
+import { startTransition } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 
 export type NavItem = {
@@ -36,6 +38,7 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-4 lg:min-h-screen lg:flex-row lg:px-6">
@@ -107,6 +110,20 @@ export function AppShell({
             );
           })}
         </nav>
+
+        <button
+          type="button"
+          onClick={async () => {
+            await authClient.signOut();
+            startTransition(() => {
+              router.replace("/");
+              router.refresh();
+            });
+          }}
+          className="mt-auto rounded-[22px] border border-stroke bg-white px-4 py-3 text-sm font-semibold text-foreground transition hover:border-foreground/16 hover:bg-[#f7f8f4]"
+        >
+          Keluar
+        </button>
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6">{children}</main>

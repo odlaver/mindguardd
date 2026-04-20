@@ -23,10 +23,6 @@ export function StudentLayoutShell({
     }
   }, [hasCheckedInToday, pathname, router]);
 
-  if (hasCheckedInToday === null) {
-    return <div className="min-h-screen" />;
-  }
-
   if (!hasCheckedInToday && pathname === "/student") {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-[720px] items-center px-4 py-6 lg:px-6">

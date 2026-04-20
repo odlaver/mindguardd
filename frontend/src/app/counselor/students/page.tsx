@@ -2,9 +2,11 @@ import Link from "next/link";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { counselorStudents } from "@/lib/mock-data";
+import { getCounselorStudents } from "@/lib/server/data";
 
-export default function CounselorStudentsPage() {
+export default async function CounselorStudentsPage() {
+  const counselorStudents = await getCounselorStudents();
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">

@@ -1,8 +1,12 @@
 import Link from "next/link";
 
-import { resources } from "@/lib/mock-data";
+import { getStudentResources } from "@/lib/server/data";
+import { requireRole } from "@/lib/server/session";
 
-export default function StudentResourcesPage() {
+export default async function StudentResourcesPage() {
+  await requireRole("student");
+  const resources = await getStudentResources();
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-5 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">

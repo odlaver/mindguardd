@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { alerts } from "@/lib/mock-data";
+import { getAlerts } from "@/lib/server/data";
 
 function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
   if (status === "Baru") {
@@ -16,7 +16,9 @@ function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
   return "aman";
 }
 
-export default function CounselorAlertsPage() {
+export default async function CounselorAlertsPage() {
+  const alerts = await getAlerts();
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">

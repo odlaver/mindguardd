@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { adminUsers } from "@/lib/mock-data";
+import { getAdminUsers } from "@/lib/server/data";
 
 function accountTone(status: "Aktif" | "Menunggu" | "Nonaktif") {
   if (status === "Aktif") {
@@ -32,7 +32,8 @@ function roleTone(role: "Admin" | "Guru BK" | "Siswa" | "Wali Kelas") {
   return "neutral";
 }
 
-export default function AdminUsersPage() {
+export default async function AdminUsersPage() {
+  const adminUsers = await getAdminUsers();
   const activeUsers = adminUsers.filter((user) => user.status === "Aktif").length;
   const pendingUsers = adminUsers.filter((user) => user.status !== "Aktif").length;
 

@@ -2,21 +2,25 @@ import Link from "next/link";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { counselingSessions } from "@/lib/mock-data";
+import { getStudentCounselingSessions } from "@/lib/server/data";
+import { requireRole } from "@/lib/server/session";
 
 function getSessionTone(status: string) {
-  if (status === "Baru") {
-    return "danger";
+  if (status === "Menunggu Konfirmasi") {
+    return "warning";
   }
 
-  if (status === "Sedang Ditinjau") {
-    return "warning";
+  if (status === "Dikonfirmasi") {
+    return "monitor";
   }
 
   return "aman";
 }
 
-export default function StudentCounselingSchedulePage() {
+export default async function StudentCounselingSchedulePage() {
+  const session = await requireRole("student");
+  const counselingSessions = await getStudentCounselingSessions(session.user.id);
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-5 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
@@ -53,6 +57,11 @@ export default function StudentCounselingSchedulePage() {
               <p className="mt-3 text-sm leading-7 text-ink-soft">
                 {session.counselor} | {session.format}
               </p>
+              {session.studentConfirmationNote || session.studentCompletionNote ? (
+                <p className="mt-2 text-sm leading-7 text-ink-soft">
+                  {session.studentCompletionNote ?? session.studentConfirmationNote}
+                </p>
+              ) : null}
               <div className="mt-5 flex items-center justify-between">
                 <span className="rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground">
                   {session.location}

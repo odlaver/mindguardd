@@ -2,13 +2,14 @@ import Link from "next/link";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { adminSystemConfigs } from "@/lib/mock-data";
+import { getAdminSystemConfigs } from "@/lib/server/data";
 
 function configTone(status: "Aktif" | "Tertunda") {
   return status === "Aktif" ? "aman" : "warning";
 }
 
-export default function AdminSystemPage() {
+export default async function AdminSystemPage() {
+  const adminSystemConfigs = await getAdminSystemConfigs();
   const activeConfigs = adminSystemConfigs.filter((item) => item.status === "Aktif").length;
   const pendingConfigs = adminSystemConfigs.filter((item) => item.status === "Tertunda").length;
 

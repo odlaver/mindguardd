@@ -16,6 +16,10 @@
 # next.js
 /.next/
 /out/
+/data/*.db
+/data/*.db-*
+/db
+/db-*
 
 # production
 /build

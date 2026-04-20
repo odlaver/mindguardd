@@ -1,16 +1,27 @@
-"use client";
-
 import Link from "next/link";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { counselingSessions } from "@/lib/mock-data";
+import { getStudentCounselingSessions } from "@/lib/server/data";
+import { requireRole } from "@/lib/server/session";
 
-const upcomingSession = counselingSessions.find(
-  (session) => session.invitationStatus !== "Selesai",
-);
+function getSessionTone(status: string) {
+  if (status === "Menunggu Konfirmasi") {
+    return "warning";
+  }
 
-export default function StudentCounselingHubPage() {
+  if (status === "Dikonfirmasi") {
+    return "monitor";
+  }
+
+  return "aman";
+}
+
+export default async function StudentCounselingHubPage() {
+  const session = await requireRole("student");
+  const counselingSessions = await getStudentCounselingSessions(session.user.id);
+  const upcomingSession = counselingSessions.find((item) => item.invitationStatus !== "Selesai");
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-5 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
@@ -23,7 +34,9 @@ export default function StudentCounselingHubPage() {
         <div className="flex flex-wrap gap-2">
           <StatusBadge tone="monitor">{counselingSessions.length} sesi</StatusBadge>
           {upcomingSession ? (
-            <StatusBadge tone="aman">{upcomingSession.when}</StatusBadge>
+            <StatusBadge tone={getSessionTone(upcomingSession.invitationStatus)}>
+              {upcomingSession.invitationStatus}
+            </StatusBadge>
           ) : null}
         </div>
       </section>
@@ -42,9 +55,8 @@ export default function StudentCounselingHubPage() {
                 Cek sesi yang sudah terjadwal.
               </h2>
               <p className="mt-4 text-sm leading-7 text-ink-soft transition group-hover:text-white/74">
-                Buka daftar sesi, lihat waktu pertemuan, dan akses detail untuk
-                tiap agenda yang sudah pernah dibuat.
-                  
+                Buka daftar sesi, lihat waktu pertemuan, konfirmasi jadwal, lalu
+                tandai sesi selesai setelah konseling berlangsung.
               </p>
               <div className="mt-8 flex items-center justify-between">
                 <span className="rounded-full bg-[#f4f7f3] px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
@@ -93,15 +105,7 @@ export default function StudentCounselingHubPage() {
                 {upcomingSession.counselor} | {upcomingSession.location}
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
-                <StatusBadge
-                  tone={
-                    upcomingSession.invitationStatus === "Baru"
-                      ? "danger"
-                      : upcomingSession.invitationStatus === "Sedang Ditinjau"
-                        ? "warning"
-                        : "aman"
-                  }
-                >
+                <StatusBadge tone={getSessionTone(upcomingSession.invitationStatus)}>
                   {upcomingSession.invitationStatus}
                 </StatusBadge>
                 <StatusBadge tone="monitor">{upcomingSession.format}</StatusBadge>

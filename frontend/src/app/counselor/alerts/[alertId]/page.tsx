@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { AlertDetailPanels } from "@/components/counselor/alert-detail-panels";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { alerts, counselorStudents } from "@/lib/mock-data";
+import { getAlertById, getCounselorStudents } from "@/lib/server/data";
 
 type AlertDetailPageProps = {
   params: Promise<{
@@ -26,7 +26,10 @@ function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
 
 export default async function AlertDetailPage({ params }: AlertDetailPageProps) {
   const { alertId } = await params;
-  const alert = alerts.find((item) => item.id === alertId);
+  const [alert, counselorStudents] = await Promise.all([
+    getAlertById(alertId),
+    getCounselorStudents(),
+  ]);
 
   if (!alert) {
     notFound();

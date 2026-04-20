@@ -4,98 +4,11 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
-  adminClasses,
-  adminMetrics,
-  adminSchools,
-  adminSystemConfigs,
-  adminUsers,
-} from "@/lib/mock-data";
-
-const metricCards = [
-  {
-    label: "Total pengguna",
-    value: adminMetrics.totalUsers,
-    trend: "+18 bulan ini",
-    trendTone: "aman" as const,
-  },
-  {
-    label: "Siswa aktif",
-    value: adminMetrics.activeStudents,
-    trend: "+12 minggu ini",
-    trendTone: "aman" as const,
-  },
-  {
-    label: "Guru BK",
-    value: adminMetrics.counselors,
-    trend: "1 penugasan baru",
-    trendTone: "neutral" as const,
-  },
-  {
-    label: "Kelas",
-    value: adminMetrics.classes,
-    trend: "2 kelas dipantau",
-    trendTone: "warning" as const,
-  },
-];
-
-const schoolsNeedingAttention = adminSchools
-  .map((school) => {
-    const relatedClasses = adminClasses.filter((item) => item.schoolId === school.id);
-    const needsAttention = relatedClasses.filter((item) => item.riskBand === "Perlu perhatian").length;
-
-    return {
-      ...school,
-      needsAttention,
-    };
-  })
-  .sort((a, b) => Number.parseInt(a.completion, 10) - Number.parseInt(b.completion, 10));
-
-const pendingRequests = [
-  {
-    id: "REQ-ADM-01",
-    title: "Verifikasi akun Guru BK",
-    detail: adminUsers.find((item) => item.status === "Menunggu")?.name ?? "Nadia Putri",
-    tone: "warning" as const,
-    href: "/admin/users/usr-004",
-  },
-  {
-    id: "REQ-ADM-02",
-    title: "Konfigurasi tertunda",
-    detail:
-      adminSystemConfigs.find((item) => item.status === "Tertunda")?.name ?? "Pengingat harian",
-    tone: "warning" as const,
-    href: "/admin/system/cfg-003",
-  },
-  {
-    id: "REQ-ADM-03",
-    title: "Kelas prioritas",
-    detail:
-      adminClasses.find((item) => item.riskBand === "Perlu perhatian")?.className ?? "XI IPA 2",
-    tone: "danger" as const,
-    href: "/admin/schools/classes/cls-001",
-  },
-];
-
-const adminLog = [
-  {
-    id: "LOG-01",
-    title: "Admin Sekolah Pusat",
-    detail: "Login terakhir 16 Apr 2026, 09.00",
-    href: "/admin/users/usr-005",
-  },
-  {
-    id: "LOG-02",
-    title: "Bu Sinta",
-    detail: "Akses Guru BK 16 Apr 2026, 07.45",
-    href: "/admin/users/usr-002",
-  },
-  {
-    id: "LOG-03",
-    title: "Alert otomatis",
-    detail: "Konfigurasi aktif",
-    href: "/admin/system/cfg-001",
-  },
-];
+  getAdminClasses,
+  getAdminSchools,
+  getAdminSystemConfigs,
+  getAdminUsers,
+} from "@/lib/server/data";
 
 function completionTone(completion: string) {
   const score = Number.parseInt(completion, 10);
@@ -111,7 +24,86 @@ function completionTone(completion: string) {
   return "danger";
 }
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const [adminClasses, adminSchools, adminSystemConfigs, adminUsers] =
+    await Promise.all([
+      getAdminClasses(),
+      getAdminSchools(),
+      getAdminSystemConfigs(),
+      getAdminUsers(),
+    ]);
+  const metricCards = [
+    {
+      label: "Total pengguna",
+      trend: "+18 bulan ini",
+      trendTone: "aman" as const,
+      value: adminUsers.length,
+    },
+    {
+      label: "Siswa aktif",
+      trend: "+12 minggu ini",
+      trendTone: "aman" as const,
+      value: adminUsers.filter((item) => item.role === "Siswa").length,
+    },
+    {
+      label: "Guru BK",
+      trend: "1 penugasan baru",
+      trendTone: "neutral" as const,
+      value: adminUsers.filter((item) => item.role === "Guru BK").length,
+    },
+    {
+      label: "Kelas",
+      trend: "2 kelas dipantau",
+      trendTone: "warning" as const,
+      value: adminClasses.length,
+    },
+  ];
+  const schoolsNeedingAttention = adminSchools
+    .map((school) => {
+      const relatedClasses = adminClasses.filter((item) => item.schoolId === school.id);
+      const needsAttention = relatedClasses.filter(
+        (item) => item.riskBand === "Perlu perhatian",
+      ).length;
+
+      return {
+        ...school,
+        needsAttention,
+      };
+    })
+    .sort(
+      (a, b) => Number.parseInt(a.completion, 10) - Number.parseInt(b.completion, 10),
+    );
+  const pendingRequests = [
+    {
+      detail: adminUsers.find((item) => item.status === "Menunggu")?.name ?? "-",
+      href: `/admin/users/${adminUsers.find((item) => item.status === "Menunggu")?.id ?? adminUsers[0]?.id ?? ""}`,
+      id: "REQ-ADM-01",
+      title: "Verifikasi akun Guru BK",
+      tone: "warning" as const,
+    },
+    {
+      detail: adminSystemConfigs.find((item) => item.status === "Tertunda")?.name ?? "-",
+      href: `/admin/system/${adminSystemConfigs.find((item) => item.status === "Tertunda")?.id ?? adminSystemConfigs[0]?.id ?? ""}`,
+      id: "REQ-ADM-02",
+      title: "Konfigurasi tertunda",
+      tone: "warning" as const,
+    },
+    {
+      detail:
+        adminClasses.find((item) => item.riskBand === "Perlu perhatian")?.className ?? "-",
+      href: `/admin/schools/classes/${adminClasses.find((item) => item.riskBand === "Perlu perhatian")?.id ?? adminClasses[0]?.id ?? ""}`,
+      id: "REQ-ADM-03",
+      title: "Kelas prioritas",
+      tone: "danger" as const,
+    },
+  ];
+  const adminLog = adminUsers.slice(0, 3).map((item, index) => ({
+    detail: `Akses terakhir ${item.lastAccess}`,
+    href: `/admin/users/${item.id}`,
+    id: `LOG-0${index + 1}`,
+    title: item.name,
+  }));
+
   return (
     <>
       <section className="page-hero stagger-in flex flex-col gap-4 p-6 lg:flex-row lg:items-end lg:justify-between">
@@ -126,7 +118,7 @@ export default function AdminPage() {
           className="button-primary"
           style={{ WebkitTextFillColor: "#ffffff" }}
         >
-          Tambah pengguna
+          Lihat pengguna
         </Link>
       </section>
 

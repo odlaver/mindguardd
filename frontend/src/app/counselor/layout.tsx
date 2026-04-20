@@ -1,11 +1,15 @@
+import { requireRole } from "@/lib/server/session";
+
 import { AppShell } from "@/components/layout/app-shell";
 import { counselorNav } from "@/lib/navigation";
 
-export default function CounselorLayout({
+export default async function CounselorLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await requireRole(["counselor", "homeroom"]);
+
   return (
     <AppShell
       accentClass="bg-secondary/22 text-foreground"

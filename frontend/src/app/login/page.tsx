@@ -1,5 +1,15 @@
 import { redirect } from "next/navigation";
 
-export default function LoginPage() {
-  redirect("/");
+import { LoginScreen } from "@/components/auth/login-screen";
+import { getRoleHomePath } from "@/lib/role-home-path";
+import { getSessionOrNull } from "@/lib/server/session";
+
+export default async function LoginPage() {
+  const session = await getSessionOrNull();
+
+  if (session) {
+    redirect(getRoleHomePath(session.user.role));
+  }
+
+  return <LoginScreen />;
 }

@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { whisperReports } from "@/lib/mock-data";
+import { getStudentWhisperReportById } from "@/lib/server/data";
+import { requireRole } from "@/lib/server/session";
 
 type WhisperDetailPageProps = {
   params: Promise<{
@@ -26,8 +27,9 @@ function getStatusTone(status?: string) {
 export default async function WhisperDetailPage({
   params,
 }: WhisperDetailPageProps) {
+  const session = await requireRole("student");
   const { reportId } = await params;
-  const report = whisperReports.find((item) => item.id === reportId);
+  const report = await getStudentWhisperReportById(session.user.id, reportId);
 
   if (!report) {
     notFound();

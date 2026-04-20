@@ -6,11 +6,11 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
-  alerts,
-  counselorStudents,
-  studentInterventions,
-  whisperReports,
-} from "@/lib/mock-data";
+  getAlerts,
+  getCounselorStudents,
+  getStudentInterventions,
+  getWhisperReports,
+} from "@/lib/server/data";
 
 function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
   if (status === "Baru") {
@@ -33,6 +33,11 @@ type StudentDetailPageProps = {
 export default async function StudentDetailPage({
   params,
 }: StudentDetailPageProps) {
+  const [counselorStudents, alerts, whisperReports] = await Promise.all([
+    getCounselorStudents(),
+    getAlerts(),
+    getWhisperReports(),
+  ]);
   const { studentId } = await params;
   const student = counselorStudents.find((item) => item.id === studentId);
 
@@ -42,9 +47,7 @@ export default async function StudentDetailPage({
 
   const linkedAlerts = alerts.filter((item) => item.studentId === student.id);
   const linkedReports = whisperReports.filter((item) => item.studentId === student.id);
-  const interventions = studentInterventions.filter(
-    (item) => item.studentId === student.id,
-  );
+  const interventions = await getStudentInterventions(student.id);
   const riskDays = student.moodHistory.filter((item) => item.score <= 2).length;
 
   return (

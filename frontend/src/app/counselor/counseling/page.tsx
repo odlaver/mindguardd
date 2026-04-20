@@ -2,10 +2,15 @@ import Link from "next/link";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { counselingRequests, counselingSessions } from "@/lib/mock-data";
+import { getCounselingRequests, getCounselingSessions } from "@/lib/server/data";
 
-export default function CounselorCounselingPage() {
+export default async function CounselorCounselingPage() {
+  const [counselingRequests, counselingSessions] = await Promise.all([
+    getCounselingRequests(),
+    getCounselingSessions(),
+  ]);
   const activeSessions = counselingSessions.filter((session) => session.status !== "Selesai");
+  const incomingRequests = counselingRequests.filter((request) => request.status === "Baru");
 
   return (
     <>
@@ -16,7 +21,7 @@ export default function CounselorCounselingPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <StatusBadge tone="monitor">{activeSessions.length} agenda aktif</StatusBadge>
-          <StatusBadge tone="warning">{counselingRequests.length} pengajuan masuk</StatusBadge>
+          <StatusBadge tone="warning">{incomingRequests.length} pengajuan masuk</StatusBadge>
         </div>
       </section>
 
@@ -26,7 +31,7 @@ export default function CounselorCounselingPage() {
             <Link
               href="/counselor/counseling/schedule"
               className="group panel-hover flex min-h-[280px] flex-col rounded-[30px] border border-stroke bg-white p-6 hover:border-foreground/16 hover:bg-foreground hover:text-white"
-            >  
+            >
               <p className="soft-label transition group-hover:text-white/72">
                 Mengatur Jadwal
               </p>
@@ -35,7 +40,7 @@ export default function CounselorCounselingPage() {
               </h2>
               <div className="mt-auto flex items-center justify-between pt-8">
                 <span className="rounded-full bg-[#f4f7f3] px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
-                  {counselingRequests.length} pengajuan
+                  {incomingRequests.length} pengajuan baru
                 </span>
                 <span className="text-lg transition group-hover:translate-x-1">
                   {"->"}

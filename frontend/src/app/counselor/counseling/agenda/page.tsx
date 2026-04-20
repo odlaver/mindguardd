@@ -2,21 +2,22 @@ import Link from "next/link";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { counselingSessions } from "@/lib/mock-data";
+import { getCounselingSessions } from "@/lib/server/data";
 
-function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
-  if (status === "Baru") {
-    return "danger";
+function getReviewTone(status: "Menunggu Konfirmasi" | "Dikonfirmasi" | "Selesai") {
+  if (status === "Menunggu Konfirmasi") {
+    return "warning";
   }
 
-  if (status === "Sedang Ditinjau") {
-    return "warning";
+  if (status === "Dikonfirmasi") {
+    return "monitor";
   }
 
   return "aman";
 }
 
-export default function CounselorCounselingAgendaPage() {
+export default async function CounselorCounselingAgendaPage() {
+  const counselingSessions = await getCounselingSessions();
   const activeSessions = counselingSessions.filter((session) => session.status !== "Selesai");
   const historySessions = counselingSessions.filter((session) => session.status === "Selesai");
 

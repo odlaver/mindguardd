@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { WhisperDetailView } from "@/components/counselor/whisper-detail-view";
-import { counselorStudents, whisperReports } from "@/lib/mock-data";
+import { getCounselorStudents, getWhisperReportById } from "@/lib/server/data";
 
 type WhisperDetailPageProps = {
   params: Promise<{
@@ -13,7 +13,10 @@ export default async function WhisperDetailPage({
   params,
 }: WhisperDetailPageProps) {
   const { reportId } = await params;
-  const report = whisperReports.find((item) => item.id === reportId);
+  const [report, counselorStudents] = await Promise.all([
+    getWhisperReportById(reportId),
+    getCounselorStudents(),
+  ]);
 
   if (!report) {
     notFound();

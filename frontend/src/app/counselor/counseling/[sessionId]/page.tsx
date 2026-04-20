@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { counselingSessions } from "@/lib/mock-data";
+import { getCounselingSessionById } from "@/lib/server/data";
+import { requireRole } from "@/lib/server/session";
 
 type CounselingDetailPageProps = {
   params: Promise<{
@@ -11,13 +12,13 @@ type CounselingDetailPageProps = {
   }>;
 };
 
-function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
-  if (status === "Baru") {
-    return "danger";
+function getReviewTone(status: "Menunggu Konfirmasi" | "Dikonfirmasi" | "Selesai") {
+  if (status === "Menunggu Konfirmasi") {
+    return "warning";
   }
 
-  if (status === "Sedang Ditinjau") {
-    return "warning";
+  if (status === "Dikonfirmasi") {
+    return "monitor";
   }
 
   return "aman";
@@ -26,8 +27,9 @@ function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
 export default async function CounselorCounselingDetailPage({
   params,
 }: CounselingDetailPageProps) {
+  await requireRole("counselor");
   const { sessionId } = await params;
-  const session = counselingSessions.find((item) => item.id === sessionId);
+  const session = await getCounselingSessionById(sessionId);
 
   if (!session) {
     notFound();
@@ -76,6 +78,13 @@ export default async function CounselorCounselingDetailPage({
             <p className="soft-label">Catatan</p>
             <p className="mt-3 text-base leading-8 text-ink-soft">{session.note}</p>
           </div>
+
+          <div className="mt-4 rounded-[28px] border border-stroke bg-[#f7f8f4] p-5">
+            <p className="soft-label">Catatan konfirmasi siswa</p>
+            <p className="mt-3 text-base leading-8 text-ink-soft">
+              {session.studentConfirmationNote ?? "-"}
+            </p>
+          </div>
         </SectionCard>
 
         <SectionCard title="Ringkasan Hasil Konseling" className="p-5 sm:p-6">
@@ -90,6 +99,12 @@ export default async function CounselorCounselingDetailPage({
               <p className="soft-label">Tindak lanjut</p>
               <p className="mt-3 text-base leading-8 text-ink-soft">
                 {session.followUp ?? "-"}
+              </p>
+            </div>
+            <div className="rounded-[28px] border border-stroke bg-white p-5">
+              <p className="soft-label">Catatan penutupan siswa</p>
+              <p className="mt-3 text-base leading-8 text-ink-soft">
+                {session.studentCompletionNote ?? "-"}
               </p>
             </div>
           </div>

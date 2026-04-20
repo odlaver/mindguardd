@@ -8,7 +8,7 @@ export default async function CounselorLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await requireRole(["counselor", "homeroom"]);
+  await requireRole(["counselor"]);
 
   return (
     <AppShell

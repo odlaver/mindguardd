@@ -3,7 +3,7 @@ export function getRoleHomePath(role?: string | null) {
     return "/admin";
   }
 
-  if (role === "counselor" || role === "homeroom") {
+  if (role === "counselor") {
     return "/counselor";
   }
 

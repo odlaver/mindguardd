@@ -8,13 +8,13 @@ import { getRoleHomePath } from "@/lib/role-home-path";
 
 const rolePreviews = [
   {
-    email: "raka.pratama@mindguard.id",
+    email: "nabila.rahma@mindguard.id",
     title: "Masuk sebagai Siswa",
     description: "Akun demo siswa untuk Daily Mood Tracker.",
     tone: "bg-primary/18",
   },
   {
-    email: "sinta.bk@mindguard.id",
+    email: "maya.bk@mindguard.id",
     title: "Masuk sebagai Guru BK",
     description: "Akun demo Guru BK untuk review kasus.",
     tone: "bg-secondary/18",

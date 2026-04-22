@@ -128,7 +128,7 @@ export function AppShell({
               router.refresh();
             });
           }}
-          className="mt-auto rounded-[22px] border border-stroke bg-white px-4 py-3 text-sm font-semibold text-foreground transition hover:border-foreground/16 hover:bg-[#f7f8f4]"
+          className="mt-auto rounded-[22px] border border-stroke bg-white px-4 py-3 text-sm font-semibold text-foreground transition duration-200 hover:bg-danger/10 hover:text-danger hover:border-danger"
         >
           Keluar
         </button>

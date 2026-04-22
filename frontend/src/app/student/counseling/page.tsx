@@ -59,10 +59,10 @@ export default async function StudentCounselingHubPage() {
                 tandai sesi selesai setelah konseling berlangsung.
               </p>
               <div className="mt-8 flex items-center justify-between">
-                <span className="rounded-full bg-[#f4f7f3] px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
+                <span className="interactive-card-chip-muted rounded-full px-3 py-1 text-xs font-semibold transition">
                   {counselingSessions.length} sesi tersedia
                 </span>
-                <span className="text-lg transition group-hover:translate-x-1">
+                <span className="interactive-card-arrow text-lg transition group-hover:translate-x-1">
                   {"->"}
                 </span>
               </div>
@@ -83,10 +83,10 @@ export default async function StudentCounselingHubPage() {
                 lalu tunggu penjadwalan dari guru BK.
               </p>
               <div className="mt-8 flex items-center justify-between">
-                <span className="rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
+                <span className="interactive-card-chip rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground transition">
                   Form pengajuan aktif
                 </span>
-                <span className="text-lg transition group-hover:translate-x-1">
+                <span className="interactive-card-arrow text-lg transition group-hover:translate-x-1">
                   {"->"}
                 </span>
               </div>
@@ -112,8 +112,7 @@ export default async function StudentCounselingHubPage() {
               </div>
               <Link
                 href={`/student/counseling/${upcomingSession.id}`}
-                className="mt-6 inline-flex rounded-full border border-stroke bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-foreground/16 hover:bg-foreground hover:text-white"
-                style={{ WebkitTextFillColor: "currentColor" }}
+                className="mt-6 inline-flex rounded-full border border-stroke bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-foreground/16 hover:bg-foreground hover:text-white [-webkit-text-fill-color:currentColor] hover:[-webkit-text-fill-color:#ffffff]"
               >
                 Detail sesi
               </Link>

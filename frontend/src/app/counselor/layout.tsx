@@ -13,6 +13,7 @@ export default async function CounselorLayout({
   return (
     <AppShell
       accentClass="bg-secondary/22 text-foreground"
+      currentTimeIso={new Date().toISOString()}
       navItems={counselorNav}
       roleLabel="Guru BK"
       title="Dashboard BK"

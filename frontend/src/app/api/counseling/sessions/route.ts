@@ -1,4 +1,4 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, ne } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getDb } from "@/db/client";
 import { counselingRequests, counselingSessions, user } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { createEntityId } from "@/lib/server/id";
 
 const requestSchema = z.object({
   format: z.enum(["Tatap muka", "Online"]),
@@ -13,10 +14,6 @@ const requestSchema = z.object({
   sessionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   sessionTime: z.string().regex(/^\d{2}:\d{2}$/),
 });
-
-function createSessionId() {
-  return `CS-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
-}
 
 export async function POST(request: Request) {
   const session = await auth.api.getSession({
@@ -34,7 +31,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
   }
 
-  const requestItem = await getDb().query.counselingRequests.findFirst({
+  const db = getDb();
+  const requestItem = await db.query.counselingRequests.findFirst({
     where: and(
       eq(counselingRequests.id, parsed.data.requestId),
       isNull(counselingRequests.scheduledSessionId),
@@ -48,7 +46,14 @@ export async function POST(request: Request) {
     );
   }
 
-  const studentAccount = await getDb().query.user.findFirst({
+  if (requestItem.status !== "Baru") {
+    return NextResponse.json(
+      { error: "Pengajuan ini tidak lagi berada pada tahap penjadwalan baru." },
+      { status: 409 },
+    );
+  }
+
+  const studentAccount = await db.query.user.findFirst({
     where: eq(user.id, requestItem.studentUserId),
   });
 
@@ -56,12 +61,41 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Siswa pengaju tidak ditemukan." }, { status: 404 });
   }
 
+  if (session.user.schoolId && studentAccount.schoolId !== session.user.schoolId) {
+    return NextResponse.json(
+      { error: "Guru BK hanya dapat menjadwalkan siswa dalam sekolah yang sama." },
+      { status: 403 },
+    );
+  }
+
   const scheduledAt = new Date(
     `${parsed.data.sessionDate}T${parsed.data.sessionTime}:00+07:00`,
   );
-  const id = createSessionId();
 
-  await getDb().transaction(async (tx) => {
+  if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() <= Date.now()) {
+    return NextResponse.json(
+      { error: "Waktu sesi harus lebih besar dari waktu Indonesia saat ini." },
+      { status: 400 },
+    );
+  }
+
+  const existingSession = await db.query.counselingSessions.findFirst({
+    where: and(
+      eq(counselingSessions.studentUserId, studentAccount.id),
+      ne(counselingSessions.status, "Selesai"),
+    ),
+  });
+
+  if (existingSession) {
+    return NextResponse.json(
+      { error: "Siswa ini masih memiliki sesi aktif yang belum selesai." },
+      { status: 409 },
+    );
+  }
+
+  const id = createEntityId("CS");
+
+  await db.transaction(async (tx) => {
     await tx.insert(counselingSessions).values({
       counselorName: session.user.name,
       counselorUserId: session.user.id,
@@ -76,7 +110,7 @@ export async function POST(request: Request) {
       scheduledAt,
       status: "Menunggu Konfirmasi",
       studentUserId: studentAccount.id,
-      title: "Sesi tindak lanjut",
+      title: `Sesi ${requestItem.topic}`,
     });
 
     await tx

@@ -45,9 +45,23 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Sesi tidak ditemukan." }, { status: 404 });
   }
 
+  if (counselingSession.status === "Selesai") {
+    return NextResponse.json({ error: "Sesi sudah ditutup sebelumnya." }, { status: 400 });
+  }
+
   if (counselingSession.status === "Menunggu Konfirmasi") {
     return NextResponse.json(
       { error: "Konfirmasi jadwal dulu sebelum menutup sesi." },
+      { status: 400 },
+    );
+  }
+
+  if (
+    counselingSession.status !== "Dikonfirmasi" ||
+    counselingSession.invitationStatus !== "Dikonfirmasi"
+  ) {
+    return NextResponse.json(
+      { error: "Sesi hanya bisa ditutup setelah statusnya terkonfirmasi." },
       { status: 400 },
     );
   }

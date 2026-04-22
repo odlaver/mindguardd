@@ -1,10 +1,12 @@
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getDb } from "@/db/client";
-import { counselingRequests } from "@/db/schema";
+import { counselingRequests, counselingSessions } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { createEntityId } from "@/lib/server/id";
 
 const requestSchema = z.object({
   preferredSlot: z.string().min(1).max(120),
@@ -28,9 +30,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
   }
 
-  const id = `REQ-${String(Math.floor(Math.random() * 900) + 100)}`;
+  const db = getDb();
+  const [activeRequest, activeSession] = await Promise.all([
+    db.query.counselingRequests.findFirst({
+      where: and(
+        eq(counselingRequests.studentUserId, session.user.id),
+        inArray(counselingRequests.status, ["Baru", "Dijadwalkan"]),
+      ),
+    }),
+    db.query.counselingSessions.findFirst({
+      where: and(
+        eq(counselingSessions.studentUserId, session.user.id),
+        ne(counselingSessions.status, "Selesai"),
+      ),
+    }),
+  ]);
 
-  await getDb().insert(counselingRequests).values({
+  if (activeRequest || activeSession) {
+    return NextResponse.json(
+      {
+        error:
+          "Masih ada alur konseling yang aktif. Selesaikan atau tunggu jadwal yang berjalan terlebih dulu.",
+      },
+      { status: 409 },
+    );
+  }
+
+  const id = createEntityId("REQ");
+
+  await db.insert(counselingRequests).values({
     id,
     preferredSlot: parsed.data.preferredSlot.trim(),
     status: "Baru",

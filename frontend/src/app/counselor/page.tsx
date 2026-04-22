@@ -5,6 +5,7 @@ import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
   getAlerts,
+  getCounselorOverview,
   getCounselorStudents,
   getWhisperReports,
 } from "@/lib/server/data";
@@ -22,17 +23,12 @@ function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
 }
 
 export default async function CounselorPage() {
-  const [alerts, counselorStudents, whisperReports] = await Promise.all([
+  const [alerts, counselorOverview, counselorStudents, whisperReports] = await Promise.all([
     getAlerts(),
+    getCounselorOverview(),
     getCounselorStudents(),
     getWhisperReports(),
   ]);
-  const counselorOverview = {
-    activeAlerts: alerts.filter((item) => item.status !== "Selesai").length,
-    anonymousReports: whisperReports.filter((item) => item.status !== "Selesai").length,
-    monitoredStudents: counselorStudents.length,
-    reviewedToday: alerts.filter((item) => item.status === "Sedang Ditinjau").length,
-  };
   const priorityStudentIds = new Set(
     alerts.filter((alert) => alert.severity === "Tinggi").map((alert) => alert.studentId),
   );

@@ -105,8 +105,41 @@ a {
     @apply transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(35,58,50,0.1)];
   }
 
+  .interactive-card-chip {
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .group:hover .interactive-card-chip {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    -webkit-text-fill-color: #ffffff;
+  }
+
+  .interactive-card-chip-muted {
+    color: var(--foreground);
+    background: rgba(255, 255, 255, 0.94);
+    -webkit-text-fill-color: var(--foreground);
+  }
+
+  .group:hover .interactive-card-chip-muted {
+    color: var(--foreground);
+    background: rgba(255, 255, 255, 0.96);
+    -webkit-text-fill-color: var(--foreground);
+  }
+
+  .interactive-card-arrow {
+    color: currentColor;
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .group:hover .interactive-card-arrow {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+  }
+
   .nav-link {
     @apply relative overflow-hidden rounded-[20px] border px-4 py-3.5 text-sm font-medium transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-foreground/10;
+    -webkit-text-fill-color: currentColor;
   }
 
   .nav-link::before {
@@ -122,6 +155,22 @@ a {
   .nav-link:hover::before,
   .nav-link[data-active="true"]::before {
     opacity: 1;
+  }
+
+  .nav-link[data-active="true"] {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+  }
+
+  .sidebar-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .sidebar-scroll::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 
   .stagger-in {

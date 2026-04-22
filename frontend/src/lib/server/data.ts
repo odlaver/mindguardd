@@ -1,6 +1,7 @@
 import "server-only";
 
-import { and, desc, eq, inArray, lt, gte } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lt } from "drizzle-orm";
+import { cache } from "react";
 
 import { getDb } from "@/db/client";
 import {
@@ -23,10 +24,10 @@ import type {
   AdminSystemConfig,
   AdminUser,
   AlertItem,
-  CounselingRequestStatus,
-  CounselingSessionStatus,
   CounselingRequest,
+  CounselingRequestStatus,
   CounselingSession,
+  CounselingSessionStatus,
   CounselorStudent,
   MoodPoint,
   ResourceItem,
@@ -34,14 +35,18 @@ import type {
   WhisperReport,
 } from "@/lib/mock-data";
 
-import { formatDate, formatDateTime, formatShortDate, getJakartaDateKey, getJakartaDayRange } from "./time";
+import {
+  formatDateTime,
+  formatShortDate,
+  getJakartaDateKey,
+  getJakartaDayRange,
+} from "./time";
 
 export type StudentProfileData = {
   className: string;
   completionRate: string;
   name: string;
   streak: number;
-  todayDate: string;
 };
 
 export type StudentAccessState = {
@@ -80,11 +85,7 @@ function classRiskTone(value: number, activeAlert: AlertItem | undefined): Couns
     return "Tinggi";
   }
 
-  if (activeAlert) {
-    return "Sedang";
-  }
-
-  if (value <= 2) {
+  if (activeAlert || value <= 2) {
     return "Sedang";
   }
 
@@ -116,22 +117,244 @@ function buildTrend(history: MoodPoint[]) {
 }
 
 function completionLabel(rate: number) {
-  return `${rate}%`;
+  return `${Math.max(0, Math.min(100, rate))}%`;
 }
 
-async function getClassMap() {
+function addToCounter(map: Map<string, number>, key: null | string | undefined) {
+  if (!key) {
+    return;
+  }
+
+  map.set(key, (map.get(key) ?? 0) + 1);
+}
+
+function calculateRate(completed: number, total: number) {
+  if (!total) {
+    return 0;
+  }
+
+  return Math.round((completed / total) * 100);
+}
+
+function mapAlertRow(
+  item: typeof alerts.$inferSelect,
+  studentMap: Map<string, typeof user.$inferSelect>,
+  classMap: Map<string, typeof schoolClasses.$inferSelect>,
+) {
+  const student = studentMap.get(item.studentUserId);
+  const linkedClass = student?.classId ? classMap.get(student.classId) : null;
+
+  return {
+    className: linkedClass?.name ?? "-",
+    id: item.id,
+    lastUpdated: formatDateTime(item.lastUpdatedAt),
+    reason: item.reason,
+    recommendation: item.recommendation,
+    severity: item.severity,
+    status: item.status,
+    student: student?.name ?? "Siswa",
+    studentId: item.studentUserId,
+    summary: item.summary,
+  } satisfies AlertItem;
+}
+
+function mapWhisperRow(item: typeof whisperReports.$inferSelect) {
+  return {
+    assignedTo: item.assignedTo,
+    category: item.category,
+    detail: item.detail,
+    excerpt: item.excerpt,
+    id: item.id,
+    nextStep: item.nextStep,
+    ownerLabel: item.ownerLabel,
+    status: item.status ?? "Sedang Ditinjau",
+    studentId: item.studentUserId ?? undefined,
+    submittedAt: formatDateTime(item.submittedAt),
+    title: item.title,
+    urgency: item.urgency,
+  } satisfies WhisperReport;
+}
+
+function mapCounselingSessionRow(
+  item: typeof counselingSessions.$inferSelect,
+  studentName: string,
+) {
+  return {
+    counselor: item.counselorName,
+    focus: item.focus,
+    followUp: item.followUp ?? undefined,
+    format: item.format,
+    id: item.id,
+    invitationStatus: item.invitationStatus as CounselingSessionStatus,
+    location: item.location,
+    note: item.note,
+    outcome: item.outcome ?? undefined,
+    requestId: item.requestId ?? undefined,
+    status: item.status as CounselingSessionStatus,
+    studentCompletionNote: item.studentCompletionNote ?? undefined,
+    studentConfirmationNote: item.studentConfirmationNote ?? undefined,
+    studentId: item.studentUserId,
+    studentName,
+    title: item.title,
+    when: formatDateTime(item.scheduledAt),
+  } satisfies CounselingSession;
+}
+
+function mapCounselingRequestRow(
+  item: typeof counselingRequests.$inferSelect,
+  studentName: string,
+  className: string,
+) {
+  return {
+    className,
+    id: item.id,
+    preferredSlot: item.preferredSlot,
+    scheduledSessionId: item.scheduledSessionId ?? undefined,
+    status: item.status as CounselingRequestStatus,
+    studentId: item.studentUserId,
+    studentName,
+    submittedAt: formatDateTime(item.submittedAt),
+    summary: item.summary,
+    topic: item.topic,
+  } satisfies CounselingRequest;
+}
+
+const getClassMap = cache(async () => {
   const rows = await db.select().from(schoolClasses);
   return new Map(rows.map((item) => [item.id, item]));
-}
+});
 
-async function getSchoolMap() {
+const getSchoolMap = cache(async () => {
   const rows = await db.select().from(schools);
   return new Map(rows.map((item) => [item.id, item]));
-}
+});
 
-async function getStudentUsers() {
-  return db.select().from(user).where(eq(user.role, "student"));
-}
+const getStudentUsers = cache(async () =>
+  db.select().from(user).where(eq(user.role, "student")),
+);
+
+const getAllUsers = cache(async () =>
+  db.select().from(user).orderBy(user.name),
+);
+
+const getOperationalStats = cache(async () => {
+  const { end, start } = getJakartaDayRange();
+  const [classRows, userRows, todayMoodRows, moodRows, alertRows] = await Promise.all([
+    db.select().from(schoolClasses),
+    db
+      .select({
+        classId: user.classId,
+        id: user.id,
+        role: user.role,
+        schoolId: user.schoolId,
+      })
+      .from(user),
+    db
+      .select({
+        userId: moodEntries.userId,
+      })
+      .from(moodEntries)
+      .where(and(gte(moodEntries.recordedAt, start), lt(moodEntries.recordedAt, end))),
+    db
+      .select({
+        recordedAt: moodEntries.recordedAt,
+        score: moodEntries.score,
+        userId: moodEntries.userId,
+      })
+      .from(moodEntries)
+      .orderBy(desc(moodEntries.recordedAt)),
+    db
+      .select({
+        severity: alerts.severity,
+        status: alerts.status,
+        studentUserId: alerts.studentUserId,
+      })
+      .from(alerts),
+  ]);
+
+  const classStudentCount = new Map<string, number>();
+  const schoolStudentCount = new Map<string, number>();
+  const schoolCounselorCount = new Map<string, number>();
+  const schoolClassCount = new Map<string, number>();
+  const classStudentIds = new Map<string, string[]>();
+  const schoolStudentIds = new Map<string, string[]>();
+  const todayCheckedInIds = new Set(todayMoodRows.map((item) => item.userId));
+  const latestMoodByStudent = new Map<string, number>();
+  const activeAlertByStudent = new Map(
+    alertRows
+      .filter((item) => item.status !== "Selesai")
+      .map((item) => [item.studentUserId, item] as const),
+  );
+
+  for (const row of moodRows) {
+    if (!latestMoodByStudent.has(row.userId)) {
+      latestMoodByStudent.set(row.userId, row.score);
+    }
+  }
+
+  for (const row of classRows) {
+    addToCounter(schoolClassCount, row.schoolId);
+  }
+
+  for (const row of userRows) {
+    if (row.role === "student") {
+      addToCounter(classStudentCount, row.classId);
+      addToCounter(schoolStudentCount, row.schoolId);
+
+      if (row.classId) {
+        const classIds = classStudentIds.get(row.classId) ?? [];
+        classIds.push(row.id);
+        classStudentIds.set(row.classId, classIds);
+      }
+
+      if (row.schoolId) {
+        const schoolIds = schoolStudentIds.get(row.schoolId) ?? [];
+        schoolIds.push(row.id);
+        schoolStudentIds.set(row.schoolId, schoolIds);
+      }
+    }
+
+    if (row.role === "counselor") {
+      addToCounter(schoolCounselorCount, row.schoolId);
+    }
+  }
+
+  const classCompletionRate = new Map<string, number>();
+  const schoolCompletionRate = new Map<string, number>();
+  const classRiskBand = new Map<string, AdminClass["riskBand"]>();
+
+  for (const [classId, studentIds] of classStudentIds) {
+    const checkedInToday = studentIds.filter((studentId) => todayCheckedInIds.has(studentId)).length;
+    const hasHighAlert = studentIds.some(
+      (studentId) => activeAlertByStudent.get(studentId)?.severity === "Tinggi",
+    );
+    const hasWarningSignal = studentIds.some((studentId) => {
+      const alert = activeAlertByStudent.get(studentId);
+      return Boolean(alert) || (latestMoodByStudent.get(studentId) ?? 5) <= 2;
+    });
+
+    classCompletionRate.set(classId, calculateRate(checkedInToday, studentIds.length));
+    classRiskBand.set(
+      classId,
+      hasHighAlert ? "Perlu perhatian" : hasWarningSignal ? "Monitor" : "Stabil",
+    );
+  }
+
+  for (const [schoolId, studentIds] of schoolStudentIds) {
+    const checkedInToday = studentIds.filter((studentId) => todayCheckedInIds.has(studentId)).length;
+    schoolCompletionRate.set(schoolId, calculateRate(checkedInToday, studentIds.length));
+  }
+
+  return {
+    classCompletionRate,
+    classRiskBand,
+    classStudentCount,
+    schoolClassCount,
+    schoolCompletionRate,
+    schoolCounselorCount,
+    schoolStudentCount,
+  };
+});
 
 async function getMoodHistoryForUsers(userIds: string[]) {
   const rows = userIds.length
@@ -165,42 +388,12 @@ async function getAlertItems() {
   ]);
   const studentMap = new Map(studentRows.map((item) => [item.id, item]));
 
-  return alertRows.map((item) => {
-    const student = studentMap.get(item.studentUserId);
-    const linkedClass = student?.classId ? classMap.get(student.classId) : null;
-
-    return {
-      className: linkedClass?.name ?? "-",
-      id: item.id,
-      lastUpdated: formatDateTime(item.lastUpdatedAt),
-      reason: item.reason,
-      recommendation: item.recommendation,
-      severity: item.severity,
-      status: item.status,
-      student: student?.name ?? "Siswa",
-      studentId: item.studentUserId,
-      summary: item.summary,
-    } satisfies AlertItem;
-  });
+  return alertRows.map((item) => mapAlertRow(item, studentMap, classMap));
 }
 
 async function getWhisperItems() {
   const rows = await db.select().from(whisperReports).orderBy(desc(whisperReports.submittedAt));
-
-  return rows.map((item) => ({
-    assignedTo: item.assignedTo,
-    category: item.category,
-    detail: item.detail,
-    excerpt: item.excerpt,
-    id: item.id,
-    nextStep: item.nextStep,
-    ownerLabel: item.ownerLabel,
-    status: item.status ?? "Sedang Ditinjau",
-    studentId: item.studentUserId ?? undefined,
-    submittedAt: formatDateTime(item.submittedAt),
-    title: item.title,
-    urgency: item.urgency,
-  })) satisfies WhisperReport[];
+  return rows.map(mapWhisperRow);
 }
 
 async function getCounselingSessionItems() {
@@ -210,29 +403,9 @@ async function getCounselingSessionItems() {
   ]);
   const userMap = new Map(users.map((item) => [item.id, item]));
 
-  return sessionRows.map((item) => {
-    const student = userMap.get(item.studentUserId);
-
-    return {
-      counselor: item.counselorName,
-      focus: item.focus,
-      followUp: item.followUp ?? undefined,
-      format: item.format,
-      id: item.id,
-      invitationStatus: item.invitationStatus as CounselingSessionStatus,
-      location: item.location,
-      note: item.note,
-      outcome: item.outcome ?? undefined,
-      requestId: item.requestId ?? undefined,
-      status: item.status as CounselingSessionStatus,
-      studentCompletionNote: item.studentCompletionNote ?? undefined,
-      studentConfirmationNote: item.studentConfirmationNote ?? undefined,
-      studentId: item.studentUserId,
-      studentName: student?.name ?? "Siswa",
-      title: item.title,
-      when: formatDateTime(item.scheduledAt),
-    } satisfies CounselingSession;
-  });
+  return sessionRows.map((item) =>
+    mapCounselingSessionRow(item, userMap.get(item.studentUserId)?.name ?? "Siswa"),
+  );
 }
 
 async function getCounselingRequestItems() {
@@ -247,25 +420,18 @@ async function getCounselingRequestItems() {
     const student = userMap.get(item.studentUserId);
     const linkedClass = student?.classId ? classMap.get(student.classId) : null;
 
-    return {
-      className: linkedClass?.name ?? "-",
-      id: item.id,
-      preferredSlot: item.preferredSlot,
-      scheduledSessionId: item.scheduledSessionId ?? undefined,
-      status: item.status as CounselingRequestStatus,
-      studentId: item.studentUserId,
-      studentName: student?.name ?? "Siswa",
-      submittedAt: formatDateTime(item.submittedAt),
-      summary: item.summary,
-      topic: item.topic,
-    } satisfies CounselingRequest;
+    return mapCounselingRequestRow(
+      item,
+      student?.name ?? "Siswa",
+      linkedClass?.name ?? "-",
+    );
   });
 }
 
 export async function getStudentAccessState(userId: string): Promise<StudentAccessState> {
   const { end, start } = getJakartaDayRange();
   const entry = await db.query.moodEntries.findFirst({
-    orderBy: (table, { desc }) => [desc(table.recordedAt)],
+    orderBy: (table, { desc: orderDesc }) => [orderDesc(table.recordedAt)],
     where: and(
       eq(moodEntries.userId, userId),
       gte(moodEntries.recordedAt, start),
@@ -302,9 +468,7 @@ export async function getStudentProfile(userId: string): Promise<StudentProfileD
     .from(moodEntries)
     .where(eq(moodEntries.userId, userId))
     .orderBy(desc(moodEntries.recordedAt));
-  const uniqueKeys = Array.from(
-    new Set(historyRows.map((item) => getJakartaDateKey(item.recordedAt))),
-  );
+  const uniqueKeys = Array.from(new Set(historyRows.map((item) => getJakartaDateKey(item.recordedAt))));
 
   let streak = 0;
   let cursor = uniqueKeys[0] ? new Date(`${uniqueKeys[0]}T00:00:00+07:00`) : null;
@@ -329,10 +493,9 @@ export async function getStudentProfile(userId: string): Promise<StudentProfileD
 
   return {
     className: student.classId ? classMap.get(student.classId)?.name ?? "-" : "-",
-    completionRate: `${Math.min(100, Math.round((activeKeys / 14) * 100))}%`,
+    completionRate: completionLabel(Math.round((activeKeys / 14) * 100)),
     name: student.name,
     streak,
-    todayDate: formatDate(new Date()),
   };
 }
 
@@ -351,13 +514,24 @@ export async function getStudentMoodHistory(userId: string) {
 }
 
 export async function getStudentWhisperReports(userId: string) {
-  const items = await getWhisperItems();
-  return items.filter((item) => item.studentId === userId);
+  const rows = await db
+    .select()
+    .from(whisperReports)
+    .where(eq(whisperReports.studentUserId, userId))
+    .orderBy(desc(whisperReports.submittedAt));
+
+  return rows.map(mapWhisperRow);
 }
 
 export async function getStudentWhisperReportById(userId: string, reportId: string) {
-  const items = await getStudentWhisperReports(userId);
-  return items.find((item) => item.id === reportId) ?? null;
+  const row = await db.query.whisperReports.findFirst({
+    where: and(
+      eq(whisperReports.id, reportId),
+      eq(whisperReports.studentUserId, userId),
+    ),
+  });
+
+  return row ? mapWhisperRow(row) : null;
 }
 
 export async function getStudentResources() {
@@ -384,13 +558,44 @@ export async function getStudentResources() {
 }
 
 export async function getStudentResourceById(resourceId: string) {
-  const items = await getStudentResources();
-  return items.find((item) => item.id === resourceId) ?? null;
+  const [resourceRow, pointRows] = await Promise.all([
+    db.query.resources.findFirst({
+      where: eq(resources.id, resourceId),
+    }),
+    db
+      .select()
+      .from(resourcePoints)
+      .where(eq(resourcePoints.resourceId, resourceId))
+      .orderBy(resourcePoints.sortOrder),
+  ]);
+
+  if (!resourceRow) {
+    return null;
+  }
+
+  return {
+    category: resourceRow.category,
+    id: resourceRow.id,
+    points: pointRows.map((item) => item.content),
+    readTime: resourceRow.readTime,
+    summary: resourceRow.summary,
+    title: resourceRow.title,
+  } satisfies ResourceItem;
 }
 
 export async function getStudentCounselingSessions(userId: string) {
-  const sessions = await getCounselingSessionItems();
-  return sessions.filter((item) => item.studentId === userId);
+  const [rows, studentAccount] = await Promise.all([
+    db
+      .select()
+      .from(counselingSessions)
+      .where(eq(counselingSessions.studentUserId, userId))
+      .orderBy(desc(counselingSessions.scheduledAt)),
+    db.query.user.findFirst({
+      where: eq(user.id, userId),
+    }),
+  ]);
+
+  return rows.map((item) => mapCounselingSessionRow(item, studentAccount?.name ?? "Siswa"));
 }
 
 export async function getCounselorStudents() {
@@ -404,7 +609,7 @@ export async function getCounselorStudents() {
   const activeAlerts = new Map(
     alertItems
       .filter((item) => item.status !== "Selesai")
-      .map((item) => [item.studentId, item]),
+      .map((item) => [item.studentId, item] as const),
   );
 
   return students.map((item) => {
@@ -429,18 +634,22 @@ export async function getCounselorStudents() {
 }
 
 export async function getCounselorOverview() {
-  const [studentList, alertItems, reportItems] = await Promise.all([
+  const { end, start } = getJakartaDayRange();
+  const [studentList, alertRows, reportRows] = await Promise.all([
     getCounselorStudents(),
-    getAlertItems(),
-    getWhisperItems(),
+    db.select().from(alerts),
+    db.select().from(whisperReports),
   ]);
 
   return {
-    activeAlerts: alertItems.filter((item) => item.status !== "Selesai").length,
-    anonymousReports: reportItems.filter((item) => item.status !== "Selesai").length,
+    activeAlerts: alertRows.filter((item) => item.status !== "Selesai").length,
+    anonymousReports: reportRows.filter((item) => item.status !== "Selesai").length,
     monitoredStudents: studentList.length,
-    reviewedToday: alertItems.filter(
-      (item) => getJakartaDateKey(new Date(item.lastUpdated.replace(", ", "T").replace(".", ":"))) === getJakartaDateKey(new Date()),
+    reviewedToday: alertRows.filter(
+      (item) =>
+        item.status === "Sedang Ditinjau" &&
+        item.lastUpdatedAt >= start &&
+        item.lastUpdatedAt < end,
     ).length,
   };
 }
@@ -450,8 +659,20 @@ export async function getAlerts() {
 }
 
 export async function getAlertById(alertId: string) {
-  const items = await getAlertItems();
-  return items.find((item) => item.id === alertId) ?? null;
+  const [alertRow, studentRows, classMap] = await Promise.all([
+    db.query.alerts.findFirst({
+      where: eq(alerts.id, alertId),
+    }),
+    getStudentUsers(),
+    getClassMap(),
+  ]);
+
+  if (!alertRow) {
+    return null;
+  }
+
+  const studentMap = new Map(studentRows.map((item) => [item.id, item]));
+  return mapAlertRow(alertRow, studentMap, classMap);
 }
 
 export async function getWhisperReports() {
@@ -459,8 +680,11 @@ export async function getWhisperReports() {
 }
 
 export async function getWhisperReportById(reportId: string) {
-  const items = await getWhisperItems();
-  return items.find((item) => item.id === reportId) ?? null;
+  const row = await db.query.whisperReports.findFirst({
+    where: eq(whisperReports.id, reportId),
+  });
+
+  return row ? mapWhisperRow(row) : null;
 }
 
 export async function getStudentInterventions(studentUserId: string) {
@@ -483,8 +707,19 @@ export async function getCounselingSessions() {
 }
 
 export async function getCounselingSessionById(sessionId: string) {
-  const items = await getCounselingSessionItems();
-  return items.find((item) => item.id === sessionId) ?? null;
+  const row = await db.query.counselingSessions.findFirst({
+    where: eq(counselingSessions.id, sessionId),
+  });
+
+  if (!row) {
+    return null;
+  }
+
+  const studentAccount = await db.query.user.findFirst({
+    where: eq(user.id, row.studentUserId),
+  });
+
+  return mapCounselingSessionRow(row, studentAccount?.name ?? "Siswa");
 }
 
 export async function getCounselingRequests() {
@@ -493,7 +728,7 @@ export async function getCounselingRequests() {
 
 export async function getAdminUsers() {
   const [rows, schoolMap, classMap] = await Promise.all([
-    db.select().from(user).orderBy(user.name),
+    getAllUsers(),
     getSchoolMap(),
     getClassMap(),
   ]);
@@ -517,16 +752,19 @@ export async function getAdminUserById(userId: string) {
 }
 
 export async function getAdminSchools() {
-  const rows = await db.select().from(schools).orderBy(schools.name);
+  const [rows, stats] = await Promise.all([
+    db.select().from(schools).orderBy(schools.name),
+    getOperationalStats(),
+  ]);
 
   return rows.map((item) => ({
-    classCount: item.classCount,
-    completion: completionLabel(item.completionRate),
-    counselorCount: item.counselorCount,
+    classCount: stats.schoolClassCount.get(item.id) ?? 0,
+    completion: completionLabel(stats.schoolCompletionRate.get(item.id) ?? 0),
+    counselorCount: stats.schoolCounselorCount.get(item.id) ?? 0,
     id: item.id,
     name: item.name,
     principal: item.principal,
-    studentCount: item.studentCount,
+    studentCount: stats.schoolStudentCount.get(item.id) ?? 0,
   })) satisfies AdminSchool[];
 }
 
@@ -536,21 +774,22 @@ export async function getAdminSchoolById(schoolId: string) {
 }
 
 export async function getAdminClasses() {
-  const [rows, schoolMap] = await Promise.all([
+  const [rows, schoolMap, stats] = await Promise.all([
     db.select().from(schoolClasses).orderBy(schoolClasses.name),
     getSchoolMap(),
+    getOperationalStats(),
   ]);
 
   return rows.map((item) => ({
     className: item.name,
-    completion: completionLabel(item.completionRate),
+    completion: completionLabel(stats.classCompletionRate.get(item.id) ?? 0),
     counselor: item.counselorName,
     homeroom: item.homeroomName,
     id: item.id,
-    riskBand: item.riskBand,
+    riskBand: stats.classRiskBand.get(item.id) ?? "Stabil",
     schoolId: item.schoolId,
     schoolName: schoolMap.get(item.schoolId)?.name ?? "-",
-    studentCount: item.studentCount,
+    studentCount: stats.classStudentCount.get(item.id) ?? 0,
   })) satisfies AdminClass[];
 }
 
@@ -579,6 +818,21 @@ export async function getAdminSystemConfigs() {
 }
 
 export async function getAdminSystemConfigById(configId: string) {
-  const items = await getAdminSystemConfigs();
-  return items.find((item) => item.id === configId) ?? null;
+  const row = await db.query.systemConfigs.findFirst({
+    where: eq(systemConfigs.id, configId),
+  });
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    group: row.groupName,
+    id: row.id,
+    impact: row.impact,
+    name: row.name,
+    status: row.status,
+    summary: row.summary,
+    value: row.value,
+  } satisfies AdminSystemConfig;
 }

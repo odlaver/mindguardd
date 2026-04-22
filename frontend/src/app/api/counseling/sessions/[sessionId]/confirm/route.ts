@@ -49,6 +49,16 @@ export async function PATCH(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Sesi sudah selesai." }, { status: 400 });
   }
 
+  if (
+    counselingSession.status !== "Menunggu Konfirmasi" ||
+    counselingSession.invitationStatus !== "Menunggu Konfirmasi"
+  ) {
+    return NextResponse.json(
+      { error: "Jadwal ini sudah dikonfirmasi sebelumnya." },
+      { status: 400 },
+    );
+  }
+
   await getDb()
     .update(counselingSessions)
     .set({

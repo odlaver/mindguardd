@@ -7,10 +7,29 @@ import { useRouter } from "next/navigation";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import type { CounselingRequest } from "@/lib/mock-data";
+import {
+  formatJakartaDate,
+  getJakartaInputDateValue,
+  getJakartaInputTimeValue,
+} from "@/lib/time";
 
 type CounselingScheduleBuilderProps = {
+  initialNowIso: string;
   requests: CounselingRequest[];
 };
+
+function getNextScheduleSlot(initialNowIso: string) {
+  const next = new Date(new Date(initialNowIso).getTime() + 60 * 60 * 1000);
+  const roundedMinutes = next.getMinutes() < 30 ? 30 : 0;
+
+  next.setMinutes(roundedMinutes, 0, 0);
+
+  if (roundedMinutes === 0) {
+    next.setHours(next.getHours() + 1);
+  }
+
+  return next;
+}
 
 function getRequestTone(status: CounselingRequest["status"]) {
   if (status === "Baru") {
@@ -24,20 +43,27 @@ function getRequestTone(status: CounselingRequest["status"]) {
   return "aman";
 }
 
-export function CounselingScheduleBuilder({ requests }: CounselingScheduleBuilderProps) {
+export function CounselingScheduleBuilder({
+  initialNowIso,
+  requests,
+}: CounselingScheduleBuilderProps) {
   const router = useRouter();
   const openRequests = requests.filter(
     (request) => request.status === "Baru" && !request.scheduledSessionId,
   );
+  const initialSlot = getNextScheduleSlot(initialNowIso);
+  const todayJakarta = getJakartaInputDateValue(new Date(initialNowIso));
   const [selectedRequestId, setSelectedRequestId] = useState(openRequests[0]?.id ?? "");
-  const [sessionDate, setSessionDate] = useState("2026-04-18");
-  const [sessionTime, setSessionTime] = useState("10:30");
+  const [sessionDate, setSessionDate] = useState(getJakartaInputDateValue(initialSlot));
+  const [sessionTime, setSessionTime] = useState(getJakartaInputTimeValue(initialSlot));
   const [sessionFormat, setSessionFormat] = useState<"Tatap muka" | "Online">("Tatap muka");
   const [createdSessionId, setCreatedSessionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedRequest = openRequests.find((request) => request.id === selectedRequestId);
+  const minimumTime =
+    sessionDate === todayJakarta ? getJakartaInputTimeValue(new Date(initialNowIso)) : undefined;
 
   return (
     <>
@@ -89,6 +115,7 @@ export function CounselingScheduleBuilder({ requests }: CounselingScheduleBuilde
                 <input
                   type="date"
                   value={sessionDate}
+                  min={todayJakarta}
                   onChange={(event) => setSessionDate(event.target.value)}
                   className="rounded-[22px] border border-stroke bg-white px-4 py-3 outline-none transition focus:border-foreground/18"
                 />
@@ -98,6 +125,7 @@ export function CounselingScheduleBuilder({ requests }: CounselingScheduleBuilde
                 <input
                   type="time"
                   value={sessionTime}
+                  min={minimumTime}
                   onChange={(event) => setSessionTime(event.target.value)}
                   className="rounded-[22px] border border-stroke bg-white px-4 py-3 outline-none transition focus:border-foreground/18"
                 />
@@ -141,7 +169,7 @@ export function CounselingScheduleBuilder({ requests }: CounselingScheduleBuilde
                 </StatusBadge>
               </div>
               <p className="mt-4 text-sm leading-7 text-ink-soft">
-                {sessionDate} | {sessionTime} | {sessionFormat}
+                {formatJakartaDate(new Date(`${sessionDate}T${sessionTime}:00+07:00`))} | {sessionTime} WIB | {sessionFormat}
               </p>
               <p className="mt-2 text-sm leading-7 text-ink-soft">
                 {selectedRequest

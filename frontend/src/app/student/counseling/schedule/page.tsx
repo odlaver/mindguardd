@@ -63,10 +63,10 @@ export default async function StudentCounselingSchedulePage() {
                 </p>
               ) : null}
               <div className="mt-5 flex items-center justify-between">
-                <span className="rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground">
+                <span className="interactive-card-chip rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground transition">
                   {session.location}
                 </span>
-                <span className="text-sm font-semibold text-foreground/70">
+                <span className="interactive-card-arrow text-sm font-semibold text-foreground/70">
                   {"Detail ->"}
                 </span>
               </div>

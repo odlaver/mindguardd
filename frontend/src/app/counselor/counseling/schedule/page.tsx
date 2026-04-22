@@ -4,5 +4,10 @@ import { getCounselingRequests } from "@/lib/server/data";
 export default async function CounselorCounselingSchedulePage() {
   const counselingRequests = await getCounselingRequests();
 
-  return <CounselingScheduleBuilder requests={counselingRequests} />;
+  return (
+    <CounselingScheduleBuilder
+      initialNowIso={new Date().toISOString()}
+      requests={counselingRequests}
+    />
+  );
 }

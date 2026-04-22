@@ -207,7 +207,7 @@ export function StudentWhisperWorkspace({
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
                     {report.id} | {report.submittedAt}
                   </p>
-                  <span className="text-sm font-semibold text-foreground/70">
+                  <span className="interactive-card-arrow text-sm font-semibold text-foreground/70">
                     {"Detail ->"}
                   </span>
                 </div>

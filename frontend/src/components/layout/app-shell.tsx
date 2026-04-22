@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
+import { JakartaLiveClock } from "@/components/ui/jakarta-live-clock";
 
 export type NavItem = {
   href: string;
@@ -14,6 +15,7 @@ export type NavItem = {
 
 type AppShellProps = {
   accentClass: string;
+  currentTimeIso: string;
   description?: string;
   navItems: NavItem[];
   roleLabel: string;
@@ -31,6 +33,7 @@ function isActive(pathname: string, href: string) {
 
 export function AppShell({
   accentClass,
+  currentTimeIso,
   description,
   navItems,
   roleLabel,
@@ -42,7 +45,7 @@ export function AppShell({
 
   return (
     <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-4 lg:min-h-screen lg:flex-row lg:px-6">
-      <aside className="surface-card-strong stagger-in flex w-full shrink-0 flex-col gap-6 overflow-y-auto p-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:w-[286px]">
+      <aside className="sidebar-scroll surface-card-strong stagger-in flex w-full shrink-0 flex-col gap-6 overflow-y-auto p-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:w-[286px]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="soft-label">MindGuard</p>
@@ -65,6 +68,8 @@ export function AppShell({
             {description}
           </p>
         ) : null}
+
+        <JakartaLiveClock initialIso={currentTimeIso} />
 
         <nav className="flex flex-col gap-2.5">
           {navItems.map((item) => {
@@ -101,7 +106,10 @@ export function AppShell({
                           WebkitTextFillColor: "#ffffff",
                           color: "#ffffff",
                         }
-                      : undefined
+                      : {
+                          WebkitTextFillColor: "#20332d",
+                          color: "#20332d",
+                        }
                   }
                 >
                   {item.label}

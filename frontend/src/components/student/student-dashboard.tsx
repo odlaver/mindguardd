@@ -57,13 +57,10 @@ export function StudentDashboard({
       <section className="page-hero stagger-in overflow-hidden p-6 sm:p-8 lg:p-10">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="soft-label">{profile.todayDate}</p>
+            <p className="soft-label">Mood Check-In</p>
             <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-foreground sm:text-5xl">
               Apa kabarmu hari ini?
             </h1>
-          </div>
-          <div className="rounded-full bg-primary/14 px-4 py-2 text-sm font-medium text-foreground">
-            {profile.name.split(" ")[0]}
           </div>
         </div>
 
@@ -147,7 +144,7 @@ export function StudentDashboard({
       <section className="page-hero stagger-in grid gap-5 overflow-hidden p-6 lg:grid-cols-[1.1fr_0.9fr] lg:p-8">
         <div className="flex flex-col justify-between gap-6">
           <div>
-            <p className="soft-label">{profile.todayDate}</p>
+            <p className="soft-label">Ruang Siswa</p>
             <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
               Halo, {profile.name.split(" ")[0]}.
             </h1>
@@ -156,18 +153,21 @@ export function StudentDashboard({
           <div className="flex flex-wrap gap-2">
             <StatusBadge tone="monitor">{profile.className}</StatusBadge>
             <StatusBadge tone="aman">{profile.streak} hari</StatusBadge>
+            <StatusBadge tone="warning">{profile.completionRate} konsisten</StatusBadge>
           </div>
         </div>
 
         <div className="panel-hover rounded-[32px] border border-stroke bg-[#f7f8f4] p-6">
-          <p className="soft-label">Hari ini</p>
-          <div className="mt-5 flex items-center gap-4">
-            <span className="text-6xl">{latestMood.emoji}</span>
-            <div>
-              <p className="text-[2.5rem] font-semibold leading-none">
-                {latestMood.score}/5
-              </p>
-              <p className="mt-2 text-lg text-ink-soft">{latestMood.note}</p>
+          <div>
+            <p className="soft-label">Hari ini</p>
+            <div className="mt-5 flex items-center gap-4">
+              <span className="text-6xl">{latestMood.emoji}</span>
+              <div>
+                <p className="text-[2.5rem] font-semibold leading-none">
+                  {latestMood.score}/5
+                </p>
+                <p className="mt-2 text-lg text-ink-soft">{latestMood.note}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -190,10 +190,12 @@ export function StudentDashboard({
                 Rata-rata statistik mood 14 hari terakhir adalah {averageScore}/5
               </p>
               <div className="mt-6 flex items-center justify-between">
-                <span className="rounded-full bg-[#f4f7f3] px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
+                <span className="interactive-card-chip-muted rounded-full px-3 py-1 text-xs font-semibold transition">
                   {moodHistory.length} catatan
                 </span>
-                <span className="text-lg transition group-hover:translate-x-1">{"->"}</span>
+                <span className="interactive-card-arrow text-lg transition group-hover:translate-x-1">
+                  {"->"}
+                </span>
               </div>
             </Link>
 
@@ -211,10 +213,12 @@ export function StudentDashboard({
                 Sampaikan sesuatu dengan aman dan anonim
               </p>
               <div className="mt-6 flex items-center justify-between">
-                <span className="rounded-full bg-danger/10 px-3 py-1 text-xs font-semibold text-danger transition group-hover:bg-white/12 group-hover:text-white">
+                <span className="interactive-card-chip rounded-full bg-danger/10 px-3 py-1 text-xs font-semibold text-danger transition">
                   {whisperReports.length} laporan
                 </span>
-                <span className="text-lg transition group-hover:translate-x-1">{"->"}</span>
+                <span className="interactive-card-arrow text-lg transition group-hover:translate-x-1">
+                  {"->"}
+                </span>
               </div>
             </Link>
 
@@ -232,10 +236,12 @@ export function StudentDashboard({
                 Artikel singkat untuk bantu hari ini terasa lebih ringan
               </p>
               <div className="mt-6 flex items-center justify-between">
-                <span className="rounded-full bg-secondary/16 px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
+                <span className="interactive-card-chip rounded-full bg-secondary/16 px-3 py-1 text-xs font-semibold text-foreground transition">
                   {resources.length} artikel
                 </span>
-                <span className="text-lg transition group-hover:translate-x-1">{"->"}</span>
+                <span className="interactive-card-arrow text-lg transition group-hover:translate-x-1">
+                  {"->"}
+                </span>
               </div>
             </Link>
 
@@ -253,10 +259,12 @@ export function StudentDashboard({
                 Lihat jadwal aktif atau ajukan sesi baru dengan BK
               </p>
               <div className="mt-6 flex items-center justify-between">
-                <span className="rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
+                <span className="interactive-card-chip rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground transition">
                   {counselingSessions.length} sesi aktif
                 </span>
-                <span className="text-lg transition group-hover:translate-x-1">{"->"}</span>
+                <span className="interactive-card-arrow text-lg transition group-hover:translate-x-1">
+                  {"->"}
+                </span>
               </div>
             </Link>
           </div>

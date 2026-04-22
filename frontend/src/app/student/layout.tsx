@@ -14,7 +14,9 @@ export default async function StudentLayout({
 
   return (
     <StudentAccessProvider initialState={accessState}>
-      <StudentLayoutShell>{children}</StudentLayoutShell>
+      <StudentLayoutShell currentTimeIso={new Date().toISOString()}>
+        {children}
+      </StudentLayoutShell>
     </StudentAccessProvider>
   );
 }

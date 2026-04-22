@@ -13,6 +13,7 @@ export default async function AdminLayout({
   return (
     <AppShell
       accentClass="border border-warning/35 bg-warning/18 text-foreground"
+      currentTimeIso={new Date().toISOString()}
       navItems={adminNav}
       roleLabel="Admin"
       title="Panel Admin"

@@ -39,10 +39,10 @@ export default async function CounselorCounselingPage() {
                 Jadwal & Pengajuan
               </h2>
               <div className="mt-auto flex items-center justify-between pt-8">
-                <span className="rounded-full bg-[#f4f7f3] px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
+                <span className="interactive-card-chip-muted rounded-full px-3 py-1 text-xs font-semibold transition">
                   {incomingRequests.length} pengajuan baru
                 </span>
-                <span className="text-lg transition group-hover:translate-x-1">
+                <span className="interactive-card-arrow text-lg transition group-hover:translate-x-1">
                   {"->"}
                 </span>
               </div>
@@ -59,10 +59,10 @@ export default async function CounselorCounselingPage() {
                 Agenda & Riwayat
               </h2>
               <div className="mt-auto flex items-center justify-between pt-8">
-                <span className="rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground transition group-hover:bg-white/12 group-hover:text-white">
+                <span className="interactive-card-chip rounded-full bg-primary/16 px-3 py-1 text-xs font-semibold text-foreground transition">
                   {counselingSessions.length} sesi
                 </span>
-                <span className="text-lg transition group-hover:translate-x-1">
+                <span className="interactive-card-arrow text-lg transition group-hover:translate-x-1">
                   {"->"}
                 </span>
               </div>

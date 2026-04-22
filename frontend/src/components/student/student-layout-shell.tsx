@@ -10,8 +10,10 @@ import { useStudentAccess } from "./student-access-provider";
 
 export function StudentLayoutShell({
   children,
+  currentTimeIso,
 }: Readonly<{
   children: React.ReactNode;
+  currentTimeIso: string;
 }>) {
   const pathname = usePathname();
   const router = useRouter();
@@ -50,6 +52,7 @@ export function StudentLayoutShell({
   return (
     <AppShell
       accentClass="bg-primary/20 text-foreground"
+      currentTimeIso={currentTimeIso}
       navItems={studentNav}
       roleLabel="Siswa"
       title="Ruang Siswa"

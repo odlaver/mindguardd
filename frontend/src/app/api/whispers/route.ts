@@ -1,11 +1,12 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getDb } from "@/db/client";
-import { schoolClasses, whisperReports } from "@/db/schema";
+import { schoolClasses, user, whisperReports } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { createEntityId } from "@/lib/server/id";
 
 const requestSchema = z.object({
   category: z.string().min(1).max(80),
@@ -35,19 +36,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
   }
 
-  const id = `WSP-${String(Math.floor(Math.random() * 900) + 100)}`;
   const detail = parsed.data.detail.trim();
   const title =
     parsed.data.title?.trim() ||
     `${parsed.data.category} - ${detail.split(/[.!?]/)[0]?.slice(0, 48) ?? "Laporan baru"}`;
+  const db = getDb();
   const linkedClass = session.user.classId
-    ? await getDb().query.schoolClasses.findFirst({
+    ? await db.query.schoolClasses.findFirst({
         where: eq(schoolClasses.id, session.user.classId),
       })
     : null;
+  const schoolCounselor =
+    session.user.schoolId
+      ? await db.query.user.findFirst({
+          where: and(
+            eq(user.role, "counselor"),
+            eq(user.schoolId, session.user.schoolId),
+          ),
+        })
+      : null;
+  const id = createEntityId("WSP");
 
-  await getDb().insert(whisperReports).values({
-    assignedTo: "Bu Sinta",
+  await db.insert(whisperReports).values({
+    assignedTo: linkedClass?.counselorName ?? schoolCounselor?.name ?? "Guru BK",
     category: parsed.data.category.trim(),
     detail,
     excerpt: makeExcerpt(detail),

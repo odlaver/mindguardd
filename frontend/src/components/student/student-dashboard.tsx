@@ -190,7 +190,7 @@ export function StudentDashboard({
                 Rata-rata statistik mood 14 hari terakhir adalah {averageScore}/5
               </p>
               <div className="mt-6 flex items-center justify-between">
-                <span className="interactive-card-chip-muted rounded-full px-3 py-1 text-xs font-semibold transition">
+                <span className="interactive-card-chip rounded-full bg-secondary/16 px-3 py-1 text-xs font-semibold text-foreground transition">
                   {moodHistory.length} catatan
                 </span>
                 <span className="interactive-card-arrow text-lg transition group-hover:translate-x-1">

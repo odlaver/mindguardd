@@ -44,8 +44,8 @@ export function AppShell({
   const router = useRouter();
 
   return (
-    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-4 lg:min-h-screen lg:flex-row lg:px-6">
-      <aside className="sidebar-scroll surface-card-strong stagger-in flex w-full shrink-0 flex-col gap-6 overflow-y-auto p-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:w-[286px]">
+    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-4 lg:gap-6 px-4 py-4 lg:min-h-screen lg:flex-row lg:px-6">
+      <aside className="sidebar-scroll surface-card-strong stagger-in flex w-full shrink-0 flex-col gap-4 lg:gap-6 overflow-hidden p-5 lg:p-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:w-[286px]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="soft-label">MindGuard</p>
@@ -71,7 +71,7 @@ export function AppShell({
 
         <JakartaLiveClock initialIso={currentTimeIso} />
 
-        <nav className="flex flex-col gap-2.5">
+        <nav className="flex flex-row lg:flex-col gap-2.5 overflow-x-auto pb-2 lg:pb-0 sidebar-scroll">
           {navItems.map((item) => {
             const active = isActive(pathname, item.href);
 
@@ -81,7 +81,7 @@ export function AppShell({
                 href={item.href}
                 data-active={active}
                 className={cn(
-                  "nav-link group",
+                  "nav-link group shrink-0 whitespace-nowrap",
                   active
                     ? "border-foreground bg-foreground shadow-[0_14px_30px_rgba(56,63,69,0.14)]"
                     : "border-transparent bg-transparent hover:border-primary/40 hover:bg-gradient-to-r hover:from-primary/10 hover:to-secondary/10 hover:shadow-[0_8px_24px_rgba(137,195,137,0.15)] hover:-translate-y-[2px]",
@@ -116,19 +116,21 @@ export function AppShell({
           })}
         </nav>
 
-        <button
-          type="button"
-          onClick={async () => {
-            await authClient.signOut();
-            startTransition(() => {
-              router.replace("/");
-              router.refresh();
-            });
-          }}
-          className="mt-auto rounded-[22px] border border-stroke bg-transparent px-4 py-3 text-sm font-semibold text-foreground transition duration-200 hover:bg-danger/10 hover:text-danger hover:border-danger"
-        >
-          Keluar
-        </button>
+        <div className="mt-2 lg:mt-auto">
+          <button
+            type="button"
+            onClick={async () => {
+              await authClient.signOut();
+              startTransition(() => {
+                router.replace("/");
+                router.refresh();
+              });
+            }}
+            className="w-full rounded-[22px] border border-stroke bg-transparent px-4 py-3 text-sm font-semibold text-foreground transition duration-200 hover:bg-danger/10 hover:text-danger hover:border-danger"
+          >
+            Keluar
+          </button>
+        </div>
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6">{children}</main>

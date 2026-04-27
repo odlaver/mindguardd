@@ -63,15 +63,15 @@ export function LoginScreen() {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center p-6 lg:p-12">
+    <div className="flex min-h-screen w-full items-center justify-center p-4 sm:p-6 lg:p-12">
       {/* Main Container mirroring the split Frame 1 & Frame 2 design */}
-      <div className="flex w-full max-w-[1340px] flex-col lg:flex-row items-center justify-center gap-[33px]">
+      <div className="flex w-full max-w-[1340px] flex-col lg:flex-row items-center justify-center gap-6 lg:gap-[33px]">
         
         {/* Frame 1: Logo */}
-        <div className="flex h-auto lg:h-[584px] w-full lg:w-[500px] items-center justify-center rounded-[40px] shadow-[0px_4px_100px_rgba(0,0,0,0.15)] stagger-in" style={{
+        <div className="flex h-auto lg:h-[584px] w-full lg:w-[500px] items-center justify-center rounded-[32px] lg:rounded-[40px] shadow-[0px_4px_100px_rgba(0,0,0,0.15)] stagger-in py-8 lg:py-0" style={{
           background: 'linear-gradient(224.34deg, #F4F8FB 1.09%, #FFFFFF 49.57%, #F4F8FB 100%)'
         }}>
-          <div className="relative h-[300px] w-[300px] lg:h-[479px] lg:w-[410px]">
+          <div className="relative h-[180px] w-[180px] sm:h-[220px] sm:w-[220px] lg:h-[479px] lg:w-[410px]">
             <Image
               src="/logo.png"
               alt="MindGuard Logo"
@@ -83,34 +83,34 @@ export function LoginScreen() {
         </div>
 
         {/* Frame 2: Login Form */}
-        <div className="flex h-auto lg:h-[584px] w-full lg:w-[839px] flex-col p-8 lg:p-14 rounded-[40px] shadow-[0px_4px_100px_rgba(0,0,0,0.15)] stagger-in" style={{
+        <div className="flex h-auto lg:h-[584px] w-full lg:w-[839px] flex-col p-6 sm:p-10 lg:p-14 rounded-[32px] lg:rounded-[40px] shadow-[0px_4px_100px_rgba(0,0,0,0.15)] stagger-in" style={{
           background: 'linear-gradient(224.34deg, #F4F8FB 1.09%, #FFFFFF 49.57%, #F4F8FB 100%)',
           animationDelay: '100ms'
         }}>
           
-          <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-8 lg:gap-10">
             {/* Header section matching Figma title blocks */}
             <div className="flex flex-col">
               <p className="font-semibold uppercase tracking-[2.42px] text-[11px] text-[#65766F] leading-[16px]">
                 Autentikasi
               </p>
-              <h2 className="mt-2 text-[30px] font-semibold leading-[36px] text-foreground">
+              <h2 className="mt-2 text-[24px] lg:text-[30px] font-semibold leading-tight lg:leading-[36px] text-foreground">
                 Login pengguna
               </h2>
             </div>
 
-            <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+            <form className="flex flex-col gap-5 lg:gap-6" onSubmit={handleSubmit}>
               
               {/* Email / NIS Input */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="emailInput" className="text-[14px] font-semibold leading-[20px] text-foreground">
+                <label htmlFor="emailInput" className="text-[13px] lg:text-[14px] font-semibold leading-[20px] text-foreground">
                   Email atau NIS
                 </label>
                 <input
                   id="emailInput"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="h-[58px] rounded-[22px] border border-[rgba(32,51,45,0.1)] bg-white px-[17px] text-[16px] text-[#757575] focus:outline-none focus:ring-4 focus:ring-foreground/10 transition-all"
+                  className="h-[50px] lg:h-[58px] rounded-[18px] lg:rounded-[22px] border border-[rgba(32,51,45,0.1)] bg-white px-[17px] text-[15px] lg:text-[16px] text-[#757575] focus:outline-none focus:ring-4 focus:ring-foreground/10 transition-all"
                   placeholder="nama@sekolah.sch.id"
                   type="email"
                 />
@@ -118,7 +118,7 @@ export function LoginScreen() {
 
               {/* Password Input */}
               <div className="flex flex-col gap-2">
-                <label htmlFor="passwordInput" className="text-[14px] font-semibold leading-[20px] text-foreground">
+                <label htmlFor="passwordInput" className="text-[13px] lg:text-[14px] font-semibold leading-[20px] text-foreground">
                   Password
                 </label>
                 <input
@@ -126,7 +126,7 @@ export function LoginScreen() {
                   type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="h-[58px] rounded-[22px] border border-[rgba(32,51,45,0.1)] bg-white px-[17px] text-[16px] text-[#757575] focus:outline-none focus:ring-4 focus:ring-foreground/10 transition-all"
+                  className="h-[50px] lg:h-[58px] rounded-[18px] lg:rounded-[22px] border border-[rgba(32,51,45,0.1)] bg-white px-[17px] text-[15px] lg:text-[16px] text-[#757575] focus:outline-none focus:ring-4 focus:ring-foreground/10 transition-all"
                   placeholder="********"
                 />
               </div>
@@ -139,14 +139,14 @@ export function LoginScreen() {
               <button
                 type="submit"
                 disabled={isPending}
-                className="mt-2 flex h-[48px] w-full items-center justify-center rounded-[18px] bg-foreground text-[16px] text-white transition-transform duration-200 hover:scale-[1.01] hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-2 flex h-[48px] w-full items-center justify-center rounded-[18px] bg-foreground text-[15px] lg:text-[16px] text-white transition-transform duration-200 hover:scale-[1.01] hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isPending ? "Memproses..." : "Sign in"}
               </button>
             </form>
 
             {/* Quick Demo Options (matching Figma Options row) */}
-            <div className="mt-2 flex flex-wrap items-center justify-center gap-[10px]">
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-2 lg:gap-[10px]">
               {rolePreviews.map((item) => (
                 <button
                   key={item.title}
@@ -156,7 +156,7 @@ export function LoginScreen() {
                     setPassword("Mindguard123!");
                     setError(null);
                   }}
-                  className={`flex h-[40px] items-center justify-center rounded-[24px] px-5 py-2 text-[15px] font-semibold text-foreground transition-all duration-200 ease-in-out hover:-translate-y-0.5 ${item.tone}`}
+                  className={`flex h-[36px] lg:h-[40px] items-center justify-center rounded-[24px] px-4 lg:px-5 py-2 text-[13px] lg:text-[15px] font-semibold text-foreground transition-all duration-200 ease-in-out hover:-translate-y-0.5 ${item.tone}`}
                 >
                   {item.title}
                 </button>

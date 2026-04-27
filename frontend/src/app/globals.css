@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f5f0;
-  --foreground: #20332d;
+  --background: #f2f4ef;
+  --foreground: #383f45;
   --surface: rgba(255, 255, 255, 0.84);
   --surface-strong: #ffffff;
-  --stroke: rgba(32, 51, 45, 0.1);
-  --primary: #9ac9a3;
-  --secondary: #b9d6e0;
-  --safe: #73ad87;
+  --stroke: rgba(56, 63, 69, 0.1);
+  --primary: #89c389;
+  --secondary: #7ebce1;
+  --safe: #89c389;
   --warning: #efc77a;
   --danger: #d97a72;
   --ink-soft: #65766f;
@@ -42,9 +42,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   background-image:
-    radial-gradient(circle at top left, rgba(154, 201, 163, 0.18), transparent 30%),
-    radial-gradient(circle at top right, rgba(185, 214, 224, 0.16), transparent 24%),
-    linear-gradient(180deg, #fafbf8 0%, #f3f5f0 55%, #eef2eb 100%);
+    radial-gradient(circle at top left, rgba(137, 195, 137, 0.18), transparent 30%),
+    radial-gradient(circle at top right, rgba(126, 188, 225, 0.16), transparent 24%),
+    linear-gradient(180deg, #fafbf8 0%, #f2f4ef 55%, #eef2eb 100%);
   font-family:
     var(--font-inter),
     "Segoe UI",
@@ -67,16 +67,16 @@ a {
 }
 
 ::selection {
-  background: rgba(128, 195, 148, 0.3);
+  background: rgba(137, 195, 137, 0.3);
 }
 
 @layer components {
   .surface-card {
-    @apply relative overflow-hidden rounded-[28px] border border-stroke bg-surface shadow-[0_18px_50px_rgba(35,58,50,0.06)] backdrop-blur-sm;
+    @apply relative overflow-hidden rounded-[28px] border border-stroke bg-surface shadow-[0_18px_50px_rgba(56,63,69,0.06)] backdrop-blur-sm;
   }
 
   .surface-card-strong {
-    @apply relative overflow-hidden rounded-[28px] border border-stroke bg-surface-strong shadow-[0_20px_56px_rgba(35,58,50,0.08)];
+    @apply relative overflow-hidden rounded-[28px] border border-stroke bg-surface-strong shadow-[0_20px_56px_rgba(56,63,69,0.08)];
   }
 
   .soft-label {
@@ -94,15 +94,15 @@ a {
   }
 
   .page-hero {
-    @apply relative overflow-hidden rounded-[28px] border border-stroke bg-surface-strong p-6 shadow-[0_20px_56px_rgba(35,58,50,0.08)] lg:p-8;
+    @apply relative overflow-hidden rounded-[28px] border border-stroke bg-surface-strong p-6 shadow-[0_20px_56px_rgba(56,63,69,0.08)] lg:p-8;
     background-image:
-      radial-gradient(circle at top right, rgba(185, 214, 224, 0.18), transparent 24%),
-      radial-gradient(circle at bottom left, rgba(154, 201, 163, 0.16), transparent 28%),
+      radial-gradient(circle at top right, rgba(126, 188, 225, 0.18), transparent 24%),
+      radial-gradient(circle at bottom left, rgba(137, 195, 137, 0.16), transparent 28%),
       linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.92));
   }
 
   .panel-hover {
-    @apply transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(35,58,50,0.1)];
+    @apply transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(56,63,69,0.1)];
   }
 
   .interactive-card-chip {
@@ -194,7 +194,7 @@ a {
   }
 
   .choice-chip-active {
-    @apply border-foreground bg-foreground text-white shadow-[0_14px_30px_rgba(23,48,41,0.14)];
+    @apply border-foreground bg-foreground text-white shadow-[0_14px_30px_rgba(56,63,69,0.14)];
   }
 
   .choice-chip-idle {
@@ -213,3 +213,4 @@ a {
     transform: translateY(0);
   }
 }
+

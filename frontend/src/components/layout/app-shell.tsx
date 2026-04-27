@@ -81,10 +81,10 @@ export function AppShell({
                 href={item.href}
                 data-active={active}
                 className={cn(
-                  "nav-link",
+                  "nav-link group",
                   active
-                    ? "border-foreground bg-foreground shadow-[0_14px_30px_rgba(23,48,41,0.14)]"
-                    : "border-transparent bg-white/66 hover:border-stroke hover:bg-white",
+                    ? "border-foreground bg-foreground shadow-[0_14px_30px_rgba(56,63,69,0.14)]"
+                    : "border-transparent bg-transparent hover:border-primary/40 hover:bg-gradient-to-r hover:from-primary/10 hover:to-secondary/10 hover:shadow-[0_8px_24px_rgba(137,195,137,0.15)] hover:-translate-y-[2px]",
                 )}
                 style={
                   active
@@ -97,8 +97,8 @@ export function AppShell({
               >
                 <span
                   className={cn(
-                    "relative z-10 transition",
-                    active ? "text-white" : "text-foreground",
+                    "relative z-10 transition duration-300",
+                    active ? "text-white" : "text-[#383f45] group-hover:text-[#2c5234]",
                   )}
                   style={
                     active
@@ -106,10 +106,7 @@ export function AppShell({
                           WebkitTextFillColor: "#ffffff",
                           color: "#ffffff",
                         }
-                      : {
-                          WebkitTextFillColor: "#20332d",
-                          color: "#20332d",
-                        }
+                      : undefined
                   }
                 >
                   {item.label}
@@ -128,7 +125,7 @@ export function AppShell({
               router.refresh();
             });
           }}
-          className="mt-auto rounded-[22px] border border-stroke bg-white px-4 py-3 text-sm font-semibold text-foreground transition duration-200 hover:bg-danger/10 hover:text-danger hover:border-danger"
+          className="mt-auto rounded-[22px] border border-stroke bg-transparent px-4 py-3 text-sm font-semibold text-foreground transition duration-200 hover:bg-danger/10 hover:text-danger hover:border-danger"
         >
           Keluar
         </button>

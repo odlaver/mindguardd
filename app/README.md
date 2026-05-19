@@ -1,4 +1,4 @@
-# MindGuard Frontend
+# MindGuard App
 
 ## Local setup
 
@@ -63,7 +63,7 @@ npm run db:seed
 
 ## Vercel
 
-This repo is structured with the Next.js app inside `frontend`, so the Vercel project should use `frontend` as its Root Directory.
+This repo is structured with the Next.js app inside `app`, so the Vercel project should use `app` as its Root Directory.
 
 Required environment variables:
 

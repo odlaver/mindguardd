@@ -70,7 +70,7 @@ try {
   }
 
   Write-Host ""
-  Write-Host "Login finished. Next commands inside frontend:"
+  Write-Host "Login finished. Next commands inside app:"
   Write-Host "  turso db create mindguardd"
   Write-Host "  turso db show --url mindguardd"
   Write-Host "  turso db tokens create mindguardd"

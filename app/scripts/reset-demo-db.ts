@@ -32,7 +32,7 @@ function resolveLocalDatabasePath(databaseUrl: string) {
   const relativePath = path.relative(dataDir, resolvedPath);
 
   if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-    throw new Error(`Refusing to reset database outside frontend/data: ${resolvedPath}`);
+    throw new Error(`Refusing to reset database outside app/data: ${resolvedPath}`);
   }
 
   return resolvedPath;

@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { useStudentAccess } from "@/components/student/student-access-provider";
 import { CharacterCount } from "@/components/ui/character-count";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { studentMoodOptions } from "@/lib/mock-data";
@@ -212,7 +213,7 @@ export function StudentDashboard({
                 Buka whisper
               </p>
               <p className="mt-3 text-sm leading-7 text-ink-soft transition group-hover:text-white/74">
-                Sampaikan sesuatu dengan aman dan anonim
+                Sampaikan hal penting secara privat ke Guru BK
               </p>
               <div className="mt-6 flex items-center justify-between">
                 <span className="interactive-card-chip rounded-full bg-danger/10 px-3 py-1 text-xs font-semibold text-danger transition">
@@ -274,23 +275,30 @@ export function StudentDashboard({
 
         <SectionCard title="Riwayat Mood" className="p-4 sm:p-[18px]">
           <div className="grid gap-3">
-            {recentDays.map((point) => (
-              <div
-                key={point.date}
-                className="panel-hover flex items-center justify-between rounded-[18px] bg-white px-3.5 py-3"
-              >
-                <div>
-                  <p className="text-xs font-medium text-ink-soft">{point.date}</p>
-                  <p className="mt-1 text-[0.95rem] font-semibold">
-                    {getMoodPreview(point.score).note}
-                  </p>
+            {recentDays.length ? (
+              recentDays.map((point) => (
+                <div
+                  key={point.date}
+                  className="panel-hover flex items-center justify-between rounded-[18px] bg-white px-3.5 py-3"
+                >
+                  <div>
+                    <p className="text-xs font-medium text-ink-soft">{point.date}</p>
+                    <p className="mt-1 text-[0.95rem] font-semibold">
+                      {getMoodPreview(point.score).note}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-[1.55rem]">{getMoodPreview(point.score).emoji}</span>
+                    <span className="text-[0.95rem] font-semibold">{point.score}/5</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[1.55rem]">{getMoodPreview(point.score).emoji}</span>
-                  <span className="text-[0.95rem] font-semibold">{point.score}/5</span>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <EmptyState
+                title="Belum ada riwayat"
+                description="Riwayat mood akan muncul setelah kamu mengisi check-in harian."
+              />
+            )}
           </div>
         </SectionCard>
       </section>

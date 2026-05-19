@@ -5,6 +5,7 @@ import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { CharacterCount } from "@/components/ui/character-count";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { sendJson } from "@/lib/client/api";
@@ -99,7 +100,7 @@ export function StudentWhisperWorkspace({
         <div>
           <p className="soft-label">Kirim Laporan</p>
           <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em]">
-            Kirim laporan anonim.
+            Kirim laporan privat.
           </h1>
         </div>
         <StatusBadge tone="danger">Privat</StatusBadge>
@@ -208,39 +209,46 @@ export function StudentWhisperWorkspace({
 
         <SectionCard title="Riwayat laporan saya">
           <div className="grid gap-3">
-            {reports.map((report) => (
-              <Link
-                key={report.id}
-                href={`/student/whisper/${report.id}`}
-                className="panel-hover rounded-[24px] border border-stroke bg-white p-5"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <StatusBadge tone="monitor">{report.category}</StatusBadge>
-                    <StatusBadge tone={report.urgency === "Tinggi" ? "danger" : "warning"}>
-                      {report.urgency}
+            {reports.length ? (
+              reports.map((report) => (
+                <Link
+                  key={report.id}
+                  href={`/student/whisper/${report.id}`}
+                  className="panel-hover rounded-[24px] border border-stroke bg-white p-5"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <StatusBadge tone="monitor">{report.category}</StatusBadge>
+                      <StatusBadge tone={report.urgency === "Tinggi" ? "danger" : "warning"}>
+                        {report.urgency}
+                      </StatusBadge>
+                    </div>
+                    <StatusBadge tone={getStatusTone(report.status)}>
+                      {report.status ?? "Sedang Ditinjau"}
                     </StatusBadge>
                   </div>
-                  <StatusBadge tone={getStatusTone(report.status)}>
-                    {report.status ?? "Sedang Ditinjau"}
-                  </StatusBadge>
-                </div>
-                <h2 className="mt-4 text-xl font-semibold tracking-[-0.03em]">
-                  {report.title}
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-ink-soft">
-                  {report.excerpt}
-                </p>
-                <div className="mt-5 flex items-center justify-between">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
-                    {report.id} | {report.submittedAt}
+                  <h2 className="mt-4 text-xl font-semibold tracking-[-0.03em]">
+                    {report.title}
+                  </h2>
+                  <p className="mt-3 text-sm leading-7 text-ink-soft">
+                    {report.excerpt}
                   </p>
-                  <span className="interactive-card-arrow text-sm font-semibold text-foreground/70">
-                    {"Detail ->"}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                  <div className="mt-5 flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
+                      {report.id} | {report.submittedAt}
+                    </p>
+                    <span className="interactive-card-arrow text-sm font-semibold text-foreground/70">
+                      {"Detail ->"}
+                    </span>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <EmptyState
+                title="Belum ada laporan"
+                description="Laporan yang kamu kirim akan tersimpan di sini agar statusnya mudah dipantau."
+              />
+            )}
           </div>
         </SectionCard>
       </section>

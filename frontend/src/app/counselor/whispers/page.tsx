@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getWhisperReports } from "@/lib/server/data";
@@ -35,28 +36,36 @@ export default async function CounselorWhispersPage() {
 
       <SectionCard title="Inbox laporan">
         <div className="grid gap-3 lg:grid-cols-2">
-          {whisperReports.map((report) => (
-            <Link
-              key={report.id}
-              href={`/counselor/whispers/${report.id}`}
-              className="panel-hover rounded-[24px] border border-stroke bg-white p-5"
-            >
-              <div className="flex flex-wrap gap-2">
-                <StatusBadge tone="monitor">{report.category}</StatusBadge>
-                <StatusBadge tone={report.urgency === "Tinggi" ? "danger" : "warning"}>
-                  {report.urgency}
-                </StatusBadge>
-                <StatusBadge tone={getReviewTone(report.status ?? "Baru")}>
-                  {report.status}
-                </StatusBadge>
-              </div>
-              <h2 className="mt-4 text-xl font-semibold">{report.title}</h2>
-              <p className="mt-3 text-sm leading-6 text-ink-soft">{report.excerpt}</p>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
-                {report.id} | {report.ownerLabel}
-              </p>
-            </Link>
-          ))}
+          {whisperReports.length ? (
+            whisperReports.map((report) => (
+              <Link
+                key={report.id}
+                href={`/counselor/whispers/${report.id}`}
+                className="panel-hover rounded-[24px] border border-stroke bg-white p-5"
+              >
+                <div className="flex flex-wrap gap-2">
+                  <StatusBadge tone="monitor">{report.category}</StatusBadge>
+                  <StatusBadge tone={report.urgency === "Tinggi" ? "danger" : "warning"}>
+                    {report.urgency}
+                  </StatusBadge>
+                  <StatusBadge tone={getReviewTone(report.status ?? "Baru")}>
+                    {report.status ?? "Baru"}
+                  </StatusBadge>
+                </div>
+                <h2 className="mt-4 text-xl font-semibold">{report.title}</h2>
+                <p className="mt-3 text-sm leading-6 text-ink-soft">{report.excerpt}</p>
+                <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
+                  {report.id} | {report.ownerLabel}
+                </p>
+              </Link>
+            ))
+          ) : (
+            <EmptyState
+              className="lg:col-span-2"
+              title="Inbox masih kosong"
+              description="Laporan privat siswa akan tampil di sini ketika ada yang perlu ditinjau."
+            />
+          )}
         </div>
       </SectionCard>
     </>

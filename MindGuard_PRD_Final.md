@@ -1,7 +1,7 @@
 # Product Requirements Document (PRD)
 ## MindGuard - Early Warning dan Alur Konseling Siswa
 
-**Versi Dokumen:** 2.1.0
+**Versi Dokumen:** 2.1.1
 **Tanggal Update:** 19 Mei 2026
 **Status:** Disesuaikan dengan implementasi frontend saat ini
 **Aplikasi:** Next.js App Router di folder `frontend`
@@ -178,6 +178,8 @@ Fitur yang masih read-only atau belum lengkap:
 ### 7.1 Login
 
 - Login berada di `/login`.
+- Form login menerima email dan password.
+- Field `studentCode`/NIS tersimpan di data user, tetapi belum menjadi kredensial login aktif.
 - Auth route dikelola oleh Better Auth di `/api/auth/[...all]`.
 - Setelah session valid, user diarahkan berdasarkan role:
   - `admin` ke `/admin`
@@ -233,6 +235,12 @@ Aturan penting:
 
 Dashboard siswa membaca apakah siswa sudah check-in hari ini. Jika sudah, UI menampilkan submission hari ini. Jika belum, UI menampilkan form check-in.
 
+Catatan UX:
+
+- Check-in harian menjadi pintu masuk utama ruang siswa.
+- Halaman siswa yang membutuhkan riwayat data menampilkan empty state saat data belum tersedia.
+- Copy UI memakai bahasa ringan dan tidak membuat klaim klinis.
+
 ### 8.3 Risk Assessment Guru BK
 
 Risk siswa dihitung dari data yang tersedia di server:
@@ -272,12 +280,14 @@ Implementasi saat ini:
 - `title` opsional, jika diisi minimal 3 karakter dan maksimal 120 karakter.
 - `urgency` hanya `Normal` atau `Tinggi`.
 - Sistem membuat `excerpt` maksimum 120 karakter.
-- UI menampilkan laporan sebagai anonim/privat.
+- UI menampilkan laporan sebagai privat.
+- Riwayat laporan siswa menampilkan empty state jika siswa belum pernah mengirim laporan.
+- Inbox laporan Guru BK menampilkan empty state jika belum ada laporan yang perlu ditinjau.
 - Database tetap menyimpan `studentUserId` pengirim agar siswa bisa melihat riwayat laporannya dan Guru BK dapat membuka detail siswa jika diperlukan.
 
 Konsekuensi produk:
 
-- Klaim yang tepat adalah "laporan privat dengan identitas ditampilkan anonim di UI", bukan anonimitas penuh tanpa jejak identitas.
+- Klaim yang tepat adalah "laporan privat", bukan anonimitas penuh tanpa jejak identitas.
 - True anonymous report tanpa `studentUserId` belum diimplementasikan.
 
 ### 8.7 Alur Konseling
@@ -319,6 +329,7 @@ Alert saat ini berfungsi sebagai data monitoring:
 - Dipakai untuk menghitung risk siswa.
 - Memiliki severity `Tinggi` atau `Sedang`.
 - Memiliki status `Baru`, `Sedang Ditinjau`, atau `Selesai`.
+- Halaman daftar dan detail alert menampilkan empty state/konteks fallback saat data tren belum tersedia.
 
 Belum ada endpoint aktif untuk membuat atau mengubah alert dari UI.
 
@@ -377,7 +388,7 @@ Validasi:
 
 | Route | Fungsi |
 |---|---|
-| `/admin` | Ringkasan sistem |
+| `/admin` | Ringkasan sistem dan item yang perlu perhatian |
 | `/admin/users` | Daftar pengguna |
 | `/admin/users/[userId]` | Detail pengguna |
 | `/admin/schools` | Daftar sekolah dan kelas |
@@ -491,7 +502,7 @@ Field tambahan di Better Auth:
 
 Catatan privasi:
 
-- Whisper saat ini bersifat privat/anonim secara tampilan, bukan anonim penuh secara data.
+- Whisper saat ini bersifat privat secara UI dan data tetap menyimpan relasi siswa.
 - Data emosional siswa tetap harus diperlakukan sebagai data sensitif.
 
 ### 11.2 Performa
@@ -511,6 +522,14 @@ Catatan privasi:
 
 - Student flow dibuat mobile-first.
 - Counselor dan Admin lebih padat untuk desktop/tablet, tetap dapat diakses dari layar kecil.
+
+### 11.5 UI/UX State
+
+- Komponen empty state digunakan untuk daftar kosong agar halaman tidak terlihat rusak ketika data belum ada.
+- Empty state aktif pada riwayat mood, laporan siswa, alert, prioritas counselor, dan item perhatian admin.
+- Admin dashboard memakai label `Perlu perhatian`, bukan `Permintaan tertunda`, karena daftar tersebut adalah ringkasan kondisi operasional, bukan request queue penuh.
+- Copy Whisper memakai istilah `privat` untuk menjaga kepercayaan pengguna sesuai implementasi data saat ini.
+- Login UI hanya menjanjikan login email/password sampai login berbasis NIS benar-benar tersedia.
 
 ---
 
@@ -545,6 +564,7 @@ Catatan privasi:
 - Counseling request, schedule, confirm, complete.
 - Resource center.
 - Admin overview.
+- Empty state untuk daftar kosong pada flow utama.
 - Admin users/schools/classes read-only views.
 - Admin system config update.
 - Local database fallback dan Turso setup.
@@ -594,8 +614,8 @@ Status terakhir sebelum dokumen ini diperbarui:
 
 MindGuard saat ini sudah memiliki fondasi produk yang jelas untuk tiga aktor utama: siswa, Guru BK, dan admin. Fitur inti yang sudah berjalan adalah mood check-in, laporan Whisper, monitoring counselor, alur konseling dasar, resource center, dan konfigurasi admin.
 
-Fokus pengembangan berikutnya sebaiknya diarahkan ke fitur operasional yang belum lengkap: CRUD admin, manajemen alert aktif, outcome/follow-up konseling dari Guru BK, dan keputusan produk terkait apakah Whisper harus benar-benar anonim secara data atau cukup privat secara tampilan.
+Fokus pengembangan berikutnya sebaiknya diarahkan ke fitur operasional yang belum lengkap: CRUD admin, manajemen alert aktif, outcome/follow-up konseling dari Guru BK, dan keputusan produk terkait apakah Whisper harus benar-benar anonim secara data atau cukup privat.
 
 ---
 
-*[End of PRD - MindGuard v2.1.0]*
+*[End of PRD - MindGuard v2.1.1]*

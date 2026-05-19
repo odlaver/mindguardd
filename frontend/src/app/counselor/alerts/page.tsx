@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getAlerts } from "@/lib/server/data";
@@ -33,34 +34,43 @@ export default async function CounselorAlertsPage() {
 
       <SectionCard title="Daftar alert aktif" className="p-5 sm:p-6">
         <div className="grid gap-3">
-          {alerts.map((alert) => (
-            <Link
-              key={alert.id}
-              href={`/counselor/alerts/${alert.id}`}
-              className="group panel-hover rounded-[28px] border border-stroke bg-white px-5 py-5 hover:border-foreground/16 hover:bg-[#f7f8f4]"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold">{alert.student}</p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.14em] text-ink-soft">
-                    {alert.className} | {alert.id}
-                  </p>
+          {alerts.length ? (
+            alerts.map((alert) => (
+              <Link
+                key={alert.id}
+                href={`/counselor/alerts/${alert.id}`}
+                className="group panel-hover rounded-[28px] border border-stroke bg-white px-5 py-5 hover:border-foreground/16 hover:bg-[#f7f8f4]"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold">{alert.student}</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.14em] text-ink-soft">
+                      {alert.className} | {alert.id}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <StatusBadge tone={alert.severity === "Tinggi" ? "danger" : "warning"}>
+                      {alert.severity}
+                    </StatusBadge>
+                    <StatusBadge tone={getReviewTone(alert.status)}>
+                      {alert.status}
+                    </StatusBadge>
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  <StatusBadge tone={alert.severity === "Tinggi" ? "danger" : "warning"}>
-                    {alert.severity}
-                  </StatusBadge>
-                  <StatusBadge tone={getReviewTone(alert.status)}>
-                    {alert.status}
-                  </StatusBadge>
-                </div>
-              </div>
-              <p className="mt-4 text-sm leading-7 text-ink-soft">{alert.reason}</p>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
-                {alert.lastUpdated}
-              </p>
-            </Link>
-          ))}
+                <p className="mt-4 text-sm leading-7 text-ink-soft">{alert.reason}</p>
+                <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-ink-soft">
+                  {alert.lastUpdated}
+                </p>
+              </Link>
+            ))
+          ) : (
+            <EmptyState
+              title="Belum ada alert aktif"
+              description="Siswa dengan pola mood berisiko akan otomatis masuk daftar ini."
+              actionHref="/counselor/students"
+              actionLabel="Lihat data siswa"
+            />
+          )}
         </div>
       </SectionCard>
     </>

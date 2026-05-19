@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import { MetricCard } from "@/components/ui/metric-card";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -73,30 +74,38 @@ export default async function AdminPage() {
     .sort(
       (a, b) => Number.parseInt(a.completion, 10) - Number.parseInt(b.completion, 10),
     );
-  const pendingRequests = [
-    {
-      detail: adminUsers.find((item) => item.status === "Menunggu")?.name ?? "-",
-      href: `/admin/users/${adminUsers.find((item) => item.status === "Menunggu")?.id ?? adminUsers[0]?.id ?? ""}`,
-      id: "REQ-ADM-01",
-      title: "Verifikasi akun Guru BK",
-      tone: "warning" as const,
-    },
-    {
-      detail: adminSystemConfigs.find((item) => item.status === "Tertunda")?.name ?? "-",
-      href: `/admin/system/${adminSystemConfigs.find((item) => item.status === "Tertunda")?.id ?? adminSystemConfigs[0]?.id ?? ""}`,
-      id: "REQ-ADM-02",
-      title: "Konfigurasi tertunda",
-      tone: "warning" as const,
-    },
-    {
-      detail:
-        adminClasses.find((item) => item.riskBand === "Perlu perhatian")?.className ?? "-",
-      href: `/admin/schools/classes/${adminClasses.find((item) => item.riskBand === "Perlu perhatian")?.id ?? adminClasses[0]?.id ?? ""}`,
-      id: "REQ-ADM-03",
-      title: "Kelas prioritas",
-      tone: "danger" as const,
-    },
-  ];
+  const pendingUser = adminUsers.find((item) => item.status === "Menunggu");
+  const pendingConfig = adminSystemConfigs.find((item) => item.status === "Tertunda");
+  const priorityClass = adminClasses.find((item) => item.riskBand === "Perlu perhatian");
+  const attentionItems = [
+    pendingUser
+      ? {
+          detail: pendingUser.name,
+          href: `/admin/users/${pendingUser.id}`,
+          id: "ADM-01",
+          title: "Akun menunggu verifikasi",
+          tone: "warning" as const,
+        }
+      : null,
+    pendingConfig
+      ? {
+          detail: pendingConfig.name,
+          href: `/admin/system/${pendingConfig.id}`,
+          id: "ADM-02",
+          title: "Konfigurasi tertunda",
+          tone: "warning" as const,
+        }
+      : null,
+    priorityClass
+      ? {
+          detail: priorityClass.className,
+          href: `/admin/schools/classes/${priorityClass.id}`,
+          id: "ADM-03",
+          title: "Kelas perlu perhatian",
+          tone: "danger" as const,
+        }
+      : null,
+  ].filter((item) => item !== null);
   const adminLog = adminUsers.slice(0, 3).map((item, index) => ({
     detail: `Akses terakhir ${item.lastAccess}`,
     href: `/admin/users/${item.id}`,
@@ -183,21 +192,28 @@ export default async function AdminPage() {
         </SectionCard>
 
         <div className="grid gap-4">
-          <SectionCard title="Permintaan tertunda">
+          <SectionCard title="Perlu perhatian">
             <div className="grid gap-3">
-              {pendingRequests.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="panel-hover rounded-[24px] border border-stroke bg-white p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold">{item.id}</p>
-                    <StatusBadge tone={item.tone}>{item.title}</StatusBadge>
-                  </div>
-                  <h2 className="mt-3 text-lg font-semibold">{item.detail}</h2>
-                </Link>
-              ))}
+              {attentionItems.length ? (
+                attentionItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className="panel-hover rounded-[24px] border border-stroke bg-white p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold">{item.id}</p>
+                      <StatusBadge tone={item.tone}>{item.title}</StatusBadge>
+                    </div>
+                    <h2 className="mt-3 text-lg font-semibold">{item.detail}</h2>
+                  </Link>
+                ))
+              ) : (
+                <EmptyState
+                  title="Tidak ada item mendesak"
+                  description="Akun, konfigurasi, atau kelas prioritas akan muncul saat membutuhkan tindakan admin."
+                />
+              )}
             </div>
           </SectionCard>
 

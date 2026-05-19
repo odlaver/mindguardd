@@ -101,10 +101,10 @@ export function LoginScreen() {
 
             <form className="flex flex-col gap-5 lg:gap-6" onSubmit={handleSubmit}>
               
-              {/* Email / NIS Input */}
+              {/* Email Input */}
               <div className="flex flex-col gap-2">
                 <label htmlFor="emailInput" className="text-[13px] lg:text-[14px] font-semibold leading-[20px] text-foreground">
-                  Email atau NIS
+                  Email
                 </label>
                 <input
                   id="emailInput"
@@ -113,6 +113,7 @@ export function LoginScreen() {
                   className="h-[50px] lg:h-[58px] rounded-[18px] lg:rounded-[22px] border border-[rgba(32,51,45,0.1)] bg-white px-[17px] text-[15px] lg:text-[16px] text-[#757575] focus:outline-none focus:ring-4 focus:ring-foreground/10 transition-all"
                   placeholder="nama@sekolah.sch.id"
                   type="email"
+                  autoComplete="email"
                 />
               </div>
 
@@ -128,6 +129,7 @@ export function LoginScreen() {
                   onChange={(event) => setPassword(event.target.value)}
                   className="h-[50px] lg:h-[58px] rounded-[18px] lg:rounded-[22px] border border-[rgba(32,51,45,0.1)] bg-white px-[17px] text-[15px] lg:text-[16px] text-[#757575] focus:outline-none focus:ring-4 focus:ring-foreground/10 transition-all"
                   placeholder="********"
+                  autoComplete="current-password"
                 />
               </div>
 

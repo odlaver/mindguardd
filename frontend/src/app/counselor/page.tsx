@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import { MetricCard } from "@/components/ui/metric-card";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -64,83 +65,108 @@ export default async function CounselorPage() {
       <section className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
         <SectionCard title="Siswa prioritas">
           <div className="grid gap-3">
-            {priorityStudents.map((student) => (
-              <article
-                key={student.id}
-                className="panel-hover rounded-[24px] border border-stroke bg-white p-4"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <h2 className="text-lg font-semibold">{student.name}</h2>
-                    <p className="mt-1 text-sm text-ink-soft">
-                      {student.className} | mood terakhir {student.latestMood}/5
-                    </p>
+            {priorityStudents.length ? (
+              priorityStudents.map((student) => (
+                <article
+                  key={student.id}
+                  className="panel-hover rounded-[24px] border border-stroke bg-white p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-lg font-semibold">{student.name}</h2>
+                      <p className="mt-1 text-sm text-ink-soft">
+                        {student.className} | mood terakhir {student.latestMood}/5
+                      </p>
+                    </div>
+                    <StatusBadge
+                      tone="danger"
+                    >
+                      Prioritas
+                    </StatusBadge>
                   </div>
-                  <StatusBadge
-                    tone="danger"
-                  >
-                    Prioritas
-                  </StatusBadge>
-                </div>
-                <p className="mt-3 text-sm leading-7 text-ink-soft">{student.focus}</p>
-                <div className="mt-5 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-foreground/75">
-                    {student.trend}
-                  </span>
-                  <Link
-                    href={`/counselor/students/${student.id}`}
-                    className="button-secondary"
-                  >
-                    Detail
-                  </Link>
-                </div>
-              </article>
-            ))}
+                  <p className="mt-3 text-sm leading-7 text-ink-soft">{student.focus}</p>
+                  <div className="mt-5 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-foreground/75">
+                      {student.trend}
+                    </span>
+                    <Link
+                      href={`/counselor/students/${student.id}`}
+                      className="button-secondary"
+                    >
+                      Detail
+                    </Link>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <EmptyState
+                title="Tidak ada prioritas tinggi"
+                description="Alert dengan tingkat tinggi akan muncul di sini saat perlu perhatian cepat."
+                actionHref="/counselor/students"
+                actionLabel="Lihat semua siswa"
+              />
+            )}
           </div>
         </SectionCard>
 
         <div className="grid gap-4">
           <SectionCard title="Alert terbaru">
             <div className="grid gap-3">
-              {alerts.map((alert) => (
-                <Link
-                  key={alert.id}
-                  href={`/counselor/alerts/${alert.id}`}
-                  className="panel-hover rounded-[24px] border border-stroke bg-white p-4"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-sm font-semibold">{alert.id}</p>
-                      <h2 className="mt-1 text-lg font-semibold">{alert.student}</h2>
+              {alerts.length ? (
+                alerts.map((alert) => (
+                  <Link
+                    key={alert.id}
+                    href={`/counselor/alerts/${alert.id}`}
+                    className="panel-hover rounded-[24px] border border-stroke bg-white p-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold">{alert.id}</p>
+                        <h2 className="mt-1 text-lg font-semibold">{alert.student}</h2>
+                      </div>
+                      <StatusBadge tone={alert.severity === "Tinggi" ? "danger" : "warning"}>
+                        {alert.severity}
+                      </StatusBadge>
                     </div>
-                    <StatusBadge tone={alert.severity === "Tinggi" ? "danger" : "warning"}>
-                      {alert.severity}
-                    </StatusBadge>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-ink-soft">{alert.reason}</p>
-                </Link>
-              ))}
+                    <p className="mt-3 text-sm leading-6 text-ink-soft">{alert.reason}</p>
+                  </Link>
+                ))
+              ) : (
+                <EmptyState
+                  title="Belum ada alert"
+                  description="Alert risiko akan muncul saat pola mood siswa perlu ditinjau."
+                />
+              )}
             </div>
           </SectionCard>
 
-          <SectionCard title="Menindaklanjuti siswa">
+          <SectionCard title="Laporan siswa">
             <div className="grid gap-3">
-              {whisperReports.map((report) => (
-                <Link
-                  key={report.id}
-                  href={`/counselor/whispers/${report.id}`}
-                  className="panel-hover rounded-[24px] border border-stroke bg-white p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold">{report.id}</p>
-                    <StatusBadge tone={getReviewTone(report.status ?? "Baru")}>
-                      {report.status}
-                    </StatusBadge>
-                  </div>
-                  <h2 className="mt-3 text-lg font-semibold">{report.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-ink-soft">{report.ownerLabel}</p>
-                </Link>
-              ))}
+              {whisperReports.length ? (
+                whisperReports.map((report) => (
+                  <Link
+                    key={report.id}
+                    href={`/counselor/whispers/${report.id}`}
+                    className="panel-hover rounded-[24px] border border-stroke bg-white p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold">{report.id}</p>
+                      <StatusBadge tone={getReviewTone(report.status ?? "Baru")}>
+                        {report.status ?? "Baru"}
+                      </StatusBadge>
+                    </div>
+                    <h2 className="mt-3 text-lg font-semibold">{report.title}</h2>
+                    <p className="mt-2 text-sm leading-6 text-ink-soft">{report.ownerLabel}</p>
+                  </Link>
+                ))
+              ) : (
+                <EmptyState
+                  title="Belum ada laporan"
+                  description="Laporan privat dari siswa akan muncul di sini."
+                  actionHref="/counselor/whispers"
+                  actionLabel="Buka inbox"
+                />
+              )}
             </div>
           </SectionCard>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import type { MoodPoint } from "@/lib/types";
 
 type MoodHistoryChartProps = {
@@ -53,7 +54,12 @@ export function MoodHistoryChart({ data }: MoodHistoryChartProps) {
   ].join(" ");
 
   if (!activePoint) {
-    return null;
+    return (
+      <EmptyState
+        title="Belum ada data mood"
+        description="Grafik akan muncul setelah kamu mengisi check-in harian."
+      />
+    );
   }
 
   return (

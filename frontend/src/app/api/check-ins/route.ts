@@ -1,32 +1,24 @@
 import { and, eq, gte, lt } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { moodEntries } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { checkInRequestSchema } from "@/lib/server/form-schemas";
+import { invalidPayload, jsonError, jsonOk, unauthorized } from "@/lib/server/http";
+import { getApiRoleSession } from "@/lib/server/session";
 import { getJakartaDayRange } from "@/lib/server/time";
 
-const requestSchema = z.object({
-  note: z.string().max(300).optional().default(""),
-  score: z.number().int().min(1).max(5),
-});
-
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getApiRoleSession("student");
 
-  if (!session || session.user.role !== "student") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return unauthorized();
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = requestSchema.safeParse(body);
+  const parsed = checkInRequestSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
+    return invalidPayload();
   }
 
   const { end, start } = getJakartaDayRange();
@@ -40,27 +32,22 @@ export async function POST(request: Request) {
   });
 
   if (existing) {
-    return NextResponse.json(
-      {
-        error: "Check-in hari ini sudah tersimpan.",
-      },
-      { status: 409 },
-    );
+    return jsonError("Check-in hari ini sudah tersimpan.", 409);
   }
 
   const recordedAt = new Date();
 
   await db.insert(moodEntries).values({
     id: `mood-${crypto.randomUUID()}`,
-    note: parsed.data.note.trim() || null,
+    note: parsed.data.note || null,
     recordedAt,
     score: parsed.data.score,
     userId: session.user.id,
   });
 
-  return NextResponse.json({
+  return jsonOk({
     submission: {
-      note: parsed.data.note.trim(),
+      note: parsed.data.note,
       score: parsed.data.score,
       submittedAt: recordedAt.toISOString(),
     },

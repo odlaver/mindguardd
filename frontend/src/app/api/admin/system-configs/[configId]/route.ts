@@ -1,53 +1,43 @@
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { systemConfigs } from "@/db/schema";
-import { auth } from "@/lib/auth";
-
-const requestSchema = z.object({
-  impact: z.string().min(3).max(800),
-  status: z.enum(["Aktif", "Tertunda"]),
-  summary: z.string().min(3).max(800),
-  value: z.string().min(1).max(200),
-});
+import { systemConfigSchema } from "@/lib/server/form-schemas";
+import { invalidPayload, jsonError, jsonOk, unauthorized } from "@/lib/server/http";
+import { getApiRoleSession } from "@/lib/server/session";
 
 export async function PATCH(
   request: Request,
   context: RouteContext<"/api/admin/system-configs/[configId]">,
 ) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getApiRoleSession("admin");
 
-  if (!session || session.user.role !== "admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return unauthorized();
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = requestSchema.safeParse(body);
+  const parsed = systemConfigSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
+    return invalidPayload();
   }
 
   const { configId } = await context.params;
   const result = await getDb()
     .update(systemConfigs)
     .set({
-      impact: parsed.data.impact.trim(),
+      impact: parsed.data.impact,
       status: parsed.data.status,
-      summary: parsed.data.summary.trim(),
-      value: parsed.data.value.trim(),
+      summary: parsed.data.summary,
+      value: parsed.data.value,
     })
     .where(eq(systemConfigs.id, configId))
     .returning();
 
   if (!result[0]) {
-    return NextResponse.json({ error: "Konfigurasi tidak ditemukan." }, { status: 404 });
+    return jsonError("Konfigurasi tidak ditemukan.", 404);
   }
 
-  return NextResponse.json({ config: result[0], ok: true });
+  return jsonOk({ config: result[0], ok: true });
 }

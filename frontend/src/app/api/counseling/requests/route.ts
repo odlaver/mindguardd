@@ -1,33 +1,24 @@
 import { and, eq, inArray, ne } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { counselingRequests, counselingSessions } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { counselingRequestSchema } from "@/lib/server/form-schemas";
+import { invalidPayload, jsonError, jsonOk, unauthorized } from "@/lib/server/http";
 import { createEntityId } from "@/lib/server/id";
-
-const requestSchema = z.object({
-  preferredSlot: z.string().min(1).max(120),
-  summary: z.string().min(10).max(1200),
-  topic: z.string().min(1).max(120),
-});
+import { getApiRoleSession } from "@/lib/server/session";
 
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getApiRoleSession("student");
 
-  if (!session || session.user.role !== "student") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return unauthorized();
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = requestSchema.safeParse(body);
+  const parsed = counselingRequestSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
+    return invalidPayload();
   }
 
   const db = getDb();
@@ -47,12 +38,9 @@ export async function POST(request: Request) {
   ]);
 
   if (activeRequest || activeSession) {
-    return NextResponse.json(
-      {
-        error:
-          "Masih ada alur konseling yang aktif. Selesaikan atau tunggu jadwal yang berjalan terlebih dulu.",
-      },
-      { status: 409 },
+    return jsonError(
+      "Masih ada alur konseling yang aktif. Selesaikan atau tunggu jadwal yang berjalan terlebih dulu.",
+      409,
     );
   }
 
@@ -60,13 +48,13 @@ export async function POST(request: Request) {
 
   await db.insert(counselingRequests).values({
     id,
-    preferredSlot: parsed.data.preferredSlot.trim(),
+    preferredSlot: parsed.data.preferredSlot,
     status: "Baru",
     studentUserId: session.user.id,
     submittedAt: new Date(),
-    summary: parsed.data.summary.trim(),
-    topic: parsed.data.topic.trim(),
+    summary: parsed.data.summary,
+    topic: parsed.data.topic,
   });
 
-  return NextResponse.json({ id, ok: true });
+  return jsonOk({ id, ok: true });
 }

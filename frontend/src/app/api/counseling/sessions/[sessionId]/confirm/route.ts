@@ -1,15 +1,10 @@
 import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { counselingSessions } from "@/db/schema";
-import { auth } from "@/lib/auth";
-
-const requestSchema = z.object({
-  note: z.string().max(800).optional().default(""),
-});
+import { counselingConfirmSchema } from "@/lib/server/form-schemas";
+import { invalidPayload, jsonError, jsonOk, unauthorized } from "@/lib/server/http";
+import { getApiRoleSession } from "@/lib/server/session";
 
 type RouteContext = {
   params: Promise<{
@@ -18,19 +13,17 @@ type RouteContext = {
 };
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getApiRoleSession("student");
 
-  if (!session || session.user.role !== "student") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return unauthorized();
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = requestSchema.safeParse(body);
+  const parsed = counselingConfirmSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
+    return invalidPayload();
   }
 
   const { sessionId } = await context.params;
@@ -42,21 +35,18 @@ export async function PATCH(request: Request, context: RouteContext) {
   });
 
   if (!counselingSession) {
-    return NextResponse.json({ error: "Sesi tidak ditemukan." }, { status: 404 });
+    return jsonError("Sesi tidak ditemukan.", 404);
   }
 
   if (counselingSession.status === "Selesai") {
-    return NextResponse.json({ error: "Sesi sudah selesai." }, { status: 400 });
+    return jsonError("Sesi sudah selesai.", 400);
   }
 
   if (
     counselingSession.status !== "Menunggu Konfirmasi" ||
     counselingSession.invitationStatus !== "Menunggu Konfirmasi"
   ) {
-    return NextResponse.json(
-      { error: "Jadwal ini sudah dikonfirmasi sebelumnya." },
-      { status: 400 },
-    );
+    return jsonError("Jadwal ini sudah dikonfirmasi sebelumnya.", 400);
   }
 
   await getDb()
@@ -64,9 +54,9 @@ export async function PATCH(request: Request, context: RouteContext) {
     .set({
       invitationStatus: "Dikonfirmasi",
       status: "Dikonfirmasi",
-      studentConfirmationNote: parsed.data.note.trim() || null,
+      studentConfirmationNote: parsed.data.note || null,
     })
     .where(eq(counselingSessions.id, counselingSession.id));
 
-  return NextResponse.json({ ok: true });
+  return jsonOk({ ok: true });
 }

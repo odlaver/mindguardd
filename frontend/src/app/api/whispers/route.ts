@@ -1,42 +1,27 @@
 import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { schoolClasses, user, whisperReports } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { makeWhisperExcerpt, whisperRequestSchema } from "@/lib/server/form-schemas";
+import { invalidPayload, jsonOk, unauthorized } from "@/lib/server/http";
 import { createEntityId } from "@/lib/server/id";
-
-const requestSchema = z.object({
-  category: z.string().min(1).max(80),
-  detail: z.string().min(20).max(2000),
-  title: z.string().min(3).max(120).optional(),
-  urgency: z.enum(["Normal", "Tinggi"]),
-});
-
-function makeExcerpt(detail: string) {
-  const normalized = detail.replace(/\s+/g, " ").trim();
-  return normalized.length > 120 ? `${normalized.slice(0, 117)}...` : normalized;
-}
+import { getApiRoleSession } from "@/lib/server/session";
 
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getApiRoleSession("student");
 
-  if (!session || session.user.role !== "student") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return unauthorized();
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = requestSchema.safeParse(body);
+  const parsed = whisperRequestSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
+    return invalidPayload();
   }
 
-  const detail = parsed.data.detail.trim();
+  const detail = parsed.data.detail;
   const title =
     parsed.data.title?.trim() ||
     `${parsed.data.category} - ${detail.split(/[.!?]/)[0]?.slice(0, 48) ?? "Laporan baru"}`;
@@ -59,9 +44,9 @@ export async function POST(request: Request) {
 
   await db.insert(whisperReports).values({
     assignedTo: linkedClass?.counselorName ?? schoolCounselor?.name ?? "Guru BK",
-    category: parsed.data.category.trim(),
+    category: parsed.data.category,
     detail,
-    excerpt: makeExcerpt(detail),
+    excerpt: makeWhisperExcerpt(detail),
     id,
     nextStep: "Guru BK akan memeriksa laporan ini dan menentukan langkah aman berikutnya.",
     ownerLabel: `Anonim ${linkedClass?.name ?? "Siswa"}`,
@@ -72,5 +57,5 @@ export async function POST(request: Request) {
     urgency: parsed.data.urgency,
   });
 
-  return NextResponse.json({ id, ok: true });
+  return jsonOk({ id, ok: true });
 }

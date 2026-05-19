@@ -1,15 +1,11 @@
 import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { whisperReports } from "@/db/schema";
-import { auth } from "@/lib/auth";
-
-const requestSchema = z.object({
-  status: z.enum(["Baru", "Sedang Ditinjau", "Selesai"]),
-});
+import { getWhisperReportById } from "@/lib/server/data";
+import { whisperStatusSchema } from "@/lib/server/form-schemas";
+import { invalidPayload, jsonError, jsonOk, unauthorized } from "@/lib/server/http";
+import { getApiRoleSession } from "@/lib/server/session";
 
 type WhisperStatusRouteContext = {
   params: Promise<{
@@ -18,22 +14,30 @@ type WhisperStatusRouteContext = {
 };
 
 export async function PATCH(request: Request, context: WhisperStatusRouteContext) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getApiRoleSession("counselor");
 
-  if (!session || session.user.role !== "counselor") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return unauthorized();
+  }
+
+  if (!session.user.schoolId) {
+    return jsonError("Scope sekolah akun konselor belum tersedia.", 403);
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = requestSchema.safeParse(body);
+  const parsed = whisperStatusSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
+    return invalidPayload();
   }
 
   const { reportId } = await context.params;
+  const report = await getWhisperReportById(reportId, session.user.schoolId);
+
+  if (!report) {
+    return jsonError("Laporan tidak ditemukan.", 404);
+  }
+
   const result = await getDb()
     .update(whisperReports)
     .set({
@@ -46,8 +50,8 @@ export async function PATCH(request: Request, context: WhisperStatusRouteContext
     });
 
   if (!result[0]) {
-    return NextResponse.json({ error: "Laporan tidak ditemukan." }, { status: 404 });
+    return jsonError("Laporan tidak ditemukan.", 404);
   }
 
-  return NextResponse.json({ ok: true, report: result[0] });
+  return jsonOk({ ok: true, report: result[0] });
 }

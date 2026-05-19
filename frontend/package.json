@@ -12,7 +12,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed.ts",
+    "db:reset": "tsx scripts/reset-demo-db.ts",
     "db:setup": "npm run db:migrate && npm run db:seed",
+    "test": "tsx --test tests/**/*.test.ts",
     "auth:generate": "npx @better-auth/cli generate --config src/lib/auth.ts --output src/db/auth-schema.ts --yes"
   },
   "dependencies": {
@@ -21,7 +23,7 @@
     "better-auth": "^1.6.5",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.2",
-    "next": "16.2.3",
+    "next": "^16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "zod": "^4.3.6"
@@ -33,9 +35,15 @@
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "16.2.3",
+    "eslint-config-next": "^16.2.6",
     "tailwindcss": "^4",
     "tsx": "^4.20.6",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@esbuild-kit/core-utils": {
+      "esbuild": "^0.28.0"
+    },
+    "postcss": "^8.5.15"
   }
 }

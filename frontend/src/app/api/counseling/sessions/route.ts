@@ -1,34 +1,28 @@
 import { and, eq, isNull, ne } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { counselingRequests, counselingSessions, user } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { counselingScheduleSchema, parseJakartaSchedule } from "@/lib/server/form-schemas";
+import { invalidPayload, jsonError, jsonOk, unauthorized } from "@/lib/server/http";
 import { createEntityId } from "@/lib/server/id";
-
-const requestSchema = z.object({
-  format: z.enum(["Tatap muka", "Online"]),
-  requestId: z.string().min(1),
-  sessionDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  sessionTime: z.string().regex(/^\d{2}:\d{2}$/),
-});
+import { getApiRoleSession } from "@/lib/server/session";
 
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getApiRoleSession("counselor");
 
-  if (!session || session.user.role !== "counselor") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return unauthorized();
+  }
+
+  if (!session.user.schoolId) {
+    return jsonError("Scope sekolah akun konselor belum tersedia.", 403);
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = requestSchema.safeParse(body);
+  const parsed = counselingScheduleSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
+    return invalidPayload();
   }
 
   const db = getDb();
@@ -40,17 +34,11 @@ export async function POST(request: Request) {
   });
 
   if (!requestItem) {
-    return NextResponse.json(
-      { error: "Pengajuan tidak ditemukan atau sudah dijadwalkan." },
-      { status: 404 },
-    );
+    return jsonError("Pengajuan tidak ditemukan atau sudah dijadwalkan.", 404);
   }
 
   if (requestItem.status !== "Baru") {
-    return NextResponse.json(
-      { error: "Pengajuan ini tidak lagi berada pada tahap penjadwalan baru." },
-      { status: 409 },
-    );
+    return jsonError("Pengajuan ini tidak lagi berada pada tahap penjadwalan baru.", 409);
   }
 
   const studentAccount = await db.query.user.findFirst({
@@ -58,25 +46,17 @@ export async function POST(request: Request) {
   });
 
   if (!studentAccount || studentAccount.role !== "student") {
-    return NextResponse.json({ error: "Siswa pengaju tidak ditemukan." }, { status: 404 });
+    return jsonError("Siswa pengaju tidak ditemukan.", 404);
   }
 
-  if (session.user.schoolId && studentAccount.schoolId !== session.user.schoolId) {
-    return NextResponse.json(
-      { error: "Guru BK hanya dapat menjadwalkan siswa dalam sekolah yang sama." },
-      { status: 403 },
-    );
+  if (studentAccount.schoolId !== session.user.schoolId) {
+    return jsonError("Guru BK hanya dapat menjadwalkan siswa dalam sekolah yang sama.", 403);
   }
 
-  const scheduledAt = new Date(
-    `${parsed.data.sessionDate}T${parsed.data.sessionTime}:00+07:00`,
-  );
+  const scheduledAt = parseJakartaSchedule(parsed.data.sessionDate, parsed.data.sessionTime);
 
   if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() <= Date.now()) {
-    return NextResponse.json(
-      { error: "Waktu sesi harus lebih besar dari waktu Indonesia saat ini." },
-      { status: 400 },
-    );
+    return jsonError("Waktu sesi harus lebih besar dari waktu Indonesia saat ini.", 400);
   }
 
   const existingSession = await db.query.counselingSessions.findFirst({
@@ -87,10 +67,7 @@ export async function POST(request: Request) {
   });
 
   if (existingSession) {
-    return NextResponse.json(
-      { error: "Siswa ini masih memiliki sesi aktif yang belum selesai." },
-      { status: 409 },
-    );
+    return jsonError("Siswa ini masih memiliki sesi aktif yang belum selesai.", 409);
   }
 
   const id = createEntityId("CS");
@@ -122,5 +99,5 @@ export async function POST(request: Request) {
       .where(eq(counselingRequests.id, requestItem.id));
   });
 
-  return NextResponse.json({ id, ok: true });
+  return jsonOk({ id, ok: true });
 }

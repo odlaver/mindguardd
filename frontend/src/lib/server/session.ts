@@ -14,6 +14,18 @@ export async function getSessionOrNull() {
   });
 }
 
+export async function getApiRoleSession(allowed: AppRole | AppRole[]) {
+  const session = await getSessionOrNull();
+  const roles = Array.isArray(allowed) ? allowed : [allowed];
+  const role = session?.user.role as AppRole | undefined;
+
+  if (!session || !role || !roles.includes(role)) {
+    return null;
+  }
+
+  return session;
+}
+
 export async function requireSession() {
   const session = await getSessionOrNull();
 
@@ -34,4 +46,13 @@ export async function requireRole(allowed: AppRole | AppRole[]) {
   }
 
   return session;
+}
+
+export async function requireSchoolScopedRole(allowed: AppRole | AppRole[]) {
+  const session = await requireRole(allowed);
+
+  return {
+    schoolId: session.user.schoolId ?? "__missing_school_scope__",
+    session,
+  };
 }

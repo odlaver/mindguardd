@@ -1,18 +1,15 @@
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
-import { headers } from "next/headers";
 
-import { user } from "@/db/schema";
 import { getDb } from "@/db/client";
-import { auth } from "@/lib/auth";
+import { user } from "@/db/schema";
+import { jsonOk, unauthorized } from "@/lib/server/http";
+import { getSessionOrNull } from "@/lib/server/session";
 
 export async function POST() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getSessionOrNull();
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return unauthorized();
   }
 
   await getDb()
@@ -22,5 +19,5 @@ export async function POST() {
     })
     .where(eq(user.id, session.user.id));
 
-  return NextResponse.json({ ok: true });
+  return jsonOk({ ok: true });
 }

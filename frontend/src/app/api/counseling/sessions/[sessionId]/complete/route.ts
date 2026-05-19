@@ -1,15 +1,10 @@
 import { and, eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { getDb } from "@/db/client";
 import { counselingRequests, counselingSessions } from "@/db/schema";
-import { auth } from "@/lib/auth";
-
-const requestSchema = z.object({
-  note: z.string().min(4).max(1200),
-});
+import { counselingCompleteSchema } from "@/lib/server/form-schemas";
+import { invalidPayload, jsonError, jsonOk, unauthorized } from "@/lib/server/http";
+import { getApiRoleSession } from "@/lib/server/session";
 
 type RouteContext = {
   params: Promise<{
@@ -18,19 +13,17 @@ type RouteContext = {
 };
 
 export async function PATCH(request: Request, context: RouteContext) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getApiRoleSession("student");
 
-  if (!session || session.user.role !== "student") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return unauthorized();
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = requestSchema.safeParse(body);
+  const parsed = counselingCompleteSchema.safeParse(body);
 
   if (!parsed.success) {
-    return NextResponse.json({ error: "Payload tidak valid." }, { status: 400 });
+    return invalidPayload();
   }
 
   const { sessionId } = await context.params;
@@ -42,28 +35,22 @@ export async function PATCH(request: Request, context: RouteContext) {
   });
 
   if (!counselingSession) {
-    return NextResponse.json({ error: "Sesi tidak ditemukan." }, { status: 404 });
+    return jsonError("Sesi tidak ditemukan.", 404);
   }
 
   if (counselingSession.status === "Selesai") {
-    return NextResponse.json({ error: "Sesi sudah ditutup sebelumnya." }, { status: 400 });
+    return jsonError("Sesi sudah ditutup sebelumnya.", 400);
   }
 
   if (counselingSession.status === "Menunggu Konfirmasi") {
-    return NextResponse.json(
-      { error: "Konfirmasi jadwal dulu sebelum menutup sesi." },
-      { status: 400 },
-    );
+    return jsonError("Konfirmasi jadwal dulu sebelum menutup sesi.", 400);
   }
 
   if (
     counselingSession.status !== "Dikonfirmasi" ||
     counselingSession.invitationStatus !== "Dikonfirmasi"
   ) {
-    return NextResponse.json(
-      { error: "Sesi hanya bisa ditutup setelah statusnya terkonfirmasi." },
-      { status: 400 },
-    );
+    return jsonError("Sesi hanya bisa ditutup setelah statusnya terkonfirmasi.", 400);
   }
 
   await getDb().transaction(async (tx) => {
@@ -72,7 +59,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       .set({
         invitationStatus: "Selesai",
         status: "Selesai",
-        studentCompletionNote: parsed.data.note.trim(),
+        studentCompletionNote: parsed.data.note,
       })
       .where(eq(counselingSessions.id, counselingSession.id));
 
@@ -86,5 +73,5 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
   });
 
-  return NextResponse.json({ ok: true });
+  return jsonOk({ ok: true });
 }

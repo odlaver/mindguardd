@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getCounselingSessions } from "@/lib/server/data";
+import { requireSchoolScopedRole } from "@/lib/server/session";
 
 function getReviewTone(status: "Menunggu Konfirmasi" | "Dikonfirmasi" | "Selesai") {
   if (status === "Menunggu Konfirmasi") {
@@ -17,7 +18,8 @@ function getReviewTone(status: "Menunggu Konfirmasi" | "Dikonfirmasi" | "Selesai
 }
 
 export default async function CounselorCounselingAgendaPage() {
-  const counselingSessions = await getCounselingSessions();
+  const { schoolId } = await requireSchoolScopedRole("counselor");
+  const counselingSessions = await getCounselingSessions(schoolId);
   const activeSessions = counselingSessions.filter((session) => session.status !== "Selesai");
   const historySessions = counselingSessions.filter((session) => session.status === "Selesai");
 

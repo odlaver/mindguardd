@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { WhisperDetailView } from "@/components/counselor/whisper-detail-view";
 import { getCounselorStudents, getWhisperReportById } from "@/lib/server/data";
+import { requireSchoolScopedRole } from "@/lib/server/session";
 
 type WhisperDetailPageProps = {
   params: Promise<{
@@ -12,10 +13,11 @@ type WhisperDetailPageProps = {
 export default async function WhisperDetailPage({
   params,
 }: WhisperDetailPageProps) {
+  const { schoolId } = await requireSchoolScopedRole("counselor");
   const { reportId } = await params;
   const [report, counselorStudents] = await Promise.all([
-    getWhisperReportById(reportId),
-    getCounselorStudents(),
+    getWhisperReportById(reportId, schoolId),
+    getCounselorStudents(schoolId),
   ]);
 
   if (!report) {

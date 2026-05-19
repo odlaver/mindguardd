@@ -11,6 +11,7 @@ import {
   getStudentInterventions,
   getWhisperReports,
 } from "@/lib/server/data";
+import { requireSchoolScopedRole } from "@/lib/server/session";
 
 function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
   if (status === "Baru") {
@@ -33,10 +34,11 @@ type StudentDetailPageProps = {
 export default async function StudentDetailPage({
   params,
 }: StudentDetailPageProps) {
+  const { schoolId } = await requireSchoolScopedRole("counselor");
   const [counselorStudents, alerts, whisperReports] = await Promise.all([
-    getCounselorStudents(),
-    getAlerts(),
-    getWhisperReports(),
+    getCounselorStudents(schoolId),
+    getAlerts(schoolId),
+    getWhisperReports(schoolId),
   ]);
   const { studentId } = await params;
   const student = counselorStudents.find((item) => item.id === studentId);

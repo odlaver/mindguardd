@@ -3,9 +3,11 @@ import Link from "next/link";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getCounselorStudents } from "@/lib/server/data";
+import { requireSchoolScopedRole } from "@/lib/server/session";
 
 export default async function CounselorStudentsPage() {
-  const counselorStudents = await getCounselorStudents();
+  const { schoolId } = await requireSchoolScopedRole("counselor");
+  const counselorStudents = await getCounselorStudents(schoolId);
 
   return (
     <>

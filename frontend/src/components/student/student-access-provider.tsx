@@ -3,6 +3,8 @@
 import { startTransition, createContext, useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { sendJson } from "@/lib/client/api";
+
 type CheckInSubmission = {
   note: string;
   score: number;
@@ -48,32 +50,25 @@ export function StudentAccessProvider({
     score: number;
   }) {
     setIsSaving(true);
-    const response = await fetch("/api/check-ins", {
+    const result = await sendJson<{
+      submission?: CheckInSubmission;
+    }>("/api/check-ins", {
       body: JSON.stringify({
-        note,
+        note: note.trim(),
         score,
       }),
-      headers: {
-        "Content-Type": "application/json",
-      },
       method: "POST",
-    });
-    const payload = (await response.json().catch(() => null)) as
-      | {
-          error?: string;
-          submission?: CheckInSubmission;
-        }
-      | null;
+    }, "Check-in belum bisa disimpan.");
 
-    if (!response.ok || !payload?.submission) {
+    if (!result.ok || !result.data.submission) {
       setIsSaving(false);
       return {
-        error: payload?.error ?? "Check-in belum bisa disimpan.",
+        error: result.ok ? "Check-in belum bisa disimpan." : result.error,
         ok: false as const,
       };
     }
 
-    setSubmission(payload.submission);
+    setSubmission(result.data.submission);
     setHasCheckedInToday(true);
     setIsSaving(false);
     startTransition(() => {

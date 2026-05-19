@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getCounselingSessionById } from "@/lib/server/data";
-import { requireRole } from "@/lib/server/session";
+import { requireSchoolScopedRole } from "@/lib/server/session";
 
 type CounselingDetailPageProps = {
   params: Promise<{
@@ -31,10 +31,10 @@ export default async function CounselorCounselingDetailPage({
   params,
   searchParams,
 }: CounselingDetailPageProps) {
-  await requireRole("counselor");
+  const { schoolId } = await requireSchoolScopedRole("counselor");
   const { sessionId } = await params;
   const { created } = await searchParams;
-  const session = await getCounselingSessionById(sessionId);
+  const session = await getCounselingSessionById(sessionId, { schoolId });
 
   if (!session) {
     notFound();

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import type { MoodPoint } from "@/lib/mock-data";
+import type { MoodPoint } from "@/lib/types";
 
 type MoodTrackProps = {
   history: MoodPoint[];

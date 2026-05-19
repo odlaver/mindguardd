@@ -5,6 +5,7 @@ import { AlertDetailPanels } from "@/components/counselor/alert-detail-panels";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getAlertById, getCounselorStudents } from "@/lib/server/data";
+import { requireSchoolScopedRole } from "@/lib/server/session";
 
 type AlertDetailPageProps = {
   params: Promise<{
@@ -25,10 +26,11 @@ function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
 }
 
 export default async function AlertDetailPage({ params }: AlertDetailPageProps) {
+  const { schoolId } = await requireSchoolScopedRole("counselor");
   const { alertId } = await params;
   const [alert, counselorStudents] = await Promise.all([
-    getAlertById(alertId),
-    getCounselorStudents(),
+    getAlertById(alertId, schoolId),
+    getCounselorStudents(schoolId),
   ]);
 
   if (!alert) {

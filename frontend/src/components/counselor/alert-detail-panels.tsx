@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 
-import type { MoodPoint } from "@/lib/mock-data";
+import type { MoodPoint } from "@/lib/types";
 
 import { MoodTrack, MoodTrackActiveCard } from "@/components/counselor/mood-track";
 import { SectionCard } from "@/components/ui/section-card";

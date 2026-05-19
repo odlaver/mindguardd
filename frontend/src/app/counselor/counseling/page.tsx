@@ -3,11 +3,13 @@ import Link from "next/link";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getCounselingRequests, getCounselingSessions } from "@/lib/server/data";
+import { requireSchoolScopedRole } from "@/lib/server/session";
 
 export default async function CounselorCounselingPage() {
+  const { schoolId } = await requireSchoolScopedRole("counselor");
   const [counselingRequests, counselingSessions] = await Promise.all([
-    getCounselingRequests(),
-    getCounselingSessions(),
+    getCounselingRequests(schoolId),
+    getCounselingSessions(schoolId),
   ]);
   const activeSessions = counselingSessions.filter((session) => session.status !== "Selesai");
   const incomingRequests = counselingRequests.filter((request) => request.status === "Baru");

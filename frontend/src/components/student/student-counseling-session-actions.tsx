@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import type { CounselingSessionStatus } from "@/lib/mock-data";
+import { CharacterCount } from "@/components/ui/character-count";
+import { sendJson } from "@/lib/client/api";
+import type { CounselingSessionStatus } from "@/lib/types";
 
 type StudentCounselingSessionActionsProps = {
   sessionId: string;
@@ -28,17 +30,19 @@ export function StudentCounselingSessionActions({
     setError(null);
     setIsSubmitting(true);
 
-    const response = await fetch(path, {
-      body: JSON.stringify(payload),
-      headers: {
-        "Content-Type": "application/json",
+    const result = await sendJson<{ ok?: boolean }>(
+      path,
+      {
+        body: JSON.stringify({
+          note: payload.note.trim(),
+        }),
+        method: "PATCH",
       },
-      method: "PATCH",
-    });
-    const data = (await response.json().catch(() => null)) as { error?: string } | null;
+      "Perubahan belum bisa disimpan.",
+    );
 
-    if (!response.ok) {
-      setError(data?.error ?? "Perubahan belum bisa disimpan.");
+    if (!result.ok) {
+      setError(result.error);
       setIsSubmitting(false);
       return;
     }
@@ -52,9 +56,13 @@ export function StudentCounselingSessionActions({
       {status === "Menunggu Konfirmasi" ? (
         <>
           <label className="grid gap-2">
-            <span className="soft-label">Catatan konfirmasi</span>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="soft-label">Catatan konfirmasi</span>
+              <CharacterCount max={800} optional value={confirmationNote} />
+            </div>
             <textarea
               rows={5}
+              maxLength={800}
               value={confirmationNote}
               onChange={(event) => setConfirmationNote(event.target.value)}
               className="field-control resize-none"
@@ -84,9 +92,13 @@ export function StudentCounselingSessionActions({
               : "Belum ada catatan konfirmasi."}
           </div>
           <label className="grid gap-2">
-            <span className="soft-label">Catatan setelah konseling</span>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="soft-label">Catatan setelah konseling</span>
+              <CharacterCount max={1200} min={4} value={completionNote} />
+            </div>
             <textarea
               rows={6}
+              maxLength={1200}
               value={completionNote}
               onChange={(event) => setCompletionNote(event.target.value)}
               className="field-control resize-none"
@@ -97,9 +109,11 @@ export function StudentCounselingSessionActions({
             type="button"
             disabled={isSubmitting}
             onClick={() =>
-              submit(`/api/counseling/sessions/${sessionId}/complete`, {
-                note: completionNote.trim(),
-              })
+              completionNote.trim().length < 4
+                ? setError("Catatan setelah konseling minimal 4 karakter.")
+                : submit(`/api/counseling/sessions/${sessionId}/complete`, {
+                    note: completionNote.trim(),
+                  })
             }
             className="button-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
           >

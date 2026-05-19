@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import type { CounselingRequest } from "@/lib/mock-data";
+import { sendJson } from "@/lib/client/api";
+import type { CounselingRequest } from "@/lib/types";
 import {
   formatJakartaDate,
   getJakartaInputDateValue,
@@ -197,37 +198,35 @@ export function CounselingScheduleBuilder({
                   setError(null);
                   setIsSubmitting(true);
 
-                  const response = await fetch("/api/counseling/sessions", {
-                    body: JSON.stringify({
-                      format: sessionFormat,
-                      requestId: selectedRequestId,
-                      sessionDate,
-                      sessionTime,
-                    }),
-                    headers: {
-                      "Content-Type": "application/json",
+                  const result = await sendJson<{ error?: string; id?: string }>(
+                    "/api/counseling/sessions",
+                    {
+                      body: JSON.stringify({
+                        format: sessionFormat,
+                        requestId: selectedRequestId,
+                        sessionDate,
+                        sessionTime,
+                      }),
+                      method: "POST",
                     },
-                    method: "POST",
-                  });
-                  const payload = (await response.json().catch(() => null)) as
-                    | { error?: string; id?: string }
-                    | null;
+                    "Jadwal belum bisa disimpan.",
+                  );
 
-                  if (!response.ok) {
-                    setError(payload?.error ?? "Jadwal belum bisa disimpan.");
+                  if (!result.ok) {
+                    setError(result.error);
                     setIsSubmitting(false);
                     return;
                   }
 
-                  if (!payload?.id) {
+                  if (!result.data.id) {
                     setError("Jadwal tersimpan, tetapi detail sesi belum bisa dibuka.");
                     setIsSubmitting(false);
                     return;
                   }
 
-                  setCreatedSessionId(payload.id);
+                  setCreatedSessionId(result.data.id);
                   setIsSubmitting(false);
-                  router.push(`/counselor/counseling/${payload.id}?created=1`);
+                  router.push(`/counselor/counseling/${result.data.id}?created=1`);
                   router.refresh();
                 }}
               >

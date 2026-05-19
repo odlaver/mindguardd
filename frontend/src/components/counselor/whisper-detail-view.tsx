@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import type { CounselorStudent, WhisperReport } from "@/lib/mock-data";
+import { sendJson } from "@/lib/client/api";
+import type { CounselorStudent, WhisperReport } from "@/lib/types";
 
 type WhisperDetailViewProps = {
   report: WhisperReport;
@@ -37,27 +38,27 @@ export function WhisperDetailView({
     setFeedback(null);
     setIsSaving(true);
 
-    const response = await fetch(`/api/whispers/${report.id}`, {
-      body: JSON.stringify({
-        status: nextStatus,
-      }),
-      headers: {
-        "Content-Type": "application/json",
+    const result = await sendJson<{
+      report?: { status?: "Baru" | "Sedang Ditinjau" | "Selesai" | null };
+    }>(
+      `/api/whispers/${report.id}`,
+      {
+        body: JSON.stringify({
+          status: nextStatus,
+        }),
+        method: "PATCH",
       },
-      method: "PATCH",
-    });
-    const payload = (await response.json().catch(() => null)) as
-      | { error?: string; report?: { status?: "Baru" | "Sedang Ditinjau" | "Selesai" | null } }
-      | null;
+      "Status pengajuan belum bisa diperbarui.",
+    );
 
-    if (!response.ok || !payload?.report?.status) {
-      setError(payload?.error ?? "Status pengajuan belum bisa diperbarui.");
+    if (!result.ok || !result.data.report?.status) {
+      setError(result.ok ? "Status pengajuan belum bisa diperbarui." : result.error);
       setIsSaving(false);
       return;
     }
 
-    setStatus(payload.report.status);
-    setFeedback(`Status pengajuan diperbarui menjadi ${payload.report.status}.`);
+    setStatus(result.data.report.status);
+    setFeedback(`Status pengajuan diperbarui menjadi ${result.data.report.status}.`);
     setIsSaving(false);
     router.refresh();
   }

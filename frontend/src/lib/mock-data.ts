@@ -1,106 +1,17 @@
-export type MoodPoint = {
-  date: string;
-  score: number;
-  note?: string;
-};
-
-export type ReviewStatus = "Baru" | "Sedang Ditinjau" | "Selesai";
-export type CounselingRequestStatus = "Baru" | "Dijadwalkan" | "Selesai";
-export type CounselingSessionStatus =
-  | "Menunggu Konfirmasi"
-  | "Dikonfirmasi"
-  | "Selesai";
-
-export type AlertStatus = ReviewStatus;
-
-export type AlertItem = {
-  id: string;
-  studentId: string;
-  student: string;
-  className: string;
-  reason: string;
-  severity: "Tinggi" | "Sedang";
-  status: AlertStatus;
-  lastUpdated: string;
-  summary: string;
-  recommendation: string;
-};
-
-export type WhisperReport = {
-  id: string;
-  studentId?: string;
-  ownerLabel: string;
-  title: string;
-  category: string;
-  urgency: "Tinggi" | "Normal";
-  status?: ReviewStatus;
-  submittedAt: string;
-  excerpt: string;
-  detail: string;
-  nextStep: string;
-  assignedTo: string;
-};
-
-export type ResourceItem = {
-  id: string;
-  category: string;
-  title: string;
-  readTime: string;
-  summary: string;
-  points: string[];
-};
-
-export type CounselingSession = {
-  id: string;
-  requestId?: string;
-  studentId: string;
-  studentName: string;
-  title: string;
-  counselor: string;
-  when: string;
-  format: "Tatap muka" | "Online";
-  location: string;
-  status: CounselingSessionStatus;
-  invitationStatus: CounselingSessionStatus;
-  focus: string;
-  note: string;
-  outcome?: string;
-  followUp?: string;
-  studentConfirmationNote?: string;
-  studentCompletionNote?: string;
-};
-
-export type CounselingRequest = {
-  id: string;
-  studentId: string;
-  studentName: string;
-  className: string;
-  topic: string;
-  preferredSlot: string;
-  summary: string;
-  status: CounselingRequestStatus;
-  submittedAt: string;
-  scheduledSessionId?: string;
-};
-
-export type CounselorStudent = {
-  id: string;
-  name: string;
-  className: string;
-  trend: string;
-  latestMood: number;
-  risk: "Tinggi" | "Sedang" | "Aman";
-  focus: string;
-  moodHistory: MoodPoint[];
-};
-
-export type StudentIntervention = {
-  studentId: string;
-  title: string;
-  owner: string;
-  status: ReviewStatus;
-  when: string;
-};
+import type {
+  AdminClass,
+  AdminSchool,
+  AdminSystemConfig,
+  AdminUser,
+  AlertItem,
+  CounselingRequest,
+  CounselingSession,
+  CounselorStudent,
+  MoodPoint,
+  ResourceItem,
+  StudentIntervention,
+  WhisperReport,
+} from "./types";
 
 export const studentProfile = {
   name: "Raka Pratama",
@@ -769,53 +680,6 @@ export const classHealth = [
   { className: "XI IPA 1", completion: "91%", riskBand: "Stabil" },
   { className: "XII IPA 3", completion: "74%", riskBand: "Perlu perhatian" },
 ];
-
-export type AdminUserRole = "Admin" | "Guru BK" | "Siswa" | "Wali Kelas";
-export type AdminAccountStatus = "Aktif" | "Menunggu" | "Nonaktif";
-
-export type AdminUser = {
-  id: string;
-  name: string;
-  role: AdminUserRole;
-  schoolId: string;
-  schoolName: string;
-  className?: string;
-  email: string;
-  status: AdminAccountStatus;
-  lastAccess: string;
-};
-
-export type AdminSchool = {
-  id: string;
-  name: string;
-  principal: string;
-  counselorCount: number;
-  studentCount: number;
-  classCount: number;
-  completion: string;
-};
-
-export type AdminClass = {
-  id: string;
-  schoolId: string;
-  schoolName: string;
-  className: string;
-  homeroom: string;
-  studentCount: number;
-  counselor: string;
-  completion: string;
-  riskBand: "Stabil" | "Monitor" | "Perlu perhatian";
-};
-
-export type AdminSystemConfig = {
-  id: string;
-  name: string;
-  group: string;
-  value: string;
-  status: "Aktif" | "Tertunda";
-  summary: string;
-  impact: string;
-};
 
 export const adminUsers: AdminUser[] = [
   {

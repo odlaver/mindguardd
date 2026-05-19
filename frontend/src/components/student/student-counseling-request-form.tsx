@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { CharacterCount } from "@/components/ui/character-count";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { sendJson } from "@/lib/client/api";
 
 const requestTopics = [
   "Tekanan akademik",
@@ -89,12 +91,16 @@ export function StudentCounselingRequestForm() {
             </div>
 
             <div>
-              <label className="soft-label" htmlFor="counseling-summary">
-                Cerita singkat
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="soft-label" htmlFor="counseling-summary">
+                  Cerita singkat
+                </label>
+                <CharacterCount max={1200} min={10} value={summary} />
+              </div>
               <textarea
                 id="counseling-summary"
                 rows={6}
+                maxLength={1200}
                 value={summary}
                 onChange={(event) => setSummary(event.target.value)}
                 className="field-control mt-3 resize-none"
@@ -114,23 +120,27 @@ export function StudentCounselingRequestForm() {
                   setError(null);
                   setIsSubmitting(true);
 
-                  const response = await fetch("/api/counseling/requests", {
-                    body: JSON.stringify({
-                      preferredSlot: slot,
-                      summary,
-                      topic,
-                    }),
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    method: "POST",
-                  });
-                  const payload = (await response.json().catch(() => null)) as
-                    | { error?: string }
-                    | null;
+                  if (summary.trim().length < 10) {
+                    setError("Cerita singkat minimal 10 karakter.");
+                    setIsSubmitting(false);
+                    return;
+                  }
 
-                  if (!response.ok) {
-                    setError(payload?.error ?? "Pengajuan belum bisa dikirim.");
+                  const result = await sendJson<{ id?: string; ok?: boolean }>(
+                    "/api/counseling/requests",
+                    {
+                      body: JSON.stringify({
+                        preferredSlot: slot,
+                        summary: summary.trim(),
+                        topic,
+                      }),
+                      method: "POST",
+                    },
+                    "Pengajuan belum bisa dikirim.",
+                  );
+
+                  if (!result.ok) {
+                    setError(result.error);
                     setIsSubmitting(false);
                     return;
                   }

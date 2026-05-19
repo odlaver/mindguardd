@@ -1,6 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import type { AnySQLiteColumn } from "drizzle-orm/sqlite-core";
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 import { account, session, user, verification } from "./auth-schema";
 
@@ -161,7 +161,10 @@ export const counselingSessions = sqliteTable(
     studentConfirmationNote: text("student_confirmation_note"),
     studentCompletionNote: text("student_completion_note"),
   },
-  (table) => [index("counseling_session_student_user_id_idx").on(table.studentUserId)],
+  (table) => [
+    index("counseling_session_student_user_id_idx").on(table.studentUserId),
+    uniqueIndex("counseling_session_request_id_unique_idx").on(table.requestId),
+  ],
 );
 
 export const counselingRequests = sqliteTable(
@@ -185,7 +188,10 @@ export const counselingRequests = sqliteTable(
       },
     ),
   },
-  (table) => [index("counseling_request_student_user_id_idx").on(table.studentUserId)],
+  (table) => [
+    index("counseling_request_student_user_id_idx").on(table.studentUserId),
+    uniqueIndex("counseling_request_scheduled_session_id_unique_idx").on(table.scheduledSessionId),
+  ],
 );
 
 export const systemConfigs = sqliteTable("system_config", {

@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX `counseling_request_scheduled_session_id_unique_idx` ON `counseling_request` (`scheduled_session_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `counseling_session_request_id_unique_idx` ON `counseling_session` (`request_id`);

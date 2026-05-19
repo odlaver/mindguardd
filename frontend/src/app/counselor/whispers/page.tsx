@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { getWhisperReports } from "@/lib/server/data";
+import { requireSchoolScopedRole } from "@/lib/server/session";
 
 function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
   if (status === "Baru") {
@@ -17,7 +18,8 @@ function getReviewTone(status: "Baru" | "Sedang Ditinjau" | "Selesai") {
 }
 
 export default async function CounselorWhispersPage() {
-  const whisperReports = await getWhisperReports();
+  const { schoolId } = await requireSchoolScopedRole("counselor");
+  const whisperReports = await getWhisperReports(schoolId);
 
   return (
     <>

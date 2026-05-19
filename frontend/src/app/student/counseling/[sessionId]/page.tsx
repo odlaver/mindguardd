@@ -30,9 +30,11 @@ export default async function CounselingDetailPage({
 }: CounselingDetailPageProps) {
   const viewer = await requireRole("student");
   const { sessionId } = await params;
-  const session = await getCounselingSessionById(sessionId);
+  const session = await getCounselingSessionById(sessionId, {
+    studentUserId: viewer.user.id,
+  });
 
-  if (!session || session.studentId !== viewer.user.id) {
+  if (!session) {
     notFound();
   }
 

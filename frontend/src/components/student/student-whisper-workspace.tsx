@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { CharacterCount } from "@/components/ui/character-count";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import type { WhisperReport } from "@/lib/mock-data";
+import { sendJson } from "@/lib/client/api";
+import type { WhisperReport } from "@/lib/types";
 
 const categories = [
   "Bullying",
@@ -42,6 +44,55 @@ export function StudentWhisperWorkspace({
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
+
+    const formData = new FormData(event.currentTarget);
+    const nextTitle = String(formData.get("title") ?? "").trim();
+    const nextDetail = String(formData.get("detail") ?? "").trim();
+
+    if (nextTitle.length > 0 && nextTitle.length < 3) {
+      setError("Judul minimal 3 karakter jika diisi.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (nextDetail.length < 20) {
+      setError("Isi laporan minimal 20 karakter.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const result = await sendJson<{ id?: string; ok?: boolean }>(
+      "/api/whispers",
+      {
+        body: JSON.stringify({
+          category,
+          detail: nextDetail,
+          title: nextTitle || undefined,
+          urgency,
+        }),
+        method: "POST",
+      },
+      "Laporan belum bisa dikirim.",
+    );
+
+    if (!result.ok) {
+      setError(result.error);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setCategory("Bullying");
+    setUrgency("Normal");
+    setDetail("");
+    setTitle("");
+    setIsSubmitting(false);
+    router.refresh();
+  }
+
   return (
     <>
       <section className="page-hero stagger-in grid gap-5 p-6 lg:grid-cols-[1fr_auto] lg:items-end lg:p-8">
@@ -56,7 +107,7 @@ export function StudentWhisperWorkspace({
 
       <section className="grid gap-5 xl:grid-cols-[1.02fr_0.98fr]">
         <SectionCard title="Laporan baru">
-          <div className="grid gap-4">
+          <form className="grid gap-4" onSubmit={handleSubmit}>
             <div>
               <span className="text-sm font-semibold">Kategori</span>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -80,8 +131,13 @@ export function StudentWhisperWorkspace({
             </div>
 
             <label className="space-y-2">
-              <span className="text-sm font-semibold">Judul singkat</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-sm font-semibold">Judul singkat</span>
+                <CharacterCount max={120} min={3} optional value={title} />
+              </div>
               <input
+                name="title"
+                maxLength={120}
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 className="field-control bg-white px-4"
@@ -120,9 +176,14 @@ export function StudentWhisperWorkspace({
             </label>
 
             <label className="space-y-2">
-              <span className="text-sm font-semibold">Isi laporan</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-sm font-semibold">Isi laporan</span>
+                <CharacterCount max={2000} min={20} value={detail} />
+              </div>
               <textarea
+                name="detail"
                 rows={8}
+                maxLength={2000}
                 value={detail}
                 onChange={(event) => setDetail(event.target.value)}
                 className="field-control bg-white px-4"
@@ -135,47 +196,14 @@ export function StudentWhisperWorkspace({
                 {error ? <p className="font-medium text-danger">{error}</p> : null}
               </div>
               <button
-                type="button"
+                type="submit"
                 disabled={isSubmitting}
-                onClick={async () => {
-                  setError(null);
-                  setIsSubmitting(true);
-
-                  const response = await fetch("/api/whispers", {
-                    body: JSON.stringify({
-                      category,
-                      detail,
-                      title: title.trim() || undefined,
-                      urgency,
-                    }),
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    method: "POST",
-                  });
-                  const payload = (await response.json().catch(() => null)) as
-                    | { error?: string }
-                    | null;
-
-                  if (!response.ok) {
-                    setError(payload?.error ?? "Laporan belum bisa dikirim.");
-                    setIsSubmitting(false);
-                    return;
-                  }
-
-                  setCategory("Bullying");
-                  setUrgency("Normal");
-                  setDetail("");
-                  setTitle("");
-                  setIsSubmitting(false);
-                  router.refresh();
-                }}
                 className="button-primary min-w-[180px] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting ? "Mengirim..." : "Kirim"}
               </button>
             </div>
-          </div>
+          </form>
         </SectionCard>
 
         <SectionCard title="Riwayat laporan saya">

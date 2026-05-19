@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import type { AdminSystemConfig } from "@/lib/mock-data";
+import type { AdminSystemConfig } from "@/lib/types";
 
+import { CharacterCount } from "@/components/ui/character-count";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { sendJson } from "@/lib/client/api";
 
 type SystemConfigEditorProps = {
   config: AdminSystemConfig;
@@ -61,11 +63,15 @@ export function SystemConfigEditor({ config }: SystemConfigEditorProps) {
 
           <div className="grid gap-4">
             <div className="rounded-[24px] border border-stroke bg-white p-5">
-              <label className="soft-label" htmlFor="config-value">
-                Nilai
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="soft-label" htmlFor="config-value">
+                  Nilai
+                </label>
+                <CharacterCount max={200} min={1} value={value} />
+              </div>
               <input
                 id="config-value"
+                maxLength={200}
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
                 className="field-control mt-3"
@@ -73,12 +79,16 @@ export function SystemConfigEditor({ config }: SystemConfigEditorProps) {
             </div>
 
             <div className="rounded-[24px] border border-stroke bg-white p-5">
-              <label className="soft-label" htmlFor="config-summary">
-                Aturan
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="soft-label" htmlFor="config-summary">
+                  Aturan
+                </label>
+                <CharacterCount max={800} min={3} value={summary} />
+              </div>
               <textarea
                 id="config-summary"
                 rows={4}
+                maxLength={800}
                 value={summary}
                 onChange={(event) => setSummary(event.target.value)}
                 className="field-control mt-3 resize-none"
@@ -86,12 +96,16 @@ export function SystemConfigEditor({ config }: SystemConfigEditorProps) {
             </div>
 
             <div className="rounded-[24px] border border-stroke bg-white p-5">
-              <label className="soft-label" htmlFor="config-impact">
-                Dampak
-              </label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="soft-label" htmlFor="config-impact">
+                  Dampak
+                </label>
+                <CharacterCount max={800} min={3} value={impact} />
+              </div>
               <textarea
                 id="config-impact"
                 rows={4}
+                maxLength={800}
                 value={impact}
                 onChange={(event) => setImpact(event.target.value)}
                 className="field-control mt-3 resize-none"
@@ -110,24 +124,40 @@ export function SystemConfigEditor({ config }: SystemConfigEditorProps) {
                 setSaving(true);
                 setError(null);
 
-                const response = await fetch(`/api/admin/system-configs/${config.id}`, {
-                  body: JSON.stringify({
-                    impact,
-                    status,
-                    summary,
-                    value,
-                  }),
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  method: "PATCH",
-                });
-                const payload = (await response.json().catch(() => null)) as
-                  | { error?: string }
-                  | null;
+                if (value.trim().length < 1) {
+                  setError("Nilai wajib diisi.");
+                  setSaving(false);
+                  return;
+                }
 
-                if (!response.ok) {
-                  setError(payload?.error ?? "Perubahan belum bisa disimpan.");
+                if (summary.trim().length < 3) {
+                  setError("Aturan minimal 3 karakter.");
+                  setSaving(false);
+                  return;
+                }
+
+                if (impact.trim().length < 3) {
+                  setError("Dampak minimal 3 karakter.");
+                  setSaving(false);
+                  return;
+                }
+
+                const result = await sendJson<{ ok?: boolean }>(
+                  `/api/admin/system-configs/${config.id}`,
+                  {
+                    body: JSON.stringify({
+                      impact: impact.trim(),
+                      status,
+                      summary: summary.trim(),
+                      value: value.trim(),
+                    }),
+                    method: "PATCH",
+                  },
+                  "Perubahan belum bisa disimpan.",
+                );
+
+                if (!result.ok) {
+                  setError(result.error);
                   setSaving(false);
                   return;
                 }

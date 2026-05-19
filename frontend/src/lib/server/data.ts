@@ -33,7 +33,7 @@ import type {
   ResourceItem,
   StudentIntervention,
   WhisperReport,
-} from "@/lib/mock-data";
+} from "@/lib/types";
 
 import {
   formatDateTime,
@@ -229,8 +229,11 @@ const getSchoolMap = cache(async () => {
   return new Map(rows.map((item) => [item.id, item]));
 });
 
-const getStudentUsers = cache(async () =>
-  db.select().from(user).where(eq(user.role, "student")),
+const getStudentUsers = cache(async (schoolId?: string) =>
+  db
+    .select()
+    .from(user)
+    .where(schoolId ? and(eq(user.role, "student"), eq(user.schoolId, schoolId)) : eq(user.role, "student")),
 );
 
 const getAllUsers = cache(async () =>
@@ -380,10 +383,22 @@ async function getMoodHistoryForUsers(userIds: string[]) {
   return grouped;
 }
 
-async function getAlertItems() {
-  const [alertRows, studentRows, classMap] = await Promise.all([
-    db.select().from(alerts).orderBy(desc(alerts.lastUpdatedAt)),
-    getStudentUsers(),
+async function getAlertItems(schoolId?: string) {
+  const studentRows = await getStudentUsers(schoolId);
+  const studentIds = studentRows.map((item) => item.id);
+
+  if (schoolId && studentIds.length === 0) {
+    return [];
+  }
+
+  const [alertRows, classMap] = await Promise.all([
+    schoolId
+      ? db
+          .select()
+          .from(alerts)
+          .where(inArray(alerts.studentUserId, studentIds))
+          .orderBy(desc(alerts.lastUpdatedAt))
+      : db.select().from(alerts).orderBy(desc(alerts.lastUpdatedAt)),
     getClassMap(),
   ]);
   const studentMap = new Map(studentRows.map((item) => [item.id, item]));
@@ -391,16 +406,40 @@ async function getAlertItems() {
   return alertRows.map((item) => mapAlertRow(item, studentMap, classMap));
 }
 
-async function getWhisperItems() {
-  const rows = await db.select().from(whisperReports).orderBy(desc(whisperReports.submittedAt));
+async function getWhisperItems(schoolId?: string) {
+  const studentRows = schoolId ? await getStudentUsers(schoolId) : [];
+  const studentIds = studentRows.map((item) => item.id);
+
+  if (schoolId && studentIds.length === 0) {
+    return [];
+  }
+
+  const rows = schoolId
+    ? await db
+        .select()
+        .from(whisperReports)
+        .where(inArray(whisperReports.studentUserId, studentIds))
+        .orderBy(desc(whisperReports.submittedAt))
+    : await db.select().from(whisperReports).orderBy(desc(whisperReports.submittedAt));
+
   return rows.map(mapWhisperRow);
 }
 
-async function getCounselingSessionItems() {
-  const [sessionRows, users] = await Promise.all([
-    db.select().from(counselingSessions).orderBy(desc(counselingSessions.scheduledAt)),
-    getStudentUsers(),
-  ]);
+async function getCounselingSessionItems(schoolId?: string) {
+  const users = await getStudentUsers(schoolId);
+  const studentIds = users.map((item) => item.id);
+
+  if (schoolId && studentIds.length === 0) {
+    return [];
+  }
+
+  const sessionRows = schoolId
+    ? await db
+        .select()
+        .from(counselingSessions)
+        .where(inArray(counselingSessions.studentUserId, studentIds))
+        .orderBy(desc(counselingSessions.scheduledAt))
+    : await db.select().from(counselingSessions).orderBy(desc(counselingSessions.scheduledAt));
   const userMap = new Map(users.map((item) => [item.id, item]));
 
   return sessionRows.map((item) =>
@@ -408,10 +447,22 @@ async function getCounselingSessionItems() {
   );
 }
 
-async function getCounselingRequestItems() {
-  const [requestRows, users, classMap] = await Promise.all([
-    db.select().from(counselingRequests).orderBy(desc(counselingRequests.submittedAt)),
-    getStudentUsers(),
+async function getCounselingRequestItems(schoolId?: string) {
+  const users = await getStudentUsers(schoolId);
+  const studentIds = users.map((item) => item.id);
+
+  if (schoolId && studentIds.length === 0) {
+    return [];
+  }
+
+  const [requestRows, classMap] = await Promise.all([
+    schoolId
+      ? db
+          .select()
+          .from(counselingRequests)
+          .where(inArray(counselingRequests.studentUserId, studentIds))
+          .orderBy(desc(counselingRequests.submittedAt))
+      : db.select().from(counselingRequests).orderBy(desc(counselingRequests.submittedAt)),
     getClassMap(),
   ]);
   const userMap = new Map(users.map((item) => [item.id, item]));
@@ -598,13 +649,13 @@ export async function getStudentCounselingSessions(userId: string) {
   return rows.map((item) => mapCounselingSessionRow(item, studentAccount?.name ?? "Siswa"));
 }
 
-export async function getCounselorStudents() {
-  const students = await getStudentUsers();
+export async function getCounselorStudents(schoolId?: string) {
+  const students = await getStudentUsers(schoolId);
   const [classMap, alertItems, historyMap, reportItems] = await Promise.all([
     getClassMap(),
-    getAlertItems(),
+    getAlertItems(schoolId),
     getMoodHistoryForUsers(students.map((item) => item.id)),
-    getWhisperItems(),
+    getWhisperItems(schoolId),
   ]);
   const activeAlerts = new Map(
     alertItems
@@ -633,12 +684,25 @@ export async function getCounselorStudents() {
   });
 }
 
-export async function getCounselorOverview() {
+export async function getCounselorOverview(schoolId?: string) {
   const { end, start } = getJakartaDayRange();
-  const [studentList, alertRows, reportRows] = await Promise.all([
-    getCounselorStudents(),
-    db.select().from(alerts),
-    db.select().from(whisperReports),
+  const studentList = await getCounselorStudents(schoolId);
+  const studentIds = studentList.map((item) => item.id);
+
+  if (schoolId && studentIds.length === 0) {
+    return {
+      activeAlerts: 0,
+      anonymousReports: 0,
+      monitoredStudents: 0,
+      reviewedToday: 0,
+    };
+  }
+
+  const [alertRows, reportRows] = await Promise.all([
+    schoolId ? db.select().from(alerts).where(inArray(alerts.studentUserId, studentIds)) : db.select().from(alerts),
+    schoolId
+      ? db.select().from(whisperReports).where(inArray(whisperReports.studentUserId, studentIds))
+      : db.select().from(whisperReports),
   ]);
 
   return {
@@ -654,16 +718,16 @@ export async function getCounselorOverview() {
   };
 }
 
-export async function getAlerts() {
-  return getAlertItems();
+export async function getAlerts(schoolId?: string) {
+  return getAlertItems(schoolId);
 }
 
-export async function getAlertById(alertId: string) {
+export async function getAlertById(alertId: string, schoolId?: string) {
   const [alertRow, studentRows, classMap] = await Promise.all([
     db.query.alerts.findFirst({
       where: eq(alerts.id, alertId),
     }),
-    getStudentUsers(),
+    getStudentUsers(schoolId),
     getClassMap(),
   ]);
 
@@ -672,19 +736,42 @@ export async function getAlertById(alertId: string) {
   }
 
   const studentMap = new Map(studentRows.map((item) => [item.id, item]));
+
+  if (schoolId && !studentMap.has(alertRow.studentUserId)) {
+    return null;
+  }
+
   return mapAlertRow(alertRow, studentMap, classMap);
 }
 
-export async function getWhisperReports() {
-  return getWhisperItems();
+export async function getWhisperReports(schoolId?: string) {
+  return getWhisperItems(schoolId);
 }
 
-export async function getWhisperReportById(reportId: string) {
+export async function getWhisperReportById(reportId: string, schoolId?: string) {
   const row = await db.query.whisperReports.findFirst({
     where: eq(whisperReports.id, reportId),
   });
 
-  return row ? mapWhisperRow(row) : null;
+  if (!row) {
+    return null;
+  }
+
+  if (schoolId) {
+    if (!row.studentUserId) {
+      return null;
+    }
+
+    const studentAccount = await db.query.user.findFirst({
+      where: eq(user.id, row.studentUserId),
+    });
+
+    if (studentAccount?.schoolId !== schoolId) {
+      return null;
+    }
+  }
+
+  return mapWhisperRow(row);
 }
 
 export async function getStudentInterventions(studentUserId: string) {
@@ -702,11 +789,17 @@ export async function getStudentInterventions(studentUserId: string) {
   })) satisfies StudentIntervention[];
 }
 
-export async function getCounselingSessions() {
-  return getCounselingSessionItems();
+export async function getCounselingSessions(schoolId?: string) {
+  return getCounselingSessionItems(schoolId);
 }
 
-export async function getCounselingSessionById(sessionId: string) {
+export async function getCounselingSessionById(
+  sessionId: string,
+  scope: {
+    schoolId?: string;
+    studentUserId?: string;
+  } = {},
+) {
   const row = await db.query.counselingSessions.findFirst({
     where: eq(counselingSessions.id, sessionId),
   });
@@ -719,11 +812,19 @@ export async function getCounselingSessionById(sessionId: string) {
     where: eq(user.id, row.studentUserId),
   });
 
+  if (scope.studentUserId && row.studentUserId !== scope.studentUserId) {
+    return null;
+  }
+
+  if (scope.schoolId && studentAccount?.schoolId !== scope.schoolId) {
+    return null;
+  }
+
   return mapCounselingSessionRow(row, studentAccount?.name ?? "Siswa");
 }
 
-export async function getCounselingRequests() {
-  return getCounselingRequestItems();
+export async function getCounselingRequests(schoolId?: string) {
+  return getCounselingRequestItems(schoolId);
 }
 
 export async function getAdminUsers() {

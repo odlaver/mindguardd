@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { useStudentAccess } from "@/components/student/student-access-provider";
+import { CharacterCount } from "@/components/ui/character-count";
 import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
-import type { CounselingSession, MoodPoint, ResourceItem, WhisperReport } from "@/lib/mock-data";
 import { studentMoodOptions } from "@/lib/mock-data";
+import type { CounselingSession, MoodPoint, ResourceItem, WhisperReport } from "@/lib/types";
 import type { StudentProfileData } from "@/lib/server/data";
 
 function getMoodPreview(score: number, note?: string) {
@@ -98,6 +99,7 @@ export function StudentDashboard({
         <div className="mt-8 rounded-[30px] border border-stroke bg-[#f7f8f4] p-5 sm:p-6">
           <textarea
             rows={5}
+            maxLength={300}
             value={note}
             onChange={(event) => setNote(event.target.value)}
             className="w-full resize-none rounded-[24px] border border-stroke bg-white px-5 py-4 text-[15px] leading-7 outline-none transition focus:border-foreground/25"
@@ -106,7 +108,7 @@ export function StudentDashboard({
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
             <div className="text-sm text-ink-soft">
-              <span>Opsional</span>
+              <CharacterCount max={300} optional value={note} />
               {error ? <p className="mt-1 font-medium text-danger">{error}</p> : null}
             </div>
             <button

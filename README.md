@@ -117,34 +117,4 @@ npm test
 ```
 
 ---
-
-## ☁️ Panduan Deploy ke Vercel & Turso Cloud
-
-### A. Integrasi Database Turso Cloud
-Jika ingin memindahkan database ke Turso Cloud secara gratis:
-1. Jalankan login Turso:
-   ```bash
-   npm run turso:login
-   ```
-2. Buat database MindGuard di Turso:
-   ```bash
-   turso db create mindguardd
-   ```
-3. Ambil URL database dan token akses, lalu masukkan ke `.env.local` proyek Vercel/Lokal Anda:
-   ```env
-   TURSO_DATABASE_URL=libsql://mindguardd-[org-name].turso.io
-   TURSO_AUTH_TOKEN=[your-turso-token]
-   ```
-
-### B. Deployment ke Vercel
-Karena aplikasi utama Next.js berada di dalam subfolder `app`, pastikan saat menambahkan proyek di Vercel:
-1. Set **Root Directory** ke: `app`
-2. Konfigurasikan Environment Variables berikut di dasbor Vercel:
-   - `BETTER_AUTH_SECRET` (dapat di-generate secara acak)
-   - `BETTER_AUTH_URL` (URL produksi Vercel Anda, misal: `https://mindguardd.vercel.app`)
-   - `TURSO_DATABASE_URL`
-   - `TURSO_AUTH_TOKEN`
-3. Lakukan deploy proyek.
-
----
 *MindGuard dikembangkan untuk mendukung sekolah inklusif yang sehat secara mental demi masa depan pendidikan Indonesia yang cerah.*

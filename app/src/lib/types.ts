@@ -102,7 +102,7 @@ export type StudentIntervention = {
   when: string;
 };
 
-export type AdminUserRole = "Admin" | "Guru BK" | "Siswa" | "Wali Kelas";
+export type AdminUserRole = "Admin" | "Guru BK" | "Siswa";
 export type AdminAccountStatus = "Aktif" | "Menunggu" | "Nonaktif";
 
 export type AdminUser = {

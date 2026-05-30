@@ -27,7 +27,7 @@ function accountTone(status: "Aktif" | "Menunggu" | "Nonaktif") {
   return "neutral";
 }
 
-function roleTone(role: "Admin" | "Guru BK" | "Siswa" | "Wali Kelas") {
+function roleTone(role: "Admin" | "Guru BK" | "Siswa") {
   if (role === "Admin") {
     return "warning";
   }
@@ -36,11 +36,7 @@ function roleTone(role: "Admin" | "Guru BK" | "Siswa" | "Wali Kelas") {
     return "monitor";
   }
 
-  if (role === "Siswa") {
-    return "aman";
-  }
-
-  return "neutral";
+  return "aman";
 }
 
 export default async function AdminUserDetailPage({

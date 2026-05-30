@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getRoleHomePath } from "@/lib/role-home-path";
 
-export type AppRole = "admin" | "counselor" | "homeroom" | "student";
+export type AppRole = "admin" | "counselor" | "student";
 
 export async function getSessionOrNull() {
   return auth.api.getSession({

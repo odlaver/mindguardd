@@ -16,7 +16,7 @@ export const user = sqliteTable("user", {
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
-  role: text({ enum: ["student", "counselor", "admin", "homeroom"] }).default(
+  role: text({ enum: ["student", "counselor", "admin"] }).default(
     "student",
   ),
   schoolId: text("school_id"),

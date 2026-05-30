@@ -704,17 +704,6 @@ export const adminUsers: AdminUser[] = [
     lastAccess: "16 Apr 2026, 07.45",
   },
   {
-    id: "usr-003",
-    name: "Pak Adi",
-    role: "Wali Kelas",
-    schoolId: "sch-001",
-    schoolName: "SMA Nusantara",
-    className: "XI IPA 2",
-    email: "adi.wali@mindguard.id",
-    status: "Aktif",
-    lastAccess: "15 Apr 2026, 15.22",
-  },
-  {
     id: "usr-004",
     name: "Nadia Putri",
     role: "Siswa",

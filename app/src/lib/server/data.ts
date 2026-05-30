@@ -69,10 +69,6 @@ function roleToLabel(role: string): AdminUser["role"] {
     return "Guru BK";
   }
 
-  if (role === "homeroom") {
-    return "Wali Kelas";
-  }
-
   return "Siswa";
 }
 
@@ -834,7 +830,7 @@ export async function getAdminUsers() {
     getClassMap(),
   ]);
 
-  return rows.map((item) => ({
+  return rows.filter((item) => (item.role as string | null) !== "homeroom").map((item) => ({
     className: item.classId ? classMap.get(item.classId)?.name : undefined,
     email: item.email,
     id: item.id,
